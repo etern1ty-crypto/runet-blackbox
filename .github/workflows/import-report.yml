@@ -1,0 +1,30 @@
+name: import measurement report
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  import:
+    if: contains(github.event.issue.labels.*.name, 'measurement') || contains(github.event.issue.title, '[measurement]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Import report
+        run: node scripts/import-issue.mjs --github-event "$GITHUB_EVENT_PATH" --out data/reports
+      - name: Rebuild aggregates
+        run: node scripts/aggregate.mjs
+      - name: Commit data changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/reports data/aggregates
+          git diff --cached --quiet || git commit -m "Import measurement report"
+          git push

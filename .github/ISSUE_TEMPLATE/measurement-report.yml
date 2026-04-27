@@ -1,0 +1,24 @@
+name: Measurement report
+description: Submit a sanitized Runet Blackbox JSON report.
+title: "[measurement] example.com from provider/region"
+labels:
+  - measurement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Run `runet-blackbox check <domain> --json --pretty` and paste the JSON below.
+        Do not add IP addresses, exact location, account IDs, or private URLs.
+  - type: textarea
+    id: report_json
+    attributes:
+      label: Report JSON
+      description: Paste the full JSON report produced by the CLI.
+      render: json
+      placeholder: |
+        {
+          "schema_version": "1.0",
+          "target": "example.com"
+        }
+    validations:
+      required: true

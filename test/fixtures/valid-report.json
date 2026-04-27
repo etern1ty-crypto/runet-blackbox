@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "tool_version": "0.1.0",
+  "timestamp_utc": "2026-04-27T12:00:00.000Z",
+  "target": "github.com",
+  "country": "RU",
+  "region": "Moscow",
+  "network": {
+    "asn": 12389,
+    "provider": "Rostelecom",
+    "connection_type": "home"
+  },
+  "results": {
+    "dns": {
+      "status": "ok",
+      "latency_ms": 14,
+      "addresses_count": 2
+    },
+    "tcp_443": {
+      "status": "ok",
+      "latency_ms": 80,
+      "port": 443
+    },
+    "tls": {
+      "status": "ok",
+      "latency_ms": 120,
+      "protocol": "TLSv1.3"
+    },
+    "http": {
+      "status": "ok",
+      "latency_ms": 180,
+      "status_code": 200,
+      "body_sha256": "abc",
+      "headers_hash": "def"
+    }
+  },
+  "diagnosis": {
+    "category": "ok",
+    "confidence": 0.94,
+    "signals": [
+      "dns, tcp, tls, and http checks passed"
+    ]
+  }
+}

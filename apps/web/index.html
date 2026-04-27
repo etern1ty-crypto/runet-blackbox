@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Runet Blackbox</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Open network observability</p>
+        <h1>Runet Blackbox</h1>
+        <p class="lead">DNS, TCP, TLS, and HTTP evidence for blocked, degraded, and unstable networks.</p>
+        <div class="stats">
+          <article><strong id="total-reports">0</strong><span>reports</span></article>
+          <article><strong id="total-targets">0</strong><span>targets</span></article>
+          <article><strong id="degraded-targets">0</strong><span>degraded targets</span></article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Targets</h2>
+          <input id="search" type="search" placeholder="Filter domain, provider, region">
+        </div>
+        <div id="targets" class="table"></div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Providers</h2>
+          <div id="providers" class="list"></div>
+        </article>
+        <article class="panel">
+          <h2>Regions</h2>
+          <div id="regions" class="list"></div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>Latest Reports</h2>
+        <div id="latest" class="table"></div>
+      </section>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
