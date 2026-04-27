@@ -1,5 +1,6 @@
 import { CONNECTION_TYPES, DIAGNOSIS_CATEGORIES, RESULT_STATUS, SCHEMA_VERSION } from "./constants.js";
 import { isValidTarget } from "./target.js";
+import { validateMeasurementTarget } from "./target-policy.js";
 
 const CHECK_NAMES = new Set(["dns", "tcp_80", "tcp_443", "tls", "http", "quic"]);
 
@@ -17,6 +18,9 @@ export function validateReport(report) {
   requiredString(report, "country", errors);
   requiredString(report, "region", errors);
 
+  if (report.report_id !== undefined && (typeof report.report_id !== "string" || !/^rbb_[a-f0-9]{20}$/.test(report.report_id))) {
+    errors.push("report_id must match rbb_<20 hex chars>");
+  }
   if (report.schema_version !== SCHEMA_VERSION) {
     errors.push(`schema_version must be ${SCHEMA_VERSION}`);
   }
@@ -25,6 +29,12 @@ export function validateReport(report) {
   }
   if (typeof report.target === "string" && !isValidTarget(report.target)) {
     errors.push("target must be a valid domain or IP address");
+  }
+  if (typeof report.target === "string") {
+    const targetValidation = validateMeasurementTarget(report.target);
+    if (!targetValidation.valid) {
+      errors.push(`target is not safe to measure: ${targetValidation.reason}`);
+    }
   }
   if (typeof report.country === "string" && !/^[A-Z]{2}$/.test(report.country)) {
     errors.push("country must be an ISO-3166 alpha-2 code");

@@ -1,12 +1,12 @@
 import { buildReport } from "../../../src/report.js";
-import { normalizeTarget } from "../../../src/target.js";
+import { assertMeasurementTarget } from "../../../src/target-policy.js";
 import { checkDns } from "./dns.js";
 import { checkHttp } from "./http.js";
 import { checkTcp } from "./tcp.js";
 import { checkTls } from "./tls.js";
 
 export async function runCheck(targetInput, options = {}) {
-  const target = normalizeTarget(targetInput);
+  const target = assertMeasurementTarget(targetInput);
   const results = {};
 
   results.dns = await checkDns(target, options);

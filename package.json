@@ -11,6 +11,8 @@
     "aggregate": "node scripts/aggregate.mjs",
     "check": "node scripts/check-syntax.mjs && npm test",
     "lint": "node scripts/check-syntax.mjs",
+    "sample": "node cli/bin/runet-blackbox.js sample --pretty",
+    "release:check": "npm run check && node scripts/validate-report.mjs examples/reports/ok.example.json && node cli/bin/runet-blackbox.js sample --pretty",
     "test": "node scripts/run-tests.mjs",
     "test:coverage": "node --test --experimental-test-coverage",
     "validate:sample": "node scripts/validate-report.mjs test/fixtures/valid-report.json"

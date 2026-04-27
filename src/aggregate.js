@@ -1,6 +1,7 @@
 import { validateReport } from "./report-schema.js";
 import { sanitizeReport } from "./privacy.js";
 import { reportDay } from "./time.js";
+import { diagnosisMetadata } from "./diagnosis-metadata.js";
 
 export function aggregateReports(inputReports) {
   const reports = [];
@@ -34,6 +35,8 @@ export function aggregateReports(inputReports) {
     generated_at: new Date().toISOString(),
     total_reports: reports.length,
     total_targets: domains.size,
+    degraded_targets: Array.from(domains.values()).filter((group) => group.degraded > group.ok).length,
+    status: overallStatus(reports),
     domains: sortedGroups(domains),
     providers: sortedGroups(providers),
     regions: sortedGroups(regions),
@@ -115,7 +118,9 @@ function providerKey(report) {
 }
 
 function publicReportSummary(report) {
+  const metadata = diagnosisMetadata(report.diagnosis.category);
   return {
+    report_id: report.report_id || null,
     timestamp_utc: report.timestamp_utc,
     target: report.target,
     country: report.country,
@@ -123,6 +128,18 @@ function publicReportSummary(report) {
     provider: report.network.provider,
     asn: report.network.asn,
     connection_type: report.network.connection_type,
-    diagnosis: report.diagnosis
+    diagnosis: {
+      ...report.diagnosis,
+      severity: metadata.severity,
+      title: metadata.title
+    }
   };
+}
+
+function overallStatus(reports) {
+  if (reports.length === 0) {
+    return "no_data";
+  }
+  const degraded = reports.filter((report) => report.diagnosis.category !== "ok").length;
+  return degraded > reports.length / 2 ? "degraded" : "mostly_ok";
 }

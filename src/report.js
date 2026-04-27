@@ -1,13 +1,13 @@
 import { SCHEMA_VERSION, TOOL_VERSION } from "./constants.js";
 import { classifyReport } from "./diagnosis.js";
+import { stableHash } from "./hash.js";
 import { sanitizeReport } from "./privacy.js";
-import { isValidTarget, normalizeCountry, normalizeOptionalText, normalizeTarget, parseAsn } from "./target.js";
+import { normalizeCountry, normalizeOptionalText, normalizeTarget, parseAsn } from "./target.js";
+import { assertMeasurementTarget } from "./target-policy.js";
 import { toIsoTimestamp } from "./time.js";
 
 export function buildReport({ target, country, region, provider, asn, connectionType, results, timestamp = new Date() }) {
-  if (!isValidTarget(target)) {
-    throw new Error("target must be a valid domain or IP address");
-  }
+  assertMeasurementTarget(target);
 
   const report = {
     schema_version: SCHEMA_VERSION,
@@ -25,5 +25,13 @@ export function buildReport({ target, country, region, provider, asn, connection
   };
 
   report.diagnosis = classifyReport(report);
-  return sanitizeReport(report);
+  const sanitized = sanitizeReport(report);
+  sanitized.report_id = reportId(sanitized);
+  return sanitized;
+}
+
+export function reportId(report) {
+  const copy = structuredClone(report);
+  delete copy.report_id;
+  return `rbb_${stableHash(copy).slice(0, 20)}`;
 }

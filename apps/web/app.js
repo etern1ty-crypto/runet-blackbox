@@ -21,6 +21,7 @@ async function loadAggregate() {
     domains: [],
     providers: [],
     regions: [],
+    categories: [],
     latest_reports: []
   };
 }
@@ -29,11 +30,13 @@ function render() {
   const aggregate = state.aggregate;
   $("#total-reports").textContent = aggregate.total_reports;
   $("#total-targets").textContent = aggregate.total_targets;
-  $("#degraded-targets").textContent = aggregate.domains.filter((domain) => domain.status === "degraded").length;
+  $("#degraded-targets").textContent = aggregate.degraded_targets ?? aggregate.domains.filter((domain) => domain.status === "degraded").length;
+  $("#generated-at").textContent = aggregate.generated_at ? `Generated ${new Date(aggregate.generated_at).toISOString()}` : "No aggregate generated yet";
 
   renderTargets(aggregate.domains);
   renderGroups("#providers", aggregate.providers);
   renderGroups("#regions", aggregate.regions);
+  renderGroups("#categories", aggregate.categories);
   renderLatest(aggregate.latest_reports);
 }
 
@@ -50,7 +53,7 @@ function renderTargets(domains) {
             <strong>${escapeHtml(domain.key)}</strong>
             <span>${domain.total} reports</span>
             <span>${Math.round(domain.degraded_ratio * 100)}% degraded</span>
-            <span class="pill ${domain.status}">${domain.status}</span>
+            <span class="pill ${classForStatus(domain.status)}">${domain.status}</span>
           </div>`
         )
         .join("")
@@ -58,13 +61,13 @@ function renderTargets(domains) {
 }
 
 function renderGroups(selector, groups) {
-  const filtered = groups.filter(matchesQuery).slice(0, 12);
+  const filtered = (groups || []).filter(matchesQuery).slice(0, 12);
   $(selector).innerHTML = filtered.length
     ? filtered
         .map(
           (group) => `<div class="list-row">
             <span>${escapeHtml(group.key)}</span>
-            <span class="pill ${group.status}">${group.degraded}/${group.total}</span>
+            <span class="pill ${classForStatus(group.status)}">${group.degraded}/${group.total}</span>
           </div>`
         )
         .join("")
@@ -80,11 +83,18 @@ function renderLatest(reports) {
             <strong>${escapeHtml(report.target)}</strong>
             <span>${escapeHtml(report.region)}</span>
             <span>${escapeHtml(report.provider)}</span>
-            <span class="pill ${report.diagnosis.category === "ok" ? "ok" : "degraded"}">${escapeHtml(report.diagnosis.category)}</span>
+            <span class="pill ${classForStatus(report.diagnosis.severity || report.diagnosis.category)}">${escapeHtml(report.diagnosis.title || report.diagnosis.category)}</span>
           </div>`
         )
         .join("")
     : `<p class="muted">No reports yet.</p>`;
+}
+
+function classForStatus(status) {
+  if (status === "ok" || status === "mostly_ok") return "ok";
+  if (status === "warning") return "warning";
+  if (status === "unknown" || status === "no_data") return "unknown";
+  return "degraded";
 }
 
 function escapeHtml(value) {

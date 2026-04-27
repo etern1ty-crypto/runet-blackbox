@@ -32,6 +32,14 @@ test("aggregateReports counts unique targets", () => {
   assert.equal(aggregateReports([makeReport(), makeReport({ target: "ya.ru" })]).total_targets, 2);
 });
 
+test("aggregateReports exposes overall status", () => {
+  assert.equal(aggregateReports([makeReport({ category: "tls_timeout" })]).status, "degraded");
+});
+
+test("aggregateReports counts degraded targets", () => {
+  assert.equal(aggregateReports([makeReport({ category: "tls_timeout" })]).degraded_targets, 1);
+});
+
 test("aggregateReports marks degraded domains", () => {
   const aggregate = aggregateReports([makeReport({ category: "dns_timeout" }), makeReport({ category: "ok" }), makeReport({ category: "tls_timeout" })]);
   assert.equal(aggregate.domains[0].status, "degraded");
@@ -63,6 +71,12 @@ test("aggregateReports latest reports sorted descending", () => {
     makeReport({ target: "ya.ru", ts: "2026-04-27T13:00:00.000Z" })
   ]);
   assert.equal(aggregate.latest_reports[0].target, "ya.ru");
+});
+
+test("aggregateReports latest reports include diagnosis metadata", () => {
+  const aggregate = aggregateReports([makeReport({ category: "tls_timeout" })]);
+  assert.equal(aggregate.latest_reports[0].diagnosis.title, "TLS timeout");
+  assert.equal(aggregate.latest_reports[0].diagnosis.severity, "degraded");
 });
 
 test("aggregateReports drops invalid reports", () => {

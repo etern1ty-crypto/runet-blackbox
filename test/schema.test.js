@@ -17,6 +17,8 @@ const invalidCases = [
   ["missing tool version", { tool_version: "" }, "tool_version is required"],
   ["bad timestamp", { timestamp_utc: "not-a-date" }, "timestamp_utc must be an ISO timestamp"],
   ["bad target", { target: "localhost" }, "target must be a valid domain or IP address"],
+  ["unsafe target", { target: "192.168.1.1" }, "target is not safe to measure: target IP is private, loopback, multicast, or reserved"],
+  ["bad report id", { report_id: "bad" }, "report_id must match rbb_<20 hex chars>"],
   ["bad country", { country: "RUS" }, "country must be an ISO-3166 alpha-2 code"],
   ["missing network", { network: null }, "network must be an object"],
   ["bad network asn type", { network: { asn: "AS1", provider: "x", connection_type: "home" } }, "network.asn must be an integer or null"],

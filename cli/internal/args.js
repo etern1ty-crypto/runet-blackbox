@@ -8,8 +8,11 @@ export function parseCliArgs(argv) {
   if (command === "version" || command === "--version" || command === "-v") {
     return { command: "version" };
   }
+  if (command === "sample") {
+    return parseSampleArgs(rest);
+  }
   if (command !== "check") {
-    throw new Error(`unknown command: ${command}`);
+    throw usageError(`unknown command: ${command}`);
   }
   return parseCheckArgs(rest);
 }
@@ -27,7 +30,8 @@ export function parseCheckArgs(argv) {
     pretty: false,
     output: null,
     http: true,
-    dnsServer: null
+    dnsServer: null,
+    failOnDegraded: false
   };
 
   const positionals = [];
@@ -73,23 +77,38 @@ export function parseCheckArgs(argv) {
       case "--no-http":
         options.http = false;
         break;
+      case "--fail-on-degraded":
+        options.failOnDegraded = true;
+        break;
       default:
-        throw new Error(`unknown option: ${token}`);
+        throw usageError(`unknown option: ${token}`);
     }
   }
 
   if (positionals.length !== 1) {
-    throw new Error("check requires exactly one target");
+    throw usageError("check requires exactly one target");
   }
 
   options.target = positionals[0];
   return options;
 }
 
+export function parseSampleArgs(argv) {
+  const options = { command: "sample", pretty: false };
+  for (const token of argv) {
+    if (token === "--pretty") {
+      options.pretty = true;
+    } else {
+      throw usageError(`unknown option: ${token}`);
+    }
+  }
+  return options;
+}
+
 function requiredValue(argv, index, option) {
   const value = argv[index];
   if (!value || value.startsWith("-")) {
-    throw new Error(`${option} requires a value`);
+    throw usageError(`${option} requires a value`);
   }
   return value;
 }
@@ -97,7 +116,13 @@ function requiredValue(argv, index, option) {
 function parseTimeout(value) {
   const number = Number(value);
   if (!Number.isInteger(number) || number < 250 || number > 60000) {
-    throw new Error("--timeout must be an integer between 250 and 60000 milliseconds");
+    throw usageError("--timeout must be an integer between 250 and 60000 milliseconds");
   }
   return number;
+}
+
+function usageError(message) {
+  const error = new Error(message);
+  error.exitCode = 64;
+  return error;
 }

@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a CLI, dashboard, validation, or documentation bug.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Paste the command, but remove private paths, tokens, cookies, or logs.
+      render: bash
+  - type: textarea
+    id: output
+    attributes:
+      label: Sanitized output
+      description: Paste only sanitized output. Do not paste packet captures, raw headers, cookies, or private URLs.
+      render: text

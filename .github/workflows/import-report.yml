@@ -8,15 +8,24 @@ permissions:
   contents: write
   issues: write
 
+concurrency:
+  group: import-measurement-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   import:
     if: contains(github.event.issue.labels.*.name, 'measurement') || contains(github.event.issue.title, '[measurement]')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Validate project
+        run: npm run check
       - name: Import report
         run: node scripts/import-issue.mjs --github-event "$GITHUB_EVENT_PATH" --out data/reports
       - name: Rebuild aggregates
@@ -27,4 +36,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/reports data/aggregates
           git diff --cached --quiet || git commit -m "Import measurement report"
+          git pull --rebase
           git push

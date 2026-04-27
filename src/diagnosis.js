@@ -79,7 +79,7 @@ export function classifyReport(report) {
     return diagnosis("http_unexpected_redirect", 0.68, ["http redirect target is unexpected"]);
   }
 
-  if ([dnsStatus, tcp443Status, tlsStatus, httpStatus].every((status) => status === "ok" || status === "skipped")) {
+  if ([dnsStatus, tcp443Status, tlsStatus, httpStatus].every((status) => status === "ok")) {
     return diagnosis("ok", 0.94, ["dns, tcp, tls, and http checks passed"]);
   }
 

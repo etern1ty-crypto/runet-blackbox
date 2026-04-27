@@ -12,11 +12,16 @@
         <p class="eyebrow">Open network observability</p>
         <h1>Runet Blackbox</h1>
         <p class="lead">DNS, TCP, TLS, and HTTP evidence for blocked, degraded, and unstable networks.</p>
+        <div class="cta">
+          <code>node cli/bin/runet-blackbox.js check github.com --json --pretty</code>
+          <a href="https://github.com/etern1ty-crypto/runet-blackbox/issues/new?template=measurement-report.yml">Submit report</a>
+        </div>
         <div class="stats">
           <article><strong id="total-reports">0</strong><span>reports</span></article>
           <article><strong id="total-targets">0</strong><span>targets</span></article>
           <article><strong id="degraded-targets">0</strong><span>degraded targets</span></article>
         </div>
+        <p id="generated-at" class="muted generated"></p>
       </section>
 
       <section class="panel">
@@ -39,9 +44,18 @@
       </section>
 
       <section class="panel">
+        <h2>Diagnosis Categories</h2>
+        <div id="categories" class="list"></div>
+      </section>
+
+      <section class="panel">
         <h2>Latest Reports</h2>
         <div id="latest" class="table"></div>
       </section>
+
+      <footer>
+        Runet Blackbox stores sanitized aggregates only. It is not a VPN, proxy, or bypass tool.
+      </footer>
     </main>
     <script type="module" src="app.js"></script>
   </body>

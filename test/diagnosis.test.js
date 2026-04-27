@@ -55,3 +55,9 @@ test("classifyReport returns signals", () => {
   const diagnosis = classifyReport(report({ tcp_443: { status: "timeout" } }));
   assert.ok(diagnosis.signals.length > 0);
 });
+
+test("classifyReport does not claim skipped http passed", () => {
+  const diagnosis = classifyReport(report({ http: { status: "skipped" } }));
+  assert.deepEqual(diagnosis.signals, ["transport checks passed; http was not tested"]);
+  assert.equal(diagnosis.confidence, 0.72);
+});

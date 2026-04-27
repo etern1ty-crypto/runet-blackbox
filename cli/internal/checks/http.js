@@ -54,7 +54,8 @@ function requestWithRedirects(url, options, depth) {
             const redirected = await requestWithRedirects(nextUrl, options, depth + 1);
             resolve({
               ...redirected,
-              redirect_chain: [url, ...(redirected.redirect_chain || [])]
+              redirect_count: Math.max(depth + 1, redirected.redirect_count || 0),
+              redirect_cross_host: redirected.redirect_cross_host || new URL(nextUrl).hostname !== parsed.hostname
             });
             return;
           }
@@ -66,8 +67,9 @@ function requestWithRedirects(url, options, depth) {
             status: blockpage ? "blockpage_suspected" : "ok",
             latency_ms: elapsedMs(startedAt),
             status_code: response.statusCode,
-            final_url: url,
+            final_host: parsed.hostname,
             redirect_count: depth,
+            redirect_cross_host: false,
             content_length: bytes,
             body_sha256: sha256Hex(bodySample),
             headers_hash: stableHash(publicHeaders(response.headers)),

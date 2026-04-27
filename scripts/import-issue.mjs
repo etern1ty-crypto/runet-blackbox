@@ -2,7 +2,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { stableHash } from "../src/hash.js";
-import { sanitizeReport } from "../src/privacy.js";
+import { findSensitivePaths, sanitizeReport } from "../src/privacy.js";
 import { validateReport } from "../src/report-schema.js";
 import { reportDay } from "../src/time.js";
 import { extractReportJson } from "./lib/issue.mjs";
@@ -11,7 +11,11 @@ const args = parseArgs(process.argv.slice(2));
 
 try {
   const body = await readBody(args);
+  if (Buffer.byteLength(body, "utf8") > 262144) {
+    throw new Error("issue body is too large; paste one sanitized report only");
+  }
   const rawReport = extractReportJson(body);
+  const sensitivePaths = findSensitivePaths(rawReport);
   const report = sanitizeReport(rawReport);
   const validation = validateReport(report);
   if (!validation.valid) {
@@ -22,8 +26,9 @@ try {
   const outDir = args.out || "data/reports";
   const outFile = path.join(outDir, `${day}.jsonl`);
   await fs.mkdir(outDir, { recursive: true });
-  await appendIfNew(outFile, report);
-  process.stdout.write(`imported ${report.target} ${report.diagnosis.category} into ${outFile}\n`);
+  const imported = await appendIfNew(outFile, report);
+  const privacyNote = sensitivePaths.length ? `; stripped ${sensitivePaths.length} sensitive field(s)` : "";
+  process.stdout.write(`${imported ? "imported" : "already imported"} ${report.target} ${report.diagnosis.category} into ${outFile}${privacyNote}\n`);
 } catch (error) {
   process.stderr.write(`${error.message}\n`);
   process.exit(1);
@@ -31,7 +36,7 @@ try {
 
 async function appendIfNew(outFile, report) {
   const line = JSON.stringify(report);
-  const hash = stableHash(report);
+  const hash = report.report_id || stableHash(report);
   let existing = "";
   try {
     existing = await fs.readFile(outFile, "utf8");
@@ -39,11 +44,13 @@ async function appendIfNew(outFile, report) {
     if (error.code !== "ENOENT") throw error;
   }
   for (const existingLine of existing.split(/\r?\n/).filter(Boolean)) {
-    if (stableHash(JSON.parse(existingLine)) === hash) {
-      return;
+    const existingReport = JSON.parse(existingLine);
+    if ((existingReport.report_id || stableHash(existingReport)) === hash) {
+      return false;
     }
   }
   await fs.appendFile(outFile, `${line}\n`, "utf8");
+  return true;
 }
 
 async function readBody(args) {

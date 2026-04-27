@@ -1,14 +1,24 @@
 name: Measurement report
 description: Submit a sanitized Runet Blackbox JSON report.
-title: "[measurement] example.com from provider/region"
+title: "[measurement] <target> from <provider>/<region>"
 labels:
   - measurement
 body:
   - type: markdown
     attributes:
       value: |
-        Run `runet-blackbox check <domain> --json --pretty` and paste the JSON below.
-        Do not add IP addresses, exact location, account IDs, or private URLs.
+        Run `node cli/bin/runet-blackbox.js check <domain> --json --pretty` and paste the JSON below.
+
+        Do not add IP addresses, exact location, account IDs, private URLs, cookies, headers, packet captures, or logs.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: I reviewed the JSON and did not add private notes, credentials, exact location, headers, cookies, packet captures, or logs.
+          required: true
+        - label: This is a measurement report only, not a request for bypass/proxy/VPN instructions.
+          required: true
   - type: textarea
     id: report_json
     attributes:

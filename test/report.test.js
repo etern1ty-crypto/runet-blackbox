@@ -20,6 +20,7 @@ test("buildReport creates a valid sanitized report", () => {
     }
   });
   assert.equal(report.target, "github.com");
+  assert.match(report.report_id, /^rbb_[a-f0-9]{20}$/);
   assert.equal(report.country, "RU");
   assert.equal(report.timestamp_utc, "2026-04-27T12:00:00.000Z");
   assert.equal(report.diagnosis.category, "ok");
@@ -38,4 +39,8 @@ test("buildReport classifies dns timeout", () => {
 
 test("buildReport rejects invalid target", () => {
   assert.throws(() => buildReport({ target: "localhost", results: { dns: { status: "ok" } } }));
+});
+
+test("buildReport rejects private IP targets", () => {
+  assert.throws(() => buildReport({ target: "192.168.1.1", results: { dns: { status: "ok" } } }));
 });

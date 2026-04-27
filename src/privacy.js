@@ -2,7 +2,7 @@ import { CONNECTION_TYPES } from "./constants.js";
 import { normalizeCountry, normalizeOptionalText, normalizeTarget, parseAsn } from "./target.js";
 import { roundTimestampUtc } from "./time.js";
 
-const SENSITIVE_KEYS = new Set([
+export const SENSITIVE_KEYS = new Set([
   "ip",
   "ips",
   "client_ip",
@@ -18,8 +18,19 @@ const SENSITIVE_KEYS = new Set([
   "raw_body",
   "headers",
   "raw_headers",
+  "request_headers",
+  "response_headers",
   "cookies",
+  "cookie",
   "set-cookie",
+  "authorization",
+  "proxy-authorization",
+  "x-forwarded-for",
+  "forwarded",
+  "cf-connecting-ip",
+  "true-client-ip",
+  "user-agent",
+  "user_agent",
   "traceroute",
   "trace",
   "hops",
@@ -85,6 +96,26 @@ export function stripSensitive(value) {
     clean[key] = stripSensitive(nested);
   }
   return clean;
+}
+
+export function findSensitivePaths(value, prefix = []) {
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => findSensitivePaths(item, [...prefix, String(index)]));
+  }
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+
+  const paths = [];
+  for (const [key, nested] of Object.entries(value)) {
+    const path = [...prefix, key];
+    if (SENSITIVE_KEYS.has(key.toLowerCase())) {
+      paths.push(path.join("."));
+      continue;
+    }
+    paths.push(...findSensitivePaths(nested, path));
+  }
+  return paths;
 }
 
 function sanitizeNetwork(network = {}) {

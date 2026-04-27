@@ -16,6 +16,10 @@
     "diagnosis"
   ],
   "properties": {
+    "report_id": {
+      "type": "string",
+      "pattern": "^rbb_[a-f0-9]{20}$"
+    },
     "schema_version": {
       "const": "1.0"
     },

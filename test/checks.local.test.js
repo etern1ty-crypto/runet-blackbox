@@ -69,7 +69,8 @@ test("checkHttp follows redirect", { skip: !canUseLocalNetwork && "sandbox block
   await close(server);
   assert.equal(result.status, "ok");
   assert.equal(result.redirect_count, 1);
-  assert.equal(result.redirect_chain.length, 1);
+  assert.equal(result.redirect_cross_host, false);
+  assert.equal(result.final_url, undefined);
 });
 
 function listen(server) {

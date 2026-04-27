@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sanitizeReport, stripSensitive } from "../src/privacy.js";
+import { findSensitivePaths, sanitizeReport, stripSensitive } from "../src/privacy.js";
 
 const baseReport = {
   schema_version: "1.0",
@@ -50,7 +50,14 @@ const sensitiveKeys = [
   "raw_body",
   "headers",
   "raw_headers",
+  "request_headers",
+  "response_headers",
   "cookies",
+  "cookie",
+  "authorization",
+  "x-forwarded-for",
+  "cf-connecting-ip",
+  "true-client-ip",
   "traceroute",
   "packet_capture"
 ];
@@ -108,4 +115,8 @@ test("sanitizeReport defaults invalid connection type", () => {
   const report = structuredClone(baseReport);
   report.network.connection_type = "satellite";
   assert.equal(sanitizeReport(report).network.connection_type, "unknown");
+});
+
+test("findSensitivePaths reports nested sensitive fields", () => {
+  assert.deepEqual(findSensitivePaths({ a: { headers: { cookie: "x" } }, b: [{ client_ip: "1.2.3.4" }] }), ["a.headers", "b.0.client_ip"]);
 });

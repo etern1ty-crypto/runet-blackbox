@@ -21,6 +21,8 @@
 - No raw IP/body/header storage.
 - Deduplication by stable report hash.
 - Deterministic aggregation from committed data.
+- Local/private/reserved target rejection.
+- Size limit for issue-imported reports.
 
 ## Known Gaps
 
@@ -28,5 +30,6 @@
 - No independent server-side validation.
 - No cryptographic attestation from measurement clients.
 - No signed releases yet.
+- GitHub issue submissions can still contain private prose outside the JSON if users ignore instructions.
 
 These gaps are acceptable for the first public MVP because the goal is transparent community evidence, not a legal-grade measurement oracle.

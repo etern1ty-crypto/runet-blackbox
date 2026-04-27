@@ -10,6 +10,10 @@ test("parseCliArgs returns version", () => {
   assert.deepEqual(parseCliArgs(["version"]), { command: "version" });
 });
 
+test("parseCliArgs returns sample", () => {
+  assert.deepEqual(parseCliArgs(["sample", "--pretty"]), { command: "sample", pretty: true });
+});
+
 test("parseCliArgs rejects unknown command", () => {
   assert.throws(() => parseCliArgs(["scan"]));
 });
@@ -60,6 +64,10 @@ test("parseCheckArgs parses no-http", () => {
   assert.equal(parseCheckArgs(["github.com", "--no-http"]).http, false);
 });
 
+test("parseCheckArgs parses fail-on-degraded", () => {
+  assert.equal(parseCheckArgs(["github.com", "--fail-on-degraded"]).failOnDegraded, true);
+});
+
 test("parseCheckArgs rejects missing target", () => {
   assert.throws(() => parseCheckArgs([]));
 });
@@ -78,4 +86,11 @@ test("parseCheckArgs rejects missing option value", () => {
 
 test("parseCheckArgs rejects invalid timeout", () => {
   assert.throws(() => parseCheckArgs(["github.com", "--timeout", "10"]));
+});
+
+test("parseCliArgs usage errors expose exit code 64", () => {
+  assert.throws(
+    () => parseCliArgs(["bad"]),
+    (error) => error.exitCode === 64
+  );
 });

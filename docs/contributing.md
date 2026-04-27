@@ -13,6 +13,7 @@
 ```bash
 npm test
 npm run check
+node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
 ```
 
