@@ -5,6 +5,7 @@ import { stableHash } from "../src/hash.js";
 import { findSensitivePaths, sanitizeReport } from "../src/privacy.js";
 import { validateReport } from "../src/report-schema.js";
 import { reportDay } from "../src/time.js";
+import { readText } from "./lib/files.mjs";
 import { extractReportJson } from "./lib/issue.mjs";
 
 const args = parseArgs(process.argv.slice(2));
@@ -55,10 +56,10 @@ async function appendIfNew(outFile, report) {
 
 async function readBody(args) {
   if (args.bodyFile) {
-    return fs.readFile(args.bodyFile, "utf8");
+    return readText(args.bodyFile);
   }
   if (args.githubEvent) {
-    const event = JSON.parse(await fs.readFile(args.githubEvent, "utf8"));
+    const event = JSON.parse(await readText(args.githubEvent));
     return event.issue?.body || "";
   }
   throw new Error("use --body-file or --github-event");

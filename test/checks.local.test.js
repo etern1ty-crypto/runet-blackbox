@@ -7,11 +7,19 @@ import { checkHttp } from "../cli/internal/checks/http.js";
 import { checkTcp } from "../cli/internal/checks/tcp.js";
 
 const canUseLocalNetwork = await canListen();
+const skipLocalhostDns = process.platform === "win32" || !canUseLocalNetwork;
 
-test("checkDns resolves localhost", { skip: !canUseLocalNetwork && "sandbox blocks local networking" }, async () => {
+test("checkDns resolves localhost", { skip: skipLocalhostDns ? "localhost DNS resolution is platform-specific" : false }, async () => {
   const result = await checkDns("localhost", { timeoutMs: 1000 });
   assert.equal(result.status, "ok");
   assert.ok(result.addresses_count >= 1);
+});
+
+test("checkDns treats IP literals as already resolved", async () => {
+  const result = await checkDns("8.8.8.8", { timeoutMs: 1000 });
+  assert.equal(result.status, "ok");
+  assert.equal(result.addresses_count, 1);
+  assert.equal(result.resolver, "literal");
 });
 
 test("checkTcp connects to local server", { skip: !canUseLocalNetwork && "sandbox blocks local networking" }, async () => {

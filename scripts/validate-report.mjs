@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import fs from "node:fs/promises";
 import { findSensitivePaths, sanitizeReport } from "../src/privacy.js";
 import { validateReport } from "../src/report-schema.js";
+import { readJson } from "./lib/files.mjs";
 
 const file = process.argv[2];
 if (!file) {
@@ -10,7 +10,7 @@ if (!file) {
 }
 
 try {
-  const raw = JSON.parse(await fs.readFile(file, "utf8"));
+  const raw = await readJson(file);
   const sensitivePaths = findSensitivePaths(raw);
   const report = sanitizeReport(raw);
   const validation = validateReport(report);

@@ -14,13 +14,24 @@ It is not a VPN, proxy, bypass guide, or circumvention tool. It only measures, c
 
 ## 60 Second Quickstart
 
-Requirements: Node.js `22+`. No install step and no runtime dependencies.
+Requirements: Node.js `22+`. No runtime dependencies; `npm ci` is supported for clean checkout workflows.
 
 ```bash
 git clone https://github.com/etern1ty-crypto/runet-blackbox.git
 cd runet-blackbox
+npm ci
 npm test
 node cli/bin/runet-blackbox.js check github.com --region Moscow --provider Rostelecom
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/etern1ty-crypto/runet-blackbox.git
+cd runet-blackbox
+npm ci
+npm test
+node .\cli\bin\runet-blackbox.js check github.com --region Moscow --provider Rostelecom
 ```
 
 Generate a public JSON report:
@@ -39,6 +50,8 @@ Validate before submitting:
 ```bash
 node scripts/validate-report.mjs report.json
 ```
+
+On Windows, prefer the CLI `--output` option instead of piping through `Out-File`. Windows PowerShell 5.1 may add a UTF-8 BOM, and the validator accepts it, but `--output` avoids the issue entirely.
 
 Submit the JSON through a **Measurement report** GitHub issue.
 
@@ -144,6 +157,7 @@ test/                      Unit and integration tests
 ## Development
 
 ```bash
+npm ci
 npm run check
 npm test
 npm run aggregate

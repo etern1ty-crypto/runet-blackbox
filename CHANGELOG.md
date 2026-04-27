@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Windows CLI test path resolution now uses file URL conversion instead of raw URL paths.
+- Windows PowerShell UTF-8 BOM reports are accepted by validation and import scripts.
+- `npm ci` now works from a clean checkout via `package-lock.json`.
+- CI now validates on both Ubuntu and Windows.
+
 ## v0.1.0 - 2026-04-27
 
 Initial public measurement release.

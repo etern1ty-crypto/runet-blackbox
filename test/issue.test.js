@@ -12,6 +12,16 @@ test("extractReportJson reads raw json", () => {
   assert.equal(report.target, "github.com");
 });
 
+test("extractReportJson accepts PowerShell BOM before raw json", () => {
+  const report = extractReportJson("\ufeff{\"target\":\"github.com\"}");
+  assert.equal(report.target, "github.com");
+});
+
+test("extractReportJson accepts PowerShell BOM inside fenced json", () => {
+  const report = extractReportJson("```json\n\ufeff{\"target\":\"github.com\"}\n```");
+  assert.equal(report.target, "github.com");
+});
+
 test("extractReportJson ignores text around raw object", () => {
   const report = extractReportJson("before {\"target\":\"github.com\"} after");
   assert.equal(report.target, "github.com");

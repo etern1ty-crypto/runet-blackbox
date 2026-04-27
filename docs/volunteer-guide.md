@@ -27,6 +27,21 @@ Validate it:
 node scripts/validate-report.mjs report.json
 ```
 
+Windows PowerShell:
+
+```powershell
+node .\cli\bin\runet-blackbox.js check github.com `
+  --region Moscow `
+  --provider Rostelecom `
+  --connection-type home `
+  --json --pretty `
+  --output .\report.json
+
+node .\scripts\validate-report.mjs .\report.json
+```
+
+Prefer `--output` on Windows. It writes clean UTF-8 from Node.js and avoids PowerShell 5.1 adding a BOM through `Out-File`.
+
 Then open a GitHub **Measurement report** issue and paste the JSON.
 
 ## Region Guidance

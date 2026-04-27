@@ -1,8 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+export async function readText(filePath) {
+  return stripBom(await fs.readFile(filePath, "utf8"));
+}
+
 export async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, "utf8"));
+  return JSON.parse(await readText(filePath));
+}
+
+export function stripBom(text) {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 }
 
 export async function writeJson(filePath, value) {
@@ -34,10 +42,10 @@ export async function collectFiles(root, predicate) {
 }
 
 export async function readJsonl(filePath) {
-  const text = await fs.readFile(filePath, "utf8");
+  const text = await readText(filePath);
   return text
     .split(/\r?\n/)
-    .map((line) => line.trim())
+    .map((line) => stripBom(line).trim())
     .filter(Boolean)
     .map((line) => JSON.parse(line));
 }

@@ -1,8 +1,13 @@
 import dns from "node:dns";
+import net from "node:net";
 import { elapsedMs, errorMessage, statusFromNetworkError, withTimeout } from "./util.js";
 
 export async function checkDns(target, options = {}) {
   const startedAt = performance.now();
+  if (net.isIP(target)) {
+    return { status: "ok", latency_ms: elapsedMs(startedAt), addresses_count: 1, resolver: "literal" };
+  }
+
   const resolver = new dns.promises.Resolver();
   if (options.dnsServer) {
     resolver.setServers([options.dnsServer]);
