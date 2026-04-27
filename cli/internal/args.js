@@ -61,6 +61,7 @@ export function parseCheckArgs(argv) {
       case "--timeout":
         options.timeoutMs = parseTimeout(requiredValue(argv, ++i, token));
         break;
+      case "--dns":
       case "--dns-server":
         options.dnsServer = requiredValue(argv, ++i, token);
         break;

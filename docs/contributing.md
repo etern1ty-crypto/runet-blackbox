@@ -1,32 +1,36 @@
-# Contributing
+# Участие / Contributing
 
-## Good First Contributions
+## Хорошие первые задачи
 
-- Add unit tests for diagnosis categories.
-- Improve blockpage fingerprints without storing page bodies.
-- Add dashboard filters.
-- Improve docs and translations.
-- Submit sanitized measurements through the issue form.
+- Добавить unit tests для diagnosis categories.
+- Улучшить blockpage fingerprints без хранения page bodies.
+- Добавить dashboard filters.
+- Улучшить docs и translations.
+- Отправить sanitized measurements через issue form.
 
-## Development
+English: good first contributions are tests, privacy-safe diagnosis improvements, dashboard filters, docs, and sanitized measurement reports.
+
+## Разработка
 
 ```bash
+npm ci
 npm test
 npm run check
 node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
 ```
 
-## Report Requirements
+## Требования к отчётам
 
-- Use the official CLI when possible.
-- Keep region coarse, for example `Moscow`, `Tatarstan`, `Krasnodar Krai`.
-- Do not include exact address, account IDs, phone numbers, or private URLs.
-- Submit one target per issue unless maintainers ask otherwise.
+- Используй официальный CLI, если возможно.
+- Держи регион грубым: `Moscow`, `Tatarstan`, `Krasnodar Krai`.
+- Не добавляй точный адрес, account IDs, phone numbers или private URLs.
+- Отправляй одну цель на один issue, если maintainers не попросили иначе.
+- Если использовался VPN/proxy/tun, явно укажи это и не называй отчёт обычной сетью провайдера.
 
 ## Code Style
 
-- No runtime dependencies unless they remove substantial complexity.
-- Prefer deterministic pure functions for classification and aggregation.
-- Keep network checks testable with local mock servers.
-- Add tests for every diagnosis or privacy rule change.
+- Без runtime dependencies, если они не убирают существенную сложность.
+- Предпочитай deterministic pure functions для classification и aggregation.
+- Держи network checks тестируемыми через local mock servers или injectable functions.
+- Добавляй tests для каждого изменения diagnosis или privacy rule.

@@ -1,30 +1,30 @@
-# Volunteer Guide
+# Руководство волонтёра / Volunteer Guide
 
-Use this guide when collecting the first public measurements.
+Используй этот документ для первых публичных измерений.
 
-## Safe Collection
+English: use this guide to collect safe, privacy-preserving measurements from networks you are allowed to test.
 
-1. Use your own internet connection or a network where you are allowed to run basic connectivity checks.
-2. Do not use stolen, leaked, or untrusted proxies.
-3. Do not try to bypass filtering.
-4. Do not run high-frequency loops.
-5. Submit only sanitized CLI JSON.
+## Безопасный сбор
 
-## Recommended Command
+1. Используй свою сеть или сеть, где тебе разрешены обычные connectivity checks.
+2. Не используй украденные, leaked или сомнительные proxy.
+3. Не пытайся обходить фильтрацию.
+4. Не запускай частые циклы и не нагружай чужие сервисы.
+5. Отправляй только sanitized JSON из CLI.
+6. Если включён VPN/proxy/tun, не называй отчёт `no-vpn` и не выдавай его за обычную сеть провайдера.
+
+## Рекомендуемая команда
+
+Linux/macOS:
 
 ```bash
 node cli/bin/runet-blackbox.js check github.com \
   --region Moscow \
   --provider Rostelecom \
+  --asn AS12389 \
   --connection-type home \
   --json --pretty \
   --output report.json
-```
-
-Validate it:
-
-```bash
-node scripts/validate-report.mjs report.json
 ```
 
 Windows PowerShell:
@@ -33,20 +33,45 @@ Windows PowerShell:
 node .\cli\bin\runet-blackbox.js check github.com `
   --region Moscow `
   --provider Rostelecom `
+  --asn AS12389 `
   --connection-type home `
   --json --pretty `
   --output .\report.json
+```
 
+Проверка:
+
+```bash
+node scripts/validate-report.mjs report.json
+```
+
+Windows:
+
+```powershell
 node .\scripts\validate-report.mjs .\report.json
 ```
 
-Prefer `--output` on Windows. It writes clean UTF-8 from Node.js and avoids PowerShell 5.1 adding a BOM through `Out-File`.
+Затем открой GitHub issue **Measurement report** и вставь JSON.
 
-Then open a GitHub **Measurement report** issue and paste the JSON.
+## Сравнение DNS
 
-## Region Guidance
+По умолчанию используется системный резолвер ОС. Если Windows показывает DNS `ECONNREFUSED` или нужно сравнение, можно явно указать DNS:
 
-Use coarse labels:
+```powershell
+node .\cli\bin\runet-blackbox.js check github.com `
+  --region Moscow `
+  --provider Rostelecom `
+  --asn AS12389 `
+  --dns 8.8.8.8 `
+  --json --pretty `
+  --output .\report-dns-google.json
+```
+
+`--dns` и `--dns-server` одинаковы. Это диагностическое сравнение, не обход.
+
+## Регион
+
+Используй грубые метки:
 
 - `Moscow`
 - `Saint Petersburg`
@@ -54,11 +79,11 @@ Use coarse labels:
 - `Krasnodar Krai`
 - `Novosibirsk Oblast`
 
-Do not use street address, building, office, GPS coordinates, apartment complex, or Wi-Fi name.
+Не указывай улицу, дом, офис, GPS, ЖК, Wi-Fi name или другую точную привязку.
 
-## First Target Set
+## Первый набор целей
 
-Start with a small mix:
+Начни с малого:
 
 - `github.com`
 - `npmjs.com`
@@ -69,4 +94,4 @@ Start with a small mix:
 - `cloudflare.com`
 - `example.com`
 
-`example.com` is useful as a low-risk healthy control.
+`example.com` полезен как низкорисковый healthy control.

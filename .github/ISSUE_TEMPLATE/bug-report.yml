@@ -1,5 +1,5 @@
-name: Bug report
-description: Report a CLI, dashboard, validation, or documentation bug.
+name: Bug report / Ошибка
+description: Report a CLI, dashboard, validation, or documentation bug / сообщить об ошибке.
 title: "[bug] "
 labels:
   - bug
@@ -7,19 +7,19 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Description
-      description: What happened, and what did you expect?
+      label: Описание / Description
+      description: Что произошло и чего ты ожидал? What happened, and what did you expect?
     validations:
       required: true
   - type: textarea
     id: command
     attributes:
-      label: Command
-      description: Paste the command, but remove private paths, tokens, cookies, or logs.
+      label: Команда / Command
+      description: Вставь команду, но убери private paths, tokens, cookies и приватные logs.
       render: bash
   - type: textarea
     id: output
     attributes:
-      label: Sanitized output
-      description: Paste only sanitized output. Do not paste packet captures, raw headers, cookies, or private URLs.
+      label: Очищенный вывод / Sanitized output
+      description: Вставь только sanitized output. Не вставляй packet captures, raw headers, cookies или private URLs.
       render: text

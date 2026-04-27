@@ -1,18 +1,21 @@
-# Contributing
+# Contributing / Участие
 
-Runet Blackbox is an observability project. Keep contributions focused on measurement, diagnosis, privacy, and reproducible public evidence.
+Runet Blackbox — observability-проект. Держи вклад в границах measurement, diagnosis, privacy и воспроизводимых публичных свидетельств.
 
-## Ground Rules
+English: keep contributions focused on measurement, diagnosis, privacy, and reproducible public evidence.
 
-- Do not add VPN, proxy, bypass, or circumvention features.
-- Do not commit secrets, tokens, cookies, private logs, packet captures, or raw user telemetry.
-- Prefer less data when privacy and statistical detail conflict.
-- Keep checks lightweight. Do not stress third-party services.
-- Add or update tests for every behavior change.
+## Правила
 
-## Development
+- Не добавляй VPN, proxy, bypass, tunneling или circumvention features.
+- Не коммить secrets, tokens, cookies, private logs, packet captures или raw user telemetry.
+- Если privacy конфликтует с детализацией статистики, выбирай меньше данных.
+- Не нагружай чужие сервисы. Проверки должны быть лёгкими.
+- На каждое изменение поведения добавляй или обновляй tests.
+
+## Разработка
 
 ```bash
+npm ci
 npm run check
 npm test
 node cli/bin/runet-blackbox.js sample --pretty
@@ -21,26 +24,39 @@ node cli/bin/runet-blackbox.js check example.com --no-http
 
 ## Measurement Reports
 
-Use the official CLI when possible:
+Используй официальный CLI:
 
 ```bash
 node cli/bin/runet-blackbox.js check github.com \
   --region Moscow \
   --provider Rostelecom \
   --connection-type home \
-  --json --pretty
+  --json --pretty \
+  --output report.json
 ```
 
-Before submitting:
+Windows PowerShell:
 
-- use a coarse region, not an address;
-- do not paste IP addresses, account IDs, or private URLs into the issue text;
-- validate the JSON with `node scripts/validate-report.mjs report.json`;
-- submit one target per issue.
+```powershell
+node .\cli\bin\runet-blackbox.js check github.com `
+  --region Moscow `
+  --provider Rostelecom `
+  --connection-type home `
+  --json --pretty `
+  --output .\report.json
+```
+
+Перед отправкой:
+
+- используй грубый регион, не адрес;
+- не вставляй IP, account IDs или private URLs в issue text;
+- проверяй JSON: `node scripts/validate-report.mjs report.json`;
+- отправляй одну цель на один issue;
+- если включён VPN/proxy/tun, явно укажи это и не называй отчёт обычной сетью провайдера.
 
 ## Code Style
 
-- Use plain Node.js APIs unless a dependency is clearly justified.
-- Keep public JSON stable and backward-compatible within a schema version.
-- Keep network logic testable with local mock servers.
-- Prefer deterministic pure functions for diagnosis, privacy, and aggregation.
+- Используй plain Node.js APIs, если зависимость не даёт явной пользы.
+- Держи public JSON стабильным внутри schema version.
+- Делай network logic тестируемой через local mock servers или injectable functions.
+- Предпочитай deterministic pure functions для diagnosis, privacy и aggregation.

@@ -20,6 +20,7 @@ test("CLI help includes examples and exit codes", async () => {
   assert.equal(result.exitCode, 0);
   assert.match(result.stdout, /Examples:/);
   assert.match(result.stdout, /Exit codes:/);
+  assert.match(result.stdout, /--dns, --dns-server/);
 });
 
 test("CLI sample prints valid JSON with report id", async () => {

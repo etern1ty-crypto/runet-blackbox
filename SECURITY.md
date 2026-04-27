@@ -1,30 +1,32 @@
-# Security Policy
+# Security Policy / Политика безопасности
 
-## Reporting Security Issues
+## Как сообщать о проблемах
 
-Please report security or privacy issues through GitHub private vulnerability reporting if available, or contact the maintainer privately before opening a public issue.
+Security или privacy issues лучше отправлять через GitHub private vulnerability reporting, если он доступен, или приватно maintainer'у до публичного issue.
 
-Do not publish:
+English: report sensitive security or privacy issues privately when possible.
 
-- working secrets or tokens;
-- contributor IP addresses;
+Не публикуй:
+
+- working secrets или tokens;
+- IP-адреса contributors;
 - packet captures;
 - private URLs;
-- raw headers, cookies, or response bodies.
+- raw headers, cookies или response bodies.
 
-## Supported Versions
+## Поддерживаемые версии
 
-`v0.1.x` receives security and privacy fixes.
+`v0.1.x` получает security и privacy fixes.
 
-## Project Boundary
+## Граница проекта
 
-Runet Blackbox is a measurement and diagnostics tool. It does not provide VPN, proxy, tunneling, traffic obfuscation, or bypass functionality.
+Runet Blackbox — инструмент measurement и diagnostics. Он не предоставляет VPN, proxy, tunneling, traffic obfuscation или bypass functionality.
 
 ## Privacy-Sensitive Changes
 
-Changes that add new fields to reports must explain:
+Изменения, которые добавляют новые поля в отчёты, должны объяснять:
 
-- why the field is necessary;
-- whether it can identify a contributor;
-- whether an aggregate or hash is enough;
-- how it is tested by the sanitizer.
+- зачем поле необходимо;
+- может ли оно идентифицировать contributor'а;
+- достаточно ли aggregate или hash;
+- как это покрыто sanitizer tests.

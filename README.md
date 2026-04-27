@@ -4,17 +4,21 @@
 [![pages](https://github.com/etern1ty-crypto/runet-blackbox/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/etern1ty-crypto/runet-blackbox/actions/workflows/deploy-pages.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+**Открытая диагностика нестабильных сетей.**
+
 **Open network observability for unstable networks.**
 
-Runet Blackbox is a privacy-first measurement toolkit that answers one practical question:
+Runet Blackbox отвечает на практический вопрос:
 
-> A service is unavailable from this network. Is the evidence closer to DNS failure, TCP timeout, TLS reset, HTTP blockpage, provider degradation, local trouble, or a likely service outage?
+> Сервис не открывается из этой сети. Это похоже на DNS-сбой, TCP timeout, TLS reset, HTTP blockpage, деградацию провайдера, локальную проблему или возможный сбой самого сервиса?
 
-It is not a VPN, proxy, bypass guide, or circumvention tool. It only measures, classifies, sanitizes, and aggregates evidence.
+Это не VPN, не proxy, не bypass guide и не инструмент обхода ограничений. Проект только измеряет, классифицирует, очищает и агрегирует публичные свидетельства.
 
-## 60 Second Quickstart
+## Быстрый старт за 60 секунд
 
-Requirements: Node.js `22+`. No runtime dependencies; `npm ci` is supported for clean checkout workflows.
+Требования: Node.js `22+`. Runtime-зависимостей нет. `npm ci` поддерживается для чистого checkout.
+
+Linux/macOS:
 
 ```bash
 git clone https://github.com/etern1ty-crypto/runet-blackbox.git
@@ -34,112 +38,138 @@ npm test
 node .\cli\bin\runet-blackbox.js check github.com --region Moscow --provider Rostelecom
 ```
 
-Generate a public JSON report:
+Создать публичный JSON-отчёт:
 
 ```bash
 node cli/bin/runet-blackbox.js check github.com \
   --region Moscow \
   --provider Rostelecom \
+  --asn AS12389 \
   --connection-type home \
   --json --pretty \
   --output report.json
 ```
 
-Validate before submitting:
+Проверить перед отправкой:
 
 ```bash
 node scripts/validate-report.mjs report.json
 ```
 
-On Windows, prefer the CLI `--output` option instead of piping through `Out-File`. Windows PowerShell 5.1 may add a UTF-8 BOM, and the validator accepts it, but `--output` avoids the issue entirely.
+Отправка: открой GitHub issue по шаблону **Measurement report** и вставь JSON.
 
-Submit the JSON through a **Measurement report** GitHub issue.
+## Windows DNS
 
-## What The CLI Does
+По умолчанию CLI использует системный резолвер ОС. На Windows это важно: `dns.promises.Resolver()` может попасть в DNS виртуального/tun адаптера и получить `ECONNREFUSED`, хотя обычный системный резолвинг работает.
 
-For one target, the CLI runs a conservative probe chain:
+Для сравнения можно явно указать DNS:
 
-- DNS `A` and `AAAA` resolution;
-- TCP connect to `80` and `443`;
-- TLS handshake with SNI on `443`;
-- HTTPS request when TLS succeeds;
-- deterministic diagnosis with confidence and evidence signals;
-- privacy sanitizer before JSON output.
-
-Example human output:
-
-```text
-Runet Blackbox measurement
-
-Target:     github.com
-Report ID:  rbb_...
-Location:   RU/Moscow
-Network:    Rostelecom AS12389 (home)
-Diagnosis:  Reachable [ok]
-Confidence: 94%
-Summary:    The measured path completed successfully.
+```powershell
+node .\cli\bin\runet-blackbox.js check github.com `
+  --region Moscow `
+  --provider Rostelecom `
+  --asn AS12389 `
+  --dns 8.8.8.8 `
+  --json --pretty
 ```
 
-## What Gets Published
+`--dns` и `--dns-server` эквивалентны. Это не обход блокировок, а диагностическое сравнение резолверов.
 
-Published reports intentionally contain less data than the CLI observes.
+Если включён VPN/proxy/tun, не публикуй отчёт как обычную домашнюю сеть. Для честного измерения выключи туннель или явно опиши контекст в issue.
 
-Stored:
+На Windows предпочитай `--output report.json` вместо `Out-File`: так файл пишет Node.js без BOM. Валидатор BOM принимает, но `--output` чище.
 
-- target domain or public IP;
-- coarse country and region label;
-- provider label and optional ASN;
+## What This Is
+
+Runet Blackbox is a privacy-first measurement toolkit for unstable networks. It runs conservative DNS/TCP/TLS/HTTP checks, produces a sanitized JSON report, and aggregates community evidence through GitHub.
+
+It is not a circumvention tool. It does not proxy traffic, tunnel connections, store packet captures, or collect exact user location.
+
+## Что делает CLI
+
+Для одной цели CLI выполняет цепочку:
+
+- DNS `A`/`AAAA` через системный резолвер или явно заданный `--dns`;
+- TCP connect к `80` и `443`;
+- TLS handshake с SNI на `443`;
+- HTTPS request, если TLS успешен;
+- детерминированный диагноз с confidence и signals;
+- privacy sanitizer перед JSON-выводом.
+
+Пример human-readable вывода:
+
+```text
+Измерение Runet Blackbox
+
+Цель:       github.com
+Report ID:  rbb_...
+Локация:    RU/Moscow
+Сеть:       Rostelecom AS12389 (home)
+Диагноз:    Доступно [ok]
+Confidence: 94%
+Summary:    Измеренный путь завершился успешно.
+```
+
+## Что публикуется
+
+Публичные отчёты намеренно содержат меньше данных, чем CLI видит локально.
+
+Хранится:
+
+- target domain или публичный IP;
+- грубая страна и регион;
+- provider label и optional ASN;
 - connection type category;
-- timestamp rounded to 15 minutes;
-- check statuses and coarse latency;
-- diagnosis category, confidence, and short signals.
+- timestamp, округлённый до 15 минут;
+- статусы проверок и грубая latency;
+- diagnosis category, confidence и короткие signals.
 
-Not stored:
+Не хранится:
 
-- user IP address;
-- exact location;
+- IP пользователя;
+- точная локация;
 - raw DNS answers;
 - HTTP headers;
 - cookies;
 - response bodies;
 - packet captures;
 - traceroute hops;
-- credentials or private URLs.
+- credentials или private URLs.
 
-See [Privacy](docs/privacy.md), [Methodology](docs/methodology.md), and [Threat Model](docs/threat-model.md).
+Подробности: [Privacy](docs/privacy.md), [Methodology](docs/methodology.md), [Threat Model](docs/threat-model.md).
 
-## Report Flow
+## Поток отчёта
 
-1. A volunteer runs the CLI locally.
-2. The CLI prints a local diagnosis and sanitized JSON.
-3. The volunteer opens a GitHub measurement issue and pastes the JSON.
-4. GitHub Actions validates and sanitizes the report again.
-5. Accepted reports are stored in `data/reports/*.jsonl`.
-6. Aggregates are regenerated into `data/aggregates`.
-7. GitHub Pages renders the static dashboard.
+1. Волонтёр запускает CLI локально.
+2. CLI печатает локальный диагноз и sanitized JSON.
+3. Волонтёр открывает GitHub measurement issue и вставляет JSON.
+4. GitHub Actions валидирует и санитизирует отчёт ещё раз.
+5. Принятые отчёты сохраняются в `data/reports/*.jsonl`.
+6. Агрегаты пересобираются в `data/aggregates`.
+7. GitHub Pages показывает статический dashboard.
 
-There is no central server in v0.1.0.
+В `v0.1.0` нет центрального сервера.
 
-## Commands
+## Команды
 
 ```bash
 node cli/bin/runet-blackbox.js help
 node cli/bin/runet-blackbox.js version
 node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
-node cli/bin/runet-blackbox.js check github.com --json --pretty
+node cli/bin/runet-blackbox.js check github.com --dns 8.8.8.8 --json --pretty
 node scripts/aggregate.mjs
 npm run check
 ```
 
-Exit codes:
+Коды выхода:
 
-- `0`: measurement completed;
-- `2`: measurement completed and `--fail-on-degraded` found degradation;
-- `64`: command-line usage error;
-- `70`: internal error.
+- `0`: измерение завершено;
+- `2`: измерение завершено и `--fail-on-degraded` нашёл деградацию;
+- `64`: ошибка аргументов CLI;
+- `70`: внутренняя ошибка.
 
-## Repository Layout
+## Структура
 
 ```text
 apps/web/                  Static GitHub Pages dashboard
@@ -154,7 +184,7 @@ src/                       Shared report, diagnosis, privacy, aggregation logic
 test/                      Unit and integration tests
 ```
 
-## Development
+## Разработка
 
 ```bash
 npm ci
@@ -163,17 +193,17 @@ npm test
 npm run aggregate
 ```
 
-The project deliberately has no runtime dependencies in v0.1.0. Add dependencies only when they remove meaningful complexity and keep the public measurement path auditable.
+Проект намеренно остаётся zero-dependency в `v0.1.0`. Новые зависимости допустимы только если они заметно упрощают код и не ухудшают аудит публичного measurement path.
 
-## Contributing
+## Как помочь
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md). Good first contributions:
+Начни с [CONTRIBUTING.md](CONTRIBUTING.md). Хорошие первые задачи:
 
-- collect real reports from different providers and regions;
-- improve diagnosis tests;
-- add conservative blockpage fingerprints without storing page bodies;
-- improve dashboard filtering;
-- translate volunteer instructions.
+- собрать реальные отчёты от разных провайдеров и регионов;
+- улучшить tests для diagnosis edge cases;
+- добавить консервативные blockpage fingerprints без хранения body;
+- улучшить dashboard filtering;
+- перевести и вычитать docs.
 
 ## Release Status
 

@@ -45,7 +45,7 @@ export function classifyReport(report) {
   if (dnsStatus === "suspicious_answer") {
     return diagnosis("dns_suspicious_answer", 0.78, ["dns returned suspicious answer"]);
   }
-  if (["servfail", "refused", "error"].includes(dnsStatus)) {
+  if (["servfail", "refused", "connection_refused", "error"].includes(dnsStatus)) {
     return diagnosis("dns_failure", 0.7, [`dns status is ${dnsStatus}`]);
   }
 

@@ -1,5 +1,5 @@
-name: Measurement report
-description: Submit a sanitized Runet Blackbox JSON report.
+name: Measurement report / Отчёт измерения
+description: Submit a sanitized Runet Blackbox JSON report / отправить очищенный JSON-отчёт.
 title: "[measurement] <target> from <provider>/<region>"
 labels:
   - measurement
@@ -7,23 +7,34 @@ body:
   - type: markdown
     attributes:
       value: |
-        Run `node cli/bin/runet-blackbox.js check <domain> --json --pretty` and paste the JSON below.
+        Запусти CLI и вставь JSON ниже:
 
+        `node cli/bin/runet-blackbox.js check <domain> --region Moscow --provider <provider> --json --pretty --output report.json`
+
+        Windows PowerShell:
+
+        `node .\cli\bin\runet-blackbox.js check <domain> --region Moscow --provider <provider> --json --pretty --output .\report.json`
+
+        English: run the CLI locally and paste the sanitized JSON below.
+
+        Не добавляй IP-адреса, точную локацию, account IDs, private URLs, cookies, headers, packet captures или логи.
         Do not add IP addresses, exact location, account IDs, private URLs, cookies, headers, packet captures, or logs.
   - type: checkboxes
     id: privacy
     attributes:
-      label: Privacy confirmation
+      label: Privacy confirmation / Подтверждение приватности
       options:
-        - label: I reviewed the JSON and did not add private notes, credentials, exact location, headers, cookies, packet captures, or logs.
+        - label: Я проверил JSON и не добавил private notes, credentials, exact location, headers, cookies, packet captures или logs.
           required: true
-        - label: This is a measurement report only, not a request for bypass/proxy/VPN instructions.
+        - label: Это только measurement report, не запрос инструкций по bypass/proxy/VPN.
+          required: true
+        - label: Если VPN/proxy/tun был включён, я явно указал это в контексте отчёта и не называю сеть обычной no-vpn сетью провайдера.
           required: true
   - type: textarea
     id: report_json
     attributes:
-      label: Report JSON
-      description: Paste the full JSON report produced by the CLI.
+      label: Report JSON / JSON отчёта
+      description: Вставь полный JSON, созданный CLI. Paste the full JSON report produced by the CLI.
       render: json
       placeholder: |
         {

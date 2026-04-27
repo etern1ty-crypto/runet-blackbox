@@ -7,12 +7,12 @@ import { checkHttp } from "../cli/internal/checks/http.js";
 import { checkTcp } from "../cli/internal/checks/tcp.js";
 
 const canUseLocalNetwork = await canListen();
-const skipLocalhostDns = process.platform === "win32" || !canUseLocalNetwork;
 
-test("checkDns resolves localhost", { skip: skipLocalhostDns ? "localhost DNS resolution is platform-specific" : false }, async () => {
+test("checkDns resolves localhost through the OS resolver", async () => {
   const result = await checkDns("localhost", { timeoutMs: 1000 });
   assert.equal(result.status, "ok");
   assert.ok(result.addresses_count >= 1);
+  assert.equal(result.resolver, "system");
 });
 
 test("checkDns treats IP literals as already resolved", async () => {
@@ -20,6 +20,29 @@ test("checkDns treats IP literals as already resolved", async () => {
   assert.equal(result.status, "ok");
   assert.equal(result.addresses_count, 1);
   assert.equal(result.resolver, "literal");
+});
+
+test("checkDns uses injectable OS lookup for deterministic tests", async () => {
+  const result = await checkDns("example.com", {
+    lookup: async () => [{ address: "93.184.216.34", family: 4 }],
+    timeoutMs: 1000
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.addresses_count, 1);
+  assert.equal(result.resolver, "system");
+});
+
+test("checkDns maps refused OS resolver errors", async () => {
+  const error = new Error("refused");
+  error.code = "ECONNREFUSED";
+  const result = await checkDns("example.com", {
+    lookup: async () => {
+      throw error;
+    },
+    timeoutMs: 1000
+  });
+  assert.equal(result.status, "refused");
+  assert.equal(result.resolver, "system");
 });
 
 test("checkTcp connects to local server", { skip: !canUseLocalNetwork && "sandbox blocks local networking" }, async () => {

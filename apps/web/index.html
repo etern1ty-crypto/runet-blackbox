@@ -1,60 +1,133 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Runet Blackbox</title>
+    <meta name="description" content="Runet Blackbox: privacy-first диагностика доступности сервисов в нестабильных сетях.">
+    <title>Runet Blackbox — диагностика доступности</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="shell">
       <section class="hero">
-        <p class="eyebrow">Open network observability</p>
-        <h1>Runet Blackbox</h1>
-        <p class="lead">DNS, TCP, TLS, and HTTP evidence for blocked, degraded, and unstable networks.</p>
-        <div class="cta">
-          <code>node cli/bin/runet-blackbox.js check github.com --json --pretty</code>
-          <a href="https://github.com/etern1ty-crypto/runet-blackbox/issues/new?template=measurement-report.yml">Submit report</a>
+        <div class="hero-copy">
+          <p class="eyebrow">Open network observability</p>
+          <h1>Понять, где ломается доступ</h1>
+          <p class="lead">
+            Runet Blackbox собирает безопасные отчёты о DNS, TCP, TLS и HTTP, чтобы отличать локальный сбой,
+            деградацию провайдера, возможную блокировку и глобальную проблему сервиса.
+          </p>
+          <p class="lead-en">
+            English: privacy-first network measurement for unstable networks. Not a VPN, not a proxy, not a bypass tool.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/etern1ty-crypto/runet-blackbox/issues/new?template=measurement-report.yml">Отправить отчёт</a>
+            <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox">GitHub / README</a>
+          </div>
         </div>
-        <div class="stats">
-          <article><strong id="total-reports">0</strong><span>reports</span></article>
-          <article><strong id="total-targets">0</strong><span>targets</span></article>
-          <article><strong id="degraded-targets">0</strong><span>degraded targets</span></article>
-        </div>
-        <p id="generated-at" class="muted generated"></p>
+
+        <aside class="terminal" aria-label="Quickstart command">
+          <div class="terminal-bar">
+            <span></span><span></span><span></span>
+            <strong>60 секунд / quickstart</strong>
+          </div>
+          <pre><code>git clone https://github.com/etern1ty-crypto/runet-blackbox.git
+cd runet-blackbox
+npm ci
+node .\cli\bin\runet-blackbox.js check github.com `
+  --region Moscow `
+  --provider Rostelecom `
+  --asn AS12389 `
+  --json --pretty `
+  --output .\report.json</code></pre>
+        </aside>
       </section>
 
-      <section class="panel">
+      <section class="trust-grid" aria-label="Safety boundaries">
+        <article>
+          <strong>Не VPN</strong>
+          <span>Не проксирует трафик и не помогает обходить ограничения.</span>
+        </article>
+        <article>
+          <strong>Без сервера</strong>
+          <span>v0.1.0 работает через локальный CLI, GitHub Issues и статический dashboard.</span>
+        </article>
+        <article>
+          <strong>Privacy-first</strong>
+          <span>Не публикует IP пользователя, headers, cookies, bodies, packet captures и точную геолокацию.</span>
+        </article>
+        <article>
+          <strong>English-friendly</strong>
+          <span>Core docs and UI keep concise English context for international contributors.</span>
+        </article>
+      </section>
+
+      <section class="stats">
+        <article><strong id="total-reports">0</strong><span>отчётов / reports</span></article>
+        <article><strong id="total-targets">0</strong><span>целей / targets</span></article>
+        <article><strong id="degraded-targets">0</strong><span>с деградацией / degraded</span></article>
+      </section>
+      <p id="generated-at" class="muted generated"></p>
+
+      <section class="how">
+        <div>
+          <p class="eyebrow">Как пользоваться</p>
+          <h2>Один запуск, один очищенный JSON, один GitHub issue</h2>
+        </div>
+        <div class="steps">
+          <article><b>1</b><span>Запусти CLI на своей сети, где у тебя есть право делать обычные connectivity checks.</span></article>
+          <article><b>2</b><span>Проверь JSON локально: <code>node scripts/validate-report.mjs report.json</code>.</span></article>
+          <article><b>3</b><span>Открой Measurement report issue и вставь очищенный JSON.</span></article>
+          <article><b>4</b><span>GitHub Actions повторно санитизирует отчёт и обновит агрегаты dashboard.</span></article>
+        </div>
+      </section>
+
+      <section class="panel panel-strong">
         <div class="panel-head">
-          <h2>Targets</h2>
-          <input id="search" type="search" placeholder="Filter domain, provider, region">
+          <div>
+            <p class="eyebrow">Live aggregates</p>
+            <h2>Цели / Targets</h2>
+          </div>
+          <input id="search" type="search" placeholder="Фильтр: домен, провайдер, регион">
         </div>
         <div id="targets" class="table"></div>
       </section>
 
       <section class="grid">
         <article class="panel">
-          <h2>Providers</h2>
+          <h2>Провайдеры / Providers</h2>
           <div id="providers" class="list"></div>
         </article>
         <article class="panel">
-          <h2>Regions</h2>
+          <h2>Регионы / Regions</h2>
           <div id="regions" class="list"></div>
         </article>
       </section>
 
-      <section class="panel">
-        <h2>Diagnosis Categories</h2>
-        <div id="categories" class="list"></div>
+      <section class="grid">
+        <article class="panel">
+          <h2>Диагнозы / Diagnosis</h2>
+          <div id="categories" class="list"></div>
+        </article>
+        <article class="panel">
+          <h2>Что это не делает</h2>
+          <div class="not-a-tool">
+            <p>Не обходит блокировки.</p>
+            <p>Не хранит сырые ответы сайтов.</p>
+            <p>Не собирает точную геолокацию.</p>
+            <p>Не заменяет юридическую или научную аттестацию измерений.</p>
+          </div>
+        </article>
       </section>
 
-      <section class="panel">
-        <h2>Latest Reports</h2>
+      <section class="panel panel-strong">
+        <h2>Последние отчёты / Latest reports</h2>
         <div id="latest" class="table"></div>
       </section>
 
       <footer>
-        Runet Blackbox stores sanitized aggregates only. It is not a VPN, proxy, or bypass tool.
+        <span>Runet Blackbox — открытая диагностика нестабильных сетей.</span>
+        <span>Open network observability for unstable networks.</span>
       </footer>
     </main>
     <script type="module" src="app.js"></script>

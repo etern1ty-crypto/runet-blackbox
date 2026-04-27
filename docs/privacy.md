@@ -1,36 +1,38 @@
-# Privacy
+# Приватность / Privacy
 
-Runet Blackbox is designed to publish useful network evidence without turning contributors into identifiable telemetry sources.
+Runet Blackbox публикует полезные сетевые свидетельства, не превращая contributors в идентифицируемую telemetry source.
 
-## Not Collected By Design
+English: the project is designed to publish useful network evidence without exposing contributors.
 
-- User IP address.
-- Exact GPS location.
+## Не собирается по дизайну
+
+- IP пользователя.
+- Точная GPS/адресная локация.
 - Full response bodies.
 - Raw HTTP headers.
 - Cookies.
 - Packet captures.
 - Raw traceroute hops.
-- Private, loopback, or local network targets.
+- Private, loopback или local network targets.
 
-## Public Fields
+## Публичные поля
 
 - Target domain.
 - Country code.
 - Coarse region label.
-- Provider label and optional ASN.
+- Provider label и optional ASN.
 - Connection type category.
 - Rounded UTC timestamp.
-- Check statuses and coarse latency.
-- Diagnosis category and confidence.
-- Deterministic report ID derived from the sanitized report.
+- Check statuses и coarse latency.
+- Diagnosis category и confidence.
+- Deterministic report ID от sanitized report.
 
-## Timestamp Rounding
+## Округление времени
 
-Public reports are rounded down to 15-minute buckets. This reduces precision while preserving incident timelines.
+Публичные отчёты округляются вниз до 15-минутных buckets. Это снижает точность tracking, но сохраняет incident timeline.
 
-## User Responsibility
+## Ответственность пользователя
 
-Before submitting a report, review the generated JSON. Do not add private notes, account identifiers, or precise location details to GitHub issues.
+Перед отправкой проверь JSON. Не добавляй private notes, account identifiers, точную локацию или приватные URL в GitHub issue.
 
-The validation and import scripts sanitize again server-side, but that is a last line of defense. The safest report is one that never contains private data in the first place.
+Validation и import scripts санитизируют повторно server-side, но это последняя линия защиты. Самый безопасный отчёт — тот, в котором приватных данных не было изначально.

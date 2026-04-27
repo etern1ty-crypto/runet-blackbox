@@ -5,6 +5,26 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 
+const categoryRu = {
+  ok: "Доступно",
+  dns_timeout: "Таймаут DNS",
+  dns_nxdomain: "DNS NXDOMAIN",
+  dns_suspicious_answer: "Подозрительный DNS",
+  dns_failure: "Ошибка DNS",
+  tcp_timeout: "Таймаут TCP",
+  tcp_reset: "Сброс TCP",
+  tcp_refused: "TCP отказ",
+  possible_tls_dpi_or_middlebox_reset: "Возможный TLS/DPI сброс",
+  tls_timeout: "Таймаут TLS",
+  tls_certificate_mismatch: "Проблема сертификата TLS",
+  http_blockpage_suspected: "Возможная blockpage",
+  http_unexpected_redirect: "Неожиданный редирект",
+  service_global_outage_possible: "Возможный сбой сервиса",
+  local_network_problem_possible: "Локальная проблема сети",
+  measurement_error: "Ошибка измерения",
+  insufficient_data: "Недостаточно данных"
+};
+
 async function loadAggregate() {
   const paths = ["data/aggregates/index.json", "../data/aggregates/index.json", "../../data/aggregates/index.json"];
   for (const path of paths) {
@@ -28,16 +48,18 @@ async function loadAggregate() {
 
 function render() {
   const aggregate = state.aggregate;
-  $("#total-reports").textContent = aggregate.total_reports;
-  $("#total-targets").textContent = aggregate.total_targets;
-  $("#degraded-targets").textContent = aggregate.degraded_targets ?? aggregate.domains.filter((domain) => domain.status === "degraded").length;
-  $("#generated-at").textContent = aggregate.generated_at ? `Generated ${new Date(aggregate.generated_at).toISOString()}` : "No aggregate generated yet";
+  $("#total-reports").textContent = aggregate.total_reports || 0;
+  $("#total-targets").textContent = aggregate.total_targets || 0;
+  $("#degraded-targets").textContent = aggregate.degraded_targets ?? (aggregate.domains || []).filter((domain) => domain.status === "degraded").length;
+  $("#generated-at").textContent = aggregate.generated_at
+    ? `Агрегаты обновлены: ${new Date(aggregate.generated_at).toLocaleString("ru-RU", { timeZone: "UTC" })} UTC`
+    : "Агрегаты пока не созданы";
 
-  renderTargets(aggregate.domains);
-  renderGroups("#providers", aggregate.providers);
-  renderGroups("#regions", aggregate.regions);
-  renderGroups("#categories", aggregate.categories);
-  renderLatest(aggregate.latest_reports);
+  renderTargets(aggregate.domains || []);
+  renderGroups("#providers", aggregate.providers || []);
+  renderGroups("#regions", aggregate.regions || []);
+  renderGroups("#categories", aggregate.categories || [], { categories: true });
+  renderLatest(aggregate.latest_reports || []);
 }
 
 function matchesQuery(value) {
@@ -50,28 +72,31 @@ function renderTargets(domains) {
     ? filtered
         .map(
           (domain) => `<div class="row">
-            <strong>${escapeHtml(domain.key)}</strong>
-            <span>${domain.total} reports</span>
+            <div>
+              <strong>${escapeHtml(domain.key)}</strong>
+              <small>${domain.total} отчётов / reports</small>
+            </div>
             <span>${Math.round(domain.degraded_ratio * 100)}% degraded</span>
-            <span class="pill ${classForStatus(domain.status)}">${domain.status}</span>
+            <span>${formatDate(domain.last_seen)}</span>
+            <span class="pill ${classForStatus(domain.status)}">${statusLabel(domain.status)}</span>
           </div>`
         )
         .join("")
-    : `<p class="muted">No matching targets yet.</p>`;
+    : emptyState("Пока нет целей по этому фильтру.", "No matching targets yet.");
 }
 
-function renderGroups(selector, groups) {
-  const filtered = (groups || []).filter(matchesQuery).slice(0, 12);
+function renderGroups(selector, groups, options = {}) {
+  const filtered = groups.filter(matchesQuery).slice(0, 12);
   $(selector).innerHTML = filtered.length
     ? filtered
         .map(
           (group) => `<div class="list-row">
-            <span>${escapeHtml(group.key)}</span>
+            <span>${escapeHtml(options.categories ? categoryLabel(group.key) : group.key)}</span>
             <span class="pill ${classForStatus(group.status)}">${group.degraded}/${group.total}</span>
           </div>`
         )
         .join("")
-    : `<p class="muted">No data yet.</p>`;
+    : emptyState("Данных пока нет.", "No data yet.");
 }
 
 function renderLatest(reports) {
@@ -80,14 +105,28 @@ function renderLatest(reports) {
     ? filtered
         .map(
           (report) => `<div class="row">
-            <strong>${escapeHtml(report.target)}</strong>
+            <div>
+              <strong>${escapeHtml(report.target)}</strong>
+              <small>${formatDate(report.timestamp_utc)}</small>
+            </div>
             <span>${escapeHtml(report.region)}</span>
             <span>${escapeHtml(report.provider)}</span>
-            <span class="pill ${classForStatus(report.diagnosis.severity || report.diagnosis.category)}">${escapeHtml(report.diagnosis.title || report.diagnosis.category)}</span>
+            <span class="pill ${classForStatus(report.diagnosis.severity || report.diagnosis.category)}">${escapeHtml(report.diagnosis.title_ru || categoryLabel(report.diagnosis.category))}</span>
           </div>`
         )
         .join("")
-    : `<p class="muted">No reports yet.</p>`;
+    : emptyState("Пока нет опубликованных отчётов. Можно стать первым источником данных.", "No public reports yet.");
+}
+
+function categoryLabel(category) {
+  return categoryRu[category] || category;
+}
+
+function statusLabel(status) {
+  if (status === "ok" || status === "mostly_ok") return "ok";
+  if (status === "warning") return "warning";
+  if (status === "unknown" || status === "no_data") return "no data";
+  return "degraded";
 }
 
 function classForStatus(status) {
@@ -95,6 +134,15 @@ function classForStatus(status) {
   if (status === "warning") return "warning";
   if (status === "unknown" || status === "no_data") return "unknown";
   return "degraded";
+}
+
+function formatDate(value) {
+  if (!value) return "нет даты";
+  return new Date(value).toISOString().slice(0, 16).replace("T", " ");
+}
+
+function emptyState(ru, en) {
+  return `<p class="muted">${escapeHtml(ru)} <span lang="en">${escapeHtml(en)}</span></p>`;
 }
 
 function escapeHtml(value) {

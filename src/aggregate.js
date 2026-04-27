@@ -131,7 +131,8 @@ function publicReportSummary(report) {
     diagnosis: {
       ...report.diagnosis,
       severity: metadata.severity,
-      title: metadata.title
+      title: metadata.title,
+      title_ru: metadata.title_ru || metadata.title
     }
   };
 }

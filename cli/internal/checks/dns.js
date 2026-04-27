@@ -8,10 +8,32 @@ export async function checkDns(target, options = {}) {
     return { status: "ok", latency_ms: elapsedMs(startedAt), addresses_count: 1, resolver: "literal" };
   }
 
-  const resolver = new dns.promises.Resolver();
-  if (options.dnsServer) {
-    resolver.setServers([options.dnsServer]);
+  if (!options.dnsServer) {
+    return checkSystemDns(target, options, startedAt);
   }
+
+  return checkExplicitDns(target, options, startedAt);
+}
+
+async function checkSystemDns(target, options, startedAt) {
+  const lookup = options.lookup || lookupAll;
+  try {
+    const addresses = await withTimeout(lookup(target), options.timeoutMs || 5000);
+    const addressesCount = countLookupAddresses(addresses);
+    return {
+      status: addressesCount > 0 ? "ok" : "error",
+      latency_ms: elapsedMs(startedAt),
+      addresses_count: addressesCount,
+      resolver: "system"
+    };
+  } catch (error) {
+    return { status: statusFromDnsError(error), latency_ms: elapsedMs(startedAt), addresses_count: 0, error: errorMessage(error), resolver: "system" };
+  }
+}
+
+async function checkExplicitDns(target, options, startedAt) {
+  const resolver = new dns.promises.Resolver();
+  resolver.setServers([options.dnsServer]);
 
   try {
     const [a, aaaa] = await withTimeout(
@@ -30,11 +52,19 @@ export async function checkDns(target, options = {}) {
       status: "ok",
       latency_ms: elapsedMs(startedAt),
       addresses_count: addressesCount,
-      resolver: options.dnsServer || "system"
+      resolver: options.dnsServer
     };
   } catch (error) {
-    return { status: statusFromNetworkError(error), latency_ms: elapsedMs(startedAt), addresses_count: 0, error: errorMessage(error) };
+    return { status: statusFromNetworkError(error), latency_ms: elapsedMs(startedAt), addresses_count: 0, error: errorMessage(error), resolver: options.dnsServer };
   }
+}
+
+function lookupAll(target) {
+  return dns.promises.lookup(target, { all: true, verbatim: false });
+}
+
+function countLookupAddresses(addresses) {
+  return (Array.isArray(addresses) ? addresses : [addresses]).filter((address) => net.isIP(address?.address)).length;
 }
 
 function countFulfilled(result) {
@@ -44,7 +74,7 @@ function countFulfilled(result) {
 function statusFromDnsError(error) {
   if (error?.code === "ENOTFOUND") return "nxdomain";
   if (error?.code === "ESERVFAIL") return "servfail";
-  if (error?.code === "EREFUSED") return "refused";
-  if (error?.code === "ETIMEOUT" || error?.code === "ETIMEDOUT") return "timeout";
+  if (error?.code === "EREFUSED" || error?.code === "ECONNREFUSED") return "refused";
+  if (error?.code === "ETIMEOUT" || error?.code === "ETIMEDOUT" || error?.code === "EAI_AGAIN") return "timeout";
   return "error";
 }

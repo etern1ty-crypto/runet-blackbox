@@ -22,6 +22,7 @@ const cases = [
   ["dns suspicious", { dns: { status: "suspicious_answer" } }, "dns_suspicious_answer"],
   ["dns servfail", { dns: { status: "servfail" } }, "dns_failure"],
   ["dns refused", { dns: { status: "refused" } }, "dns_failure"],
+  ["dns connection refused", { dns: { status: "connection_refused" } }, "dns_failure"],
   ["dns generic error", { dns: { status: "error" } }, "dns_failure"],
   ["both tcp ports timeout", { tcp_80: { status: "timeout" }, tcp_443: { status: "timeout" } }, "service_global_outage_possible"],
   ["tcp 443 timeout", { tcp_443: { status: "timeout" } }, "tcp_timeout"],

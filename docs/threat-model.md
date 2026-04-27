@@ -1,20 +1,20 @@
-# Threat Model
+# Threat Model / Модель угроз
 
-## Assets
+## Assets / Что защищаем
 
-- Contributor privacy.
-- Integrity of public measurements.
-- Trustworthiness of aggregated status.
-- Repository maintainability.
+- Приватность contributors.
+- Целостность публичных measurements.
+- Доверие к aggregated status.
+- Maintainability репозитория.
 
-## Adversaries
+## Adversaries / Риски
 
-- Spam reporters submitting fabricated data.
-- Automated bots flooding issue forms.
-- Middleboxes changing behavior based on known probes.
-- Well-intentioned users accidentally publishing sensitive details.
+- Spam reporters с fabricated data.
+- Automated bots, flood issue forms.
+- Middleboxes, меняющие поведение при известных probes.
+- Добросовестные users, случайно публикующие sensitive details.
 
-## Controls In V1
+## Controls in v1
 
 - Strict schema validation.
 - Sanitization before storage.
@@ -23,13 +23,14 @@
 - Deterministic aggregation from committed data.
 - Local/private/reserved target rejection.
 - Size limit for issue-imported reports.
+- Russian-first issue templates with explicit privacy confirmations.
 
-## Known Gaps
+## Known gaps
 
 - No Sybil resistance.
 - No independent server-side validation.
 - No cryptographic attestation from measurement clients.
 - No signed releases yet.
-- GitHub issue submissions can still contain private prose outside the JSON if users ignore instructions.
+- GitHub issue submissions всё ещё могут содержать private prose вне JSON, если пользователь игнорирует инструкции.
 
-These gaps are acceptable for the first public MVP because the goal is transparent community evidence, not a legal-grade measurement oracle.
+Эти ограничения приемлемы для первого public MVP: цель проекта — прозрачные community evidence, а не legal-grade measurement oracle.

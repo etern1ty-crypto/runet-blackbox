@@ -50,6 +50,10 @@ test("parseCheckArgs parses dns server", () => {
   assert.equal(parseCheckArgs(["github.com", "--dns-server", "1.1.1.1"]).dnsServer, "1.1.1.1");
 });
 
+test("parseCheckArgs parses dns alias", () => {
+  assert.equal(parseCheckArgs(["github.com", "--dns", "8.8.8.8"]).dnsServer, "8.8.8.8");
+});
+
 test("parseCheckArgs parses output short option", () => {
   assert.equal(parseCheckArgs(["github.com", "-o", "report.json"]).output, "report.json");
 });
