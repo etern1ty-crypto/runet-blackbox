@@ -12,7 +12,7 @@ const canRunSubprocessCli = await canCaptureNodeStdout();
 test("CLI version prints version", async () => {
   const result = await runCliCapture(["version"]);
   assert.equal(result.exitCode, 0);
-  assert.match(result.stdout, /^0\.1\.0\n$/);
+  assert.match(result.stdout, /^0\.2\.0\n$/);
 });
 
 test("CLI help includes examples and exit codes", async () => {
@@ -153,7 +153,7 @@ test("CLI writes pack issue body", async () => {
 
 test("CLI binary runs as a subprocess", { skip: canRunSubprocessCli ? false : "sandbox blocks child process stdout" }, async () => {
   const { stdout } = await execFileAsync(process.execPath, [bin, "version"]);
-  assert.match(stdout, /^0\.1\.0\n$/);
+  assert.match(stdout, /^0\.2\.0\n$/);
 });
 
 async function runCliCapture(argv, overrides = {}) {
@@ -181,7 +181,7 @@ function fakeReport(overrides = {}) {
   const environment = overrides.environment || { suspected_vpn_or_tunnel: false };
   return {
     schema_version: "1.0",
-    tool_version: "0.1.0",
+    tool_version: "0.2.0",
     timestamp_utc: "2026-04-27T12:00:00.000Z",
     target,
     country: "RU",

@@ -1,5 +1,6 @@
 import http from "node:http";
 import https from "node:https";
+import { TOOL_VERSION } from "../../../src/constants.js";
 import { sha256Hex, stableHash } from "../../../src/hash.js";
 import { elapsedMs, errorMessage, statusFromNetworkError } from "./util.js";
 
@@ -34,7 +35,7 @@ function requestWithRedirects(url, options, depth) {
         timeout: timeoutMs,
         rejectUnauthorized: false,
         headers: {
-          "user-agent": `runet-blackbox/${options.toolVersion || "0.1.0"}`,
+          "user-agent": `runet-blackbox/${options.toolVersion || TOOL_VERSION}`,
           accept: "text/html,application/xhtml+xml,application/json;q=0.8,*/*;q=0.5"
         }
       },

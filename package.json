@@ -1,6 +1,6 @@
 {
   "name": "runet-blackbox",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Open-source observability for blocked, degraded, and unstable networks.",
   "type": "module",
   "private": false,
@@ -13,7 +13,7 @@
     "url": "https://github.com/etern1ty-crypto/runet-blackbox/issues"
   },
   "bin": {
-    "runet-blackbox": "./cli/bin/runet-blackbox.js"
+    "runet-blackbox": "cli/bin/runet-blackbox.js"
   },
   "files": [
     "cli",

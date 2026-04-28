@@ -1,6 +1,6 @@
 # Release Checklist
 
-## Before Tagging v0.1.0
+## Before Tagging a Release
 
 - `git status --short` shows only intended changes.
 - `npm run check` passes.
@@ -16,16 +16,12 @@
 ## Release Notes Template
 
 ```text
-Runet Blackbox v0.1.0
+Runet Blackbox vX.Y.Z
 
-First public measurement release.
+Short release summary.
 
 Highlights:
-- DNS/TCP/TLS/HTTP CLI probes.
-- Privacy-first report format.
-- GitHub issue-based report intake.
-- Static dashboard through GitHub Pages.
-- Zero-dependency test suite.
+- ...
 
 Non-goals:
 - No VPN/proxy/bypass functionality.

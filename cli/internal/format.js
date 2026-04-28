@@ -1,4 +1,5 @@
 import { diagnosisMetadata } from "../../src/diagnosis-metadata.js";
+import { TOOL_VERSION } from "../../src/constants.js";
 
 export function formatHumanReport(report, options = {}) {
   const metadata = diagnosisMetadata(report.diagnosis.category);
@@ -96,7 +97,7 @@ export function formatPacksList(packs) {
 }
 
 export function helpText() {
-  return `Runet Blackbox v0.1.0
+  return `Runet Blackbox v${TOOL_VERSION}
 Открытая диагностика нестабильных сетей.
 Open network observability for unstable networks.
 

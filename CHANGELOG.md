@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## v0.2.0 - 2026-04-28
+
 ### Fixed
 
 - Windows CLI test path resolution now uses file URL conversion instead of raw URL paths.

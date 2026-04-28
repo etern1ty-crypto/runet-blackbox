@@ -1,5 +1,5 @@
 export const SCHEMA_VERSION = "1.0";
-export const TOOL_VERSION = "0.1.0";
+export const TOOL_VERSION = "0.2.0";
 
 export const CONNECTION_TYPES = new Set([
   "unknown",

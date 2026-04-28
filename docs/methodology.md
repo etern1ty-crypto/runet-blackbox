@@ -28,7 +28,7 @@ English: conservative, reproducible network measurements without privileged pack
 ## Что нельзя доказать одним отчётом
 
 - Intent. Reset может быть фильтрацией, broken middlebox, поведением сервера или routing trouble.
-- Global outage. `v0.1.0` не опрашивает независимые vantage points автоматически.
+- Global outage. Текущая версия не опрашивает независимые vantage points автоматически.
 - Exact user location. Проект намеренно её не собирает.
 - VPN status with certainty. CLI видит только локальные признаки интерфейсов и не публикует детали.
 

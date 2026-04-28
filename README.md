@@ -183,7 +183,7 @@ Summary:    Измеренный путь завершился успешно.
 6. Агрегаты пересобираются в `data/aggregates`.
 7. GitHub Pages показывает статический dashboard “Network Weather”.
 
-В `v0.1.0` нет центрального сервера.
+В текущей архитектуре нет центрального сервера.
 
 ## Команды
 
@@ -232,7 +232,7 @@ npm test
 npm run aggregate
 ```
 
-Проект намеренно остаётся zero-dependency в `v0.1.0`. Новые зависимости допустимы только если они заметно упрощают код и не ухудшают аудит публичного measurement path.
+Проект намеренно остаётся zero-dependency. Новые зависимости допустимы только если они заметно упрощают код и не ухудшают аудит публичного measurement path.
 
 ## Как помочь
 
@@ -247,13 +247,13 @@ npm run aggregate
 
 ## Release Status
 
-Current target: `v0.1.0`, first public measurement release.
+Current release: `v0.2.0`, first npm/npx release with target packs and Network Weather bundles.
 
 See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-checklist.md](docs/release-checklist.md).
 
-## npx status
+## npx
 
-Проект подготовлен для npm package metadata, но пока основной стабильный путь — `git clone`. После публикации пакета целевой UX:
+Основной быстрый путь через npm:
 
 ```bash
 npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
