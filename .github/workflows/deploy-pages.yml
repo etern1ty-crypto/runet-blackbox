@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       - run: npm run check
       - run: node scripts/aggregate.mjs
       - run: mkdir -p dist/data && cp -R apps/web/* dist/ && cp -R data/aggregates dist/data/ && cp -R data/demo dist/data/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -39,4 +39,4 @@ jobs:
     timeout-minutes: 10
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
