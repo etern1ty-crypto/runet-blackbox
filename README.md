@@ -58,6 +58,22 @@ node scripts/validate-report.mjs report.json
 
 Отправка: открой GitHub issue по шаблону **Measurement report** и вставь JSON.
 
+Быстрее: CLI может сам подготовить issue body:
+
+```bash
+node cli/bin/runet-blackbox.js check github.com \
+  --region Moscow \
+  --provider Rostelecom \
+  --json --pretty \
+  --issue-file report.issue.md
+```
+
+Если clipboard доступен:
+
+```bash
+node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
+```
+
 ## Windows DNS
 
 По умолчанию CLI использует системный резолвер ОС. На Windows это важно: `dns.promises.Resolver()` может попасть в DNS виртуального/tun адаптера и получить `ECONNREFUSED`, хотя обычный системный резолвинг работает.
@@ -84,6 +100,8 @@ node .\cli\bin\runet-blackbox.js check github.com `
 Runet Blackbox is a privacy-first measurement toolkit for unstable networks. It runs conservative DNS/TCP/TLS/HTTP checks, produces a sanitized JSON report, and aggregates community evidence through GitHub.
 
 It is not a circumvention tool. It does not proxy traffic, tunnel connections, store packet captures, or collect exact user location.
+
+See [Positioning](docs/positioning.md) for “why not another OONI?” and project boundaries.
 
 ## Что делает CLI
 
@@ -158,6 +176,7 @@ node cli/bin/runet-blackbox.js version
 node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
 node cli/bin/runet-blackbox.js check github.com --dns 8.8.8.8 --json --pretty
+node cli/bin/runet-blackbox.js check github.com --json --pretty --issue-file report.issue.md
 node scripts/aggregate.mjs
 npm run check
 ```
@@ -210,3 +229,11 @@ npm run aggregate
 Current target: `v0.1.0`, first public measurement release.
 
 See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-checklist.md](docs/release-checklist.md).
+
+## npx status
+
+Проект подготовлен для npm package metadata, но пока основной стабильный путь — `git clone`. После публикации пакета целевой UX:
+
+```bash
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+```

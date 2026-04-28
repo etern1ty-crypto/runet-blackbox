@@ -1,0 +1,108 @@
+{
+  "generated_at": "2026-04-27T21:30:00.000Z",
+  "total_reports": 12,
+  "total_targets": 6,
+  "degraded_targets": 3,
+  "status": "mostly_ok",
+  "dataset_quality": {
+    "level": "demo",
+    "label_ru": "Демо-данные",
+    "label": "Demo data",
+    "note_ru": "Это искусственный пример интерфейса, не реальные измерения.",
+    "note": "Synthetic interface example, not real measurements."
+  },
+  "domains": [
+    {
+      "key": "github.com",
+      "total": 3,
+      "ok": 2,
+      "degraded": 1,
+      "categories": { "ok": 2, "dns_timeout": 1 },
+      "last_seen": "2026-04-27T21:15:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0.333,
+      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+    },
+    {
+      "key": "registry.npmjs.org",
+      "total": 2,
+      "ok": 0,
+      "degraded": 2,
+      "categories": { "tls_timeout": 2 },
+      "last_seen": "2026-04-27T20:45:00.000Z",
+      "status": "degraded",
+      "degraded_ratio": 1,
+      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+    },
+    {
+      "key": "example.com",
+      "total": 2,
+      "ok": 2,
+      "degraded": 0,
+      "categories": { "ok": 2 },
+      "last_seen": "2026-04-27T20:30:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0,
+      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+    },
+    {
+      "key": "discord.com",
+      "total": 2,
+      "ok": 0,
+      "degraded": 2,
+      "categories": { "possible_tls_dpi_or_middlebox_reset": 2 },
+      "last_seen": "2026-04-27T20:15:00.000Z",
+      "status": "degraded",
+      "degraded_ratio": 1,
+      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+    },
+    {
+      "key": "cloudflare.com",
+      "total": 2,
+      "ok": 2,
+      "degraded": 0,
+      "categories": { "ok": 2 },
+      "last_seen": "2026-04-27T20:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0,
+      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+    },
+    {
+      "key": "telegram.org",
+      "total": 1,
+      "ok": 0,
+      "degraded": 1,
+      "categories": { "http_blockpage_suspected": 1 },
+      "last_seen": "2026-04-27T19:45:00.000Z",
+      "status": "degraded",
+      "degraded_ratio": 1,
+      "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }
+    }
+  ],
+  "providers": [
+    { "key": "Rostelecom (AS12389)", "total": 5, "ok": 3, "degraded": 2, "categories": { "ok": 3, "dns_timeout": 1, "tls_timeout": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0.4, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } },
+    { "key": "MTS (AS8359)", "total": 4, "ok": 1, "degraded": 3, "categories": { "ok": 1, "possible_tls_dpi_or_middlebox_reset": 2, "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T20:15:00.000Z", "status": "degraded", "degraded_ratio": 0.75, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
+    { "key": "Beeline (AS3216)", "total": 3, "ok": 2, "degraded": 1, "categories": { "ok": 2, "tls_timeout": 1 }, "last_seen": "2026-04-27T20:45:00.000Z", "status": "ok", "degraded_ratio": 0.333, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } }
+  ],
+  "regions": [
+    { "key": "Moscow", "total": 7, "ok": 4, "degraded": 3, "categories": { "ok": 4, "dns_timeout": 1, "tls_timeout": 1, "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0.429, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } },
+    { "key": "Saint Petersburg", "total": 3, "ok": 2, "degraded": 1, "categories": { "ok": 2, "tls_timeout": 1 }, "last_seen": "2026-04-27T20:45:00.000Z", "status": "ok", "degraded_ratio": 0.333, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
+    { "key": "Tatarstan", "total": 2, "ok": 0, "degraded": 2, "categories": { "possible_tls_dpi_or_middlebox_reset": 2 }, "last_seen": "2026-04-27T20:15:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } }
+  ],
+  "days": [
+    { "key": "2026-04-27", "total": 12, "ok": 6, "degraded": 6, "categories": { "ok": 6, "dns_timeout": 1, "tls_timeout": 2, "possible_tls_dpi_or_middlebox_reset": 2, "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0.5, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } }
+  ],
+  "categories": [
+    { "key": "ok", "total": 6, "ok": 6, "degraded": 0, "categories": { "ok": 6 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } },
+    { "key": "tls_timeout", "total": 2, "ok": 0, "degraded": 2, "categories": { "tls_timeout": 2 }, "last_seen": "2026-04-27T20:45:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
+    { "key": "possible_tls_dpi_or_middlebox_reset", "total": 2, "ok": 0, "degraded": 2, "categories": { "possible_tls_dpi_or_middlebox_reset": 2 }, "last_seen": "2026-04-27T20:15:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
+    { "key": "dns_timeout", "total": 1, "ok": 0, "degraded": 1, "categories": { "dns_timeout": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." } },
+    { "key": "http_blockpage_suspected", "total": 1, "ok": 0, "degraded": 1, "categories": { "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T19:45:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." } }
+  ],
+  "latest_reports": [
+    { "report_id": "demo_001", "timestamp_utc": "2026-04-27T21:15:00.000Z", "target": "github.com", "country": "RU", "region": "Moscow", "provider": "Rostelecom", "asn": 12389, "connection_type": "home", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "dns_timeout", "confidence": 0.9, "signals": ["dns timed out"], "severity": "degraded", "title": "DNS timeout", "title_ru": "Таймаут DNS" } },
+    { "report_id": "demo_002", "timestamp_utc": "2026-04-27T20:45:00.000Z", "target": "registry.npmjs.org", "country": "RU", "region": "Saint Petersburg", "provider": "Beeline", "asn": 3216, "connection_type": "home", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "tls_timeout", "confidence": 0.75, "signals": ["tls handshake timed out"], "severity": "degraded", "title": "TLS timeout", "title_ru": "Таймаут TLS" } },
+    { "report_id": "demo_003", "timestamp_utc": "2026-04-27T20:30:00.000Z", "target": "example.com", "country": "RU", "region": "Moscow", "provider": "Rostelecom", "asn": 12389, "connection_type": "home", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "ok", "confidence": 0.94, "signals": ["dns, tcp, tls, and http checks passed"], "severity": "ok", "title": "Reachable", "title_ru": "Доступно" } },
+    { "report_id": "demo_004", "timestamp_utc": "2026-04-27T20:15:00.000Z", "target": "discord.com", "country": "RU", "region": "Tatarstan", "provider": "MTS", "asn": 8359, "connection_type": "mobile", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "possible_tls_dpi_or_middlebox_reset", "confidence": 0.82, "signals": ["tls reset after client hello"], "severity": "degraded", "title": "Possible TLS middlebox reset", "title_ru": "Возможный TLS-сброс middlebox/DPI" } }
+  ]
+}

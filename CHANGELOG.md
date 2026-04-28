@@ -10,11 +10,14 @@
 - CI now validates on both Ubuntu and Windows.
 - DNS checks now use the OS resolver by default, which avoids Windows tunnel-adapter `ECONNREFUSED` false failures.
 - `--dns` is accepted as a short alias for `--dns-server`.
+- CLI can generate a ready-to-submit GitHub issue body through `--issue-file` or `--copy-issue`.
 
 ### Changed
 
 - README, volunteer guide, CLI help, and dashboard are Russian-first with concise English companion text.
 - Dashboard onboarding was redesigned around first-run usage, safety boundaries, and report submission.
+- Empty production dashboards now fall back to explicit synthetic demo data.
+- Aggregates include sample credibility labels for early/single-report data.
 
 ## v0.1.0 - 2026-04-27
 

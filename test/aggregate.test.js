@@ -36,6 +36,11 @@ test("aggregateReports exposes overall status", () => {
   assert.equal(aggregateReports([makeReport({ category: "tls_timeout" })]).status, "degraded");
 });
 
+test("aggregateReports exposes dataset quality", () => {
+  const aggregate = aggregateReports([makeReport()]);
+  assert.equal(aggregate.dataset_quality.level, "early");
+});
+
 test("aggregateReports counts degraded targets", () => {
   assert.equal(aggregateReports([makeReport({ category: "tls_timeout" })]).degraded_targets, 1);
 });
@@ -76,6 +81,7 @@ test("aggregateReports latest reports sorted descending", () => {
 test("aggregateReports latest reports include diagnosis metadata", () => {
   const aggregate = aggregateReports([makeReport({ category: "tls_timeout" })]);
   assert.equal(aggregate.latest_reports[0].diagnosis.title, "TLS timeout");
+  assert.equal(aggregate.latest_reports[0].diagnosis.title_ru, "Таймаут TLS");
   assert.equal(aggregate.latest_reports[0].diagnosis.severity, "degraded");
 });
 
@@ -93,4 +99,10 @@ test("domainAggregate filters by target", () => {
 test("aggregateReports computes degraded ratio", () => {
   const aggregate = aggregateReports([makeReport({ category: "ok" }), makeReport({ category: "tls_timeout" })]);
   assert.equal(aggregate.domains[0].degraded_ratio, 0.5);
+});
+
+test("aggregateReports marks low sample credibility", () => {
+  const aggregate = aggregateReports([makeReport()]);
+  assert.equal(aggregate.domains[0].credibility.level, "single_report");
+  assert.equal(aggregate.latest_reports[0].credibility.level, "single_report");
 });

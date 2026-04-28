@@ -34,12 +34,7 @@
           <pre><code>git clone https://github.com/etern1ty-crypto/runet-blackbox.git
 cd runet-blackbox
 npm ci
-node .\cli\bin\runet-blackbox.js check github.com `
-  --region Moscow `
-  --provider Rostelecom `
-  --asn AS12389 `
-  --json --pretty `
-  --output .\report.json</code></pre>
+node ./cli/bin/runet-blackbox.js check github.com --region Moscow --provider Rostelecom --asn AS12389 --json --pretty --issue-file report.issue.md</code></pre>
         </aside>
       </section>
 
@@ -67,6 +62,7 @@ node .\cli\bin\runet-blackbox.js check github.com `
         <article><strong id="total-targets">0</strong><span>целей / targets</span></article>
         <article><strong id="degraded-targets">0</strong><span>с деградацией / degraded</span></article>
       </section>
+      <p id="data-mode" class="mode-banner"></p>
       <p id="generated-at" class="muted generated"></p>
 
       <section class="how">
@@ -76,8 +72,8 @@ node .\cli\bin\runet-blackbox.js check github.com `
         </div>
         <div class="steps">
           <article><b>1</b><span>Запусти CLI на своей сети, где у тебя есть право делать обычные connectivity checks.</span></article>
-          <article><b>2</b><span>Проверь JSON локально: <code>node scripts/validate-report.mjs report.json</code>.</span></article>
-          <article><b>3</b><span>Открой Measurement report issue и вставь очищенный JSON.</span></article>
+          <article><b>2</b><span>CLI создаст готовый Markdown для issue через <code>--issue-file</code> или попробует скопировать его через <code>--copy-issue</code>.</span></article>
+          <article><b>3</b><span>Открой Measurement report issue и вставь готовый публичный отчёт.</span></article>
           <article><b>4</b><span>GitHub Actions повторно санитизирует отчёт и обновит агрегаты dashboard.</span></article>
         </div>
       </section>

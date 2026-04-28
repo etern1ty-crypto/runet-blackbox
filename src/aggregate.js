@@ -37,6 +37,7 @@ export function aggregateReports(inputReports) {
     total_targets: domains.size,
     degraded_targets: Array.from(domains.values()).filter((group) => group.degraded > group.ok).length,
     status: overallStatus(reports),
+    dataset_quality: datasetQuality(reports),
     domains: sortedGroups(domains),
     providers: sortedGroups(providers),
     regions: sortedGroups(regions),
@@ -102,7 +103,8 @@ function sortedGroups(map, sortKey = "total", order = "desc") {
   const values = Array.from(map.values()).map((group) => ({
     ...group,
     status: group.degraded > group.ok ? "degraded" : "ok",
-    degraded_ratio: group.total ? Number((group.degraded / group.total).toFixed(3)) : 0
+    degraded_ratio: group.total ? Number((group.degraded / group.total).toFixed(3)) : 0,
+    credibility: credibilityFor(group.total)
   }));
   return values.sort((a, b) => {
     if (sortKey === "key") {
@@ -128,6 +130,7 @@ function publicReportSummary(report) {
     provider: report.network.provider,
     asn: report.network.asn,
     connection_type: report.network.connection_type,
+    credibility: credibilityFor(1),
     diagnosis: {
       ...report.diagnosis,
       severity: metadata.severity,
@@ -143,4 +146,73 @@ function overallStatus(reports) {
   }
   const degraded = reports.filter((report) => report.diagnosis.category !== "ok").length;
   return degraded > reports.length / 2 ? "degraded" : "mostly_ok";
+}
+
+function datasetQuality(reports) {
+  if (reports.length === 0) {
+    return {
+      level: "no_data",
+      label_ru: "Нет данных",
+      label: "No data",
+      note_ru: "Dashboard покажет демо, пока нет публичных отчётов.",
+      note: "Dashboard shows demo data until public reports arrive."
+    };
+  }
+  if (reports.length < 30) {
+    return {
+      level: "early",
+      label_ru: "Ранний набор данных",
+      label: "Early dataset",
+      note_ru: "Одиночные отчёты полезны для triage, но не доказывают массовую деградацию.",
+      note: "Single reports are useful for triage, but do not prove widespread degradation."
+    };
+  }
+  return {
+    level: "community",
+    label_ru: "Community dataset",
+    label: "Community dataset",
+    note_ru: "Есть достаточный объём отчётов для осторожного сравнения провайдеров, регионов и целей.",
+    note: "Enough reports exist for cautious provider, region, and target comparisons."
+  };
+}
+
+function credibilityFor(total) {
+  if (total <= 1) {
+    return {
+      score: 0.2,
+      level: "single_report",
+      label_ru: "Один отчёт",
+      label: "Single report",
+      note_ru: "Используй как сигнал triage, не как доказательство.",
+      note: "Use as a triage signal, not proof."
+    };
+  }
+  if (total < 5) {
+    return {
+      score: 0.45,
+      level: "low",
+      label_ru: "Мало отчётов",
+      label: "Low sample",
+      note_ru: "Нужны повторные измерения и другие сети.",
+      note: "Needs repeat measurements and other networks."
+    };
+  }
+  if (total < 15) {
+    return {
+      score: 0.7,
+      level: "medium",
+      label_ru: "Средняя уверенность",
+      label: "Medium confidence",
+      note_ru: "Можно сравнивать осторожно, но контекст всё ещё важен.",
+      note: "Cautious comparison is possible, but context still matters."
+    };
+  }
+  return {
+    score: 0.9,
+    level: "higher",
+    label_ru: "Больше подтверждений",
+    label: "More corroborated",
+    note_ru: "Есть несколько подтверждений, но это всё ещё community evidence.",
+    note: "Several corroborating reports exist, still community evidence."
+  };
 }

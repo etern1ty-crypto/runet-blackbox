@@ -58,6 +58,14 @@ test("parseCheckArgs parses output short option", () => {
   assert.equal(parseCheckArgs(["github.com", "-o", "report.json"]).output, "report.json");
 });
 
+test("parseCheckArgs parses issue file", () => {
+  assert.equal(parseCheckArgs(["github.com", "--issue-file", "report.issue.md"]).issueFile, "report.issue.md");
+});
+
+test("parseCheckArgs parses copy issue", () => {
+  assert.equal(parseCheckArgs(["github.com", "--copy-issue"]).copyIssue, true);
+});
+
 test("parseCheckArgs parses json and pretty", () => {
   const options = parseCheckArgs(["github.com", "--json", "--pretty"]);
   assert.equal(options.json, true);

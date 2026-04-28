@@ -53,6 +53,22 @@ node .\scripts\validate-report.mjs .\report.json
 
 Затем открой GitHub issue **Measurement report** и вставь JSON.
 
+Можно подготовить текст issue автоматически:
+
+```bash
+node cli/bin/runet-blackbox.js check github.com \
+  --region Moscow \
+  --provider Rostelecom \
+  --json --pretty \
+  --issue-file report.issue.md
+```
+
+Или попробовать clipboard:
+
+```bash
+node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
+```
+
 ## Сравнение DNS
 
 По умолчанию используется системный резолвер ОС. Если Windows показывает DNS `ECONNREFUSED` или нужно сравнение, можно явно указать DNS:

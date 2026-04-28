@@ -245,6 +245,16 @@ pre {
   text-align: right;
 }
 
+.mode-banner {
+  margin: 14px 0 0;
+  border: 1px solid rgba(181, 61, 31, 0.26);
+  border-radius: 18px;
+  padding: 13px 16px;
+  color: #6b2f1e;
+  background: rgba(255, 246, 220, 0.82);
+  font: 800 0.92rem/1.35 Bahnschrift, "Segoe UI", sans-serif;
+}
+
 .how {
   display: grid;
   grid-template-columns: 0.7fr 1.3fr;

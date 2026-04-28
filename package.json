@@ -4,9 +4,24 @@
   "description": "Open-source observability for blocked, degraded, and unstable networks.",
   "type": "module",
   "private": false,
+  "homepage": "https://etern1ty-crypto.github.io/runet-blackbox/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etern1ty-crypto/runet-blackbox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/etern1ty-crypto/runet-blackbox/issues"
+  },
   "bin": {
     "runet-blackbox": "./cli/bin/runet-blackbox.js"
   },
+  "files": [
+    "cli",
+    "src",
+    "schemas",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "aggregate": "node scripts/aggregate.mjs",
     "check": "node scripts/check-syntax.mjs && npm test",

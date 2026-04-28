@@ -1,5 +1,6 @@
 const state = {
   aggregate: null,
+  demo: false,
   query: ""
 };
 
@@ -26,7 +27,31 @@ const categoryRu = {
 };
 
 async function loadAggregate() {
-  const paths = ["data/aggregates/index.json", "../data/aggregates/index.json", "../../data/aggregates/index.json"];
+  const real = await loadFirstJson(["data/aggregates/index.json", "../data/aggregates/index.json", "../../data/aggregates/index.json"]);
+  if (real && real.total_reports > 0) {
+    return { aggregate: real, demo: false };
+  }
+
+  const demo = await loadFirstJson(["data/demo/aggregates/index.json", "../data/demo/aggregates/index.json", "../../data/demo/aggregates/index.json"]);
+  if (demo) {
+    return { aggregate: demo, demo: true };
+  }
+
+  return {
+    aggregate: real || {
+      total_reports: 0,
+      total_targets: 0,
+      domains: [],
+      providers: [],
+      regions: [],
+      categories: [],
+      latest_reports: []
+    },
+    demo: false
+  };
+}
+
+async function loadFirstJson(paths) {
   for (const path of paths) {
     try {
       const response = await fetch(path, { cache: "no-store" });
@@ -35,15 +60,7 @@ async function loadAggregate() {
       // Try next local/deployed path.
     }
   }
-  return {
-    total_reports: 0,
-    total_targets: 0,
-    domains: [],
-    providers: [],
-    regions: [],
-    categories: [],
-    latest_reports: []
-  };
+  return null;
 }
 
 function render() {
@@ -54,6 +71,9 @@ function render() {
   $("#generated-at").textContent = aggregate.generated_at
     ? `Агрегаты обновлены: ${new Date(aggregate.generated_at).toLocaleString("ru-RU", { timeZone: "UTC" })} UTC`
     : "Агрегаты пока не созданы";
+  $("#data-mode").textContent = state.demo
+    ? "Демо-режим: показаны искусственные безопасные данные, пока реальные отчёты не собраны. Demo data is synthetic."
+    : datasetNote(aggregate.dataset_quality);
 
   renderTargets(aggregate.domains || []);
   renderGroups("#providers", aggregate.providers || []);
@@ -78,7 +98,7 @@ function renderTargets(domains) {
             </div>
             <span>${Math.round(domain.degraded_ratio * 100)}% degraded</span>
             <span>${formatDate(domain.last_seen)}</span>
-            <span class="pill ${classForStatus(domain.status)}">${statusLabel(domain.status)}</span>
+            <span class="pill ${classForStatus(domain.status)}">${statusLabel(domain.status)} · ${escapeHtml(domain.credibility?.label_ru || "sample")}</span>
           </div>`
         )
         .join("")
@@ -111,7 +131,7 @@ function renderLatest(reports) {
             </div>
             <span>${escapeHtml(report.region)}</span>
             <span>${escapeHtml(report.provider)}</span>
-            <span class="pill ${classForStatus(report.diagnosis.severity || report.diagnosis.category)}">${escapeHtml(report.diagnosis.title_ru || categoryLabel(report.diagnosis.category))}</span>
+            <span class="pill ${classForStatus(report.diagnosis.severity || report.diagnosis.category)}">${escapeHtml(report.diagnosis.title_ru || categoryLabel(report.diagnosis.category))} · ${escapeHtml(report.credibility?.label_ru || "sample")}</span>
           </div>`
         )
         .join("")
@@ -127,6 +147,10 @@ function statusLabel(status) {
   if (status === "warning") return "warning";
   if (status === "unknown" || status === "no_data") return "no data";
   return "degraded";
+}
+
+function datasetNote(quality) {
+  return quality?.note_ru || "Одиночные отчёты полезны для triage, но не доказывают массовую деградацию.";
 }
 
 function classForStatus(status) {
@@ -154,7 +178,9 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-state.aggregate = await loadAggregate();
+const loaded = await loadAggregate();
+state.aggregate = loaded.aggregate;
+state.demo = loaded.demo;
 $("#search").addEventListener("input", (event) => {
   state.query = event.target.value;
   render();

@@ -1,9 +1,16 @@
 {
-  "generated_at": "2026-04-27T20:53:09.378Z",
+  "generated_at": "2026-04-28T10:45:45.424Z",
   "total_reports": 0,
   "total_targets": 0,
   "degraded_targets": 0,
   "status": "no_data",
+  "dataset_quality": {
+    "level": "no_data",
+    "label_ru": "Нет данных",
+    "label": "No data",
+    "note_ru": "Dashboard покажет демо, пока нет публичных отчётов.",
+    "note": "Dashboard shows demo data until public reports arrive."
+  },
   "domains": [],
   "providers": [],
   "regions": [],

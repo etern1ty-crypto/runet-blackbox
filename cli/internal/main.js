@@ -4,11 +4,14 @@ import { buildReport } from "../../src/report.js";
 import { parseCliArgs } from "./args.js";
 import { runCheck } from "./checks/run.js";
 import { formatHumanReport, helpText } from "./format.js";
+import { buildIssueBody, copyIssueBody } from "./submit.js";
 
 export async function runCli(argv, io = {}) {
   const stdout = io.stdout || process.stdout;
   const stderr = io.stderr || process.stderr;
   const writeFile = io.writeFile || fs.writeFile;
+  const copyText = io.copyText || copyIssueBody;
+  const runNetworkCheck = io.runCheck || runCheck;
 
   try {
     const args = parseCliArgs(argv);
@@ -27,17 +30,27 @@ export async function runCli(argv, io = {}) {
       return 0;
     }
 
-    const report = await runCheck(args.target, args);
+    const report = await runNetworkCheck(args.target, args);
     const json = JSON.stringify(report, null, args.pretty ? 2 : 0);
 
     if (args.output) {
       await writeFile(args.output, `${JSON.stringify(report, null, 2)}\n`, "utf8");
     }
+    if (args.issueFile || args.copyIssue) {
+      const body = buildIssueBody(report);
+      if (args.issueFile) {
+        await writeFile(args.issueFile, body, "utf8");
+      }
+      if (args.copyIssue) {
+        const copied = await copyText(body);
+        stderr.write(copied ? "runet-blackbox: issue body copied to clipboard\n" : "runet-blackbox: clipboard unavailable; use --issue-file instead\n");
+      }
+    }
 
     if (args.json) {
       stdout.write(`${json}\n`);
     } else {
-      stdout.write(formatHumanReport(report, { output: args.output }));
+      stdout.write(formatHumanReport(report, { output: args.output, issueFile: args.issueFile, copiedIssue: args.copyIssue }));
     }
 
     return args.failOnDegraded && report.diagnosis.category !== "ok" ? 2 : 0;

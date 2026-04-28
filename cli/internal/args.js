@@ -29,6 +29,8 @@ export function parseCheckArgs(argv) {
     json: false,
     pretty: false,
     output: null,
+    issueFile: null,
+    copyIssue: false,
     http: true,
     dnsServer: null,
     failOnDegraded: false
@@ -68,6 +70,12 @@ export function parseCheckArgs(argv) {
       case "--output":
       case "-o":
         options.output = requiredValue(argv, ++i, token);
+        break;
+      case "--issue-file":
+        options.issueFile = requiredValue(argv, ++i, token);
+        break;
+      case "--copy-issue":
+        options.copyIssue = true;
         break;
       case "--json":
         options.json = true;

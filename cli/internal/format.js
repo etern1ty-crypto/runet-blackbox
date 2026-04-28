@@ -34,6 +34,12 @@ export function formatHumanReport(report, options = {}) {
     lines.push("");
     lines.push(`JSON-отчёт записан в ${options.output}`);
   }
+  if (options.issueFile) {
+    lines.push(`GitHub issue body записан в ${options.issueFile}`);
+  }
+  if (options.copiedIssue) {
+    lines.push("GitHub issue body подготовлен для clipboard.");
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -51,6 +57,8 @@ Open network observability for unstable networks.
   runet-blackbox check github.com --region Moscow --provider Rostelecom
   runet-blackbox check github.com --region Moscow --provider MTS --connection-type mobile --json --pretty
   runet-blackbox check github.com --dns 8.8.8.8 --json --pretty
+  runet-blackbox check github.com --json --pretty --issue-file report.issue.md
+  runet-blackbox check github.com --json --pretty --copy-issue
   runet-blackbox check example.com --no-http --fail-on-degraded
   runet-blackbox sample --pretty
 
@@ -65,6 +73,8 @@ Open network observability for unstable networks.
   --no-http                  Не делать HTTP/HTTPS запрос после TLS
   --json                     Напечатать JSON-отчёт
   --pretty                   Красиво форматировать JSON
+  --issue-file <file>        Записать готовый GitHub issue body
+  --copy-issue               Скопировать GitHub issue body в clipboard, если возможно
   --fail-on-degraded         Exit 2, если диагноз не ok
   -o, --output <file>        Записать JSON-отчёт в файл
 
