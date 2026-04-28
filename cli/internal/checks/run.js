@@ -44,6 +44,7 @@ export async function runCheck(targetInput, options = {}) {
     provider: options.provider,
     asn: options.asn,
     connectionType: options.connectionType,
+    environment: options.environment,
     results
   });
 }

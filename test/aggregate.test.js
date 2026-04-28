@@ -41,6 +41,16 @@ test("aggregateReports exposes dataset quality", () => {
   assert.equal(aggregate.dataset_quality.level, "early");
 });
 
+test("aggregateReports exposes network weather summary", () => {
+  const aggregate = aggregateReports([
+    makeReport({ category: "tls_timeout" }),
+    makeReport({ category: "dns_timeout", provider: "MTS", asn: 8359, ts: "2026-04-27T12:15:00.000Z" }),
+    makeReport({ category: "tcp_timeout", provider: "Beeline", asn: 3216, ts: "2026-04-27T12:30:00.000Z" })
+  ]);
+  assert.equal(aggregate.weather.incident_candidates, 1);
+  assert.equal(aggregate.incident_candidates[0].weather.status, "incident_candidate");
+});
+
 test("aggregateReports counts degraded targets", () => {
   assert.equal(aggregateReports([makeReport({ category: "tls_timeout" })]).degraded_targets, 1);
 });

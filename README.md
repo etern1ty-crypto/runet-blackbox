@@ -8,6 +8,10 @@
 
 **Open network observability for unstable networks.**
 
+**Концепт:** сетевая метеосводка для разработчиков. Один запуск показывает, где ломается доступ к GitHub, npm, Docker, AI-сервисам или социальным платформам: DNS, TCP, TLS, HTTP, провайдер, регион или сам сервис.
+
+**Concept:** Network Weather for developer infrastructure. One command to see where access breaks, one sanitized report to help others compare symptoms.
+
 Runet Blackbox отвечает на практический вопрос:
 
 > Сервис не открывается из этой сети. Это похоже на DNS-сбой, TCP timeout, TLS reset, HTTP blockpage, деградацию провайдера, локальную проблему или возможный сбой самого сервиса?
@@ -74,6 +78,16 @@ node cli/bin/runet-blackbox.js check github.com \
 node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
 ```
 
+Проверить готовый набор целей:
+
+```bash
+node cli/bin/runet-blackbox.js packs
+node cli/bin/runet-blackbox.js check --pack dev --region Moscow --provider Rostelecom --copy-issue
+node cli/bin/runet-blackbox.js check --pack ai --region Moscow --provider MTS --issue-file ai.issue.md
+```
+
+Доступные packs: `dev`, `ai`, `social`, `cloud`, `baseline`.
+
 ## Windows DNS
 
 По умолчанию CLI использует системный резолвер ОС. На Windows это важно: `dns.promises.Resolver()` может попасть в DNS виртуального/tun адаптера и получить `ECONNREFUSED`, хотя обычный системный резолвинг работает.
@@ -91,7 +105,7 @@ node .\cli\bin\runet-blackbox.js check github.com `
 
 `--dns` и `--dns-server` эквивалентны. Это не обход блокировок, а диагностическое сравнение резолверов.
 
-Если включён VPN/proxy/tun, не публикуй отчёт как обычную домашнюю сеть. Для честного измерения выключи туннель или явно опиши контекст в issue.
+Если включён VPN/proxy/tun, не публикуй отчёт как обычную домашнюю сеть. CLI локально предупреждает о похожих интерфейсах и публикует только безопасный boolean-маркер `environment.suspected_vpn_or_tunnel`, без имён интерфейсов, IP или конфигов.
 
 На Windows предпочитай `--output report.json` вместо `Out-File`: так файл пишет Node.js без BOM. Валидатор BOM принимает, но `--output` чище.
 
@@ -113,6 +127,8 @@ See [Positioning](docs/positioning.md) for “why not another OONI?” and proje
 - HTTPS request, если TLS успешен;
 - детерминированный диагноз с confidence и signals;
 - privacy sanitizer перед JSON-выводом.
+
+Для pack CLI последовательно проверяет несколько целей и формирует JSON bundle, который GitHub Actions импортирует как набор отдельных sanitized reports.
 
 Пример human-readable вывода:
 
@@ -138,6 +154,7 @@ Summary:    Измеренный путь завершился успешно.
 - грубая страна и регион;
 - provider label и optional ASN;
 - connection type category;
+- безопасный маркер `suspected_vpn_or_tunnel`, если локально замечена VPN/tun/proxy-похожая среда;
 - timestamp, округлённый до 15 минут;
 - статусы проверок и грубая latency;
 - diagnosis category, confidence и короткие signals.
@@ -164,7 +181,7 @@ Summary:    Измеренный путь завершился успешно.
 4. GitHub Actions валидирует и санитизирует отчёт ещё раз.
 5. Принятые отчёты сохраняются в `data/reports/*.jsonl`.
 6. Агрегаты пересобираются в `data/aggregates`.
-7. GitHub Pages показывает статический dashboard.
+7. GitHub Pages показывает статический dashboard “Network Weather”.
 
 В `v0.1.0` нет центрального сервера.
 
@@ -175,6 +192,8 @@ node cli/bin/runet-blackbox.js help
 node cli/bin/runet-blackbox.js version
 node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
+node cli/bin/runet-blackbox.js packs
+node cli/bin/runet-blackbox.js check --pack dev --copy-issue
 node cli/bin/runet-blackbox.js check github.com --dns 8.8.8.8 --json --pretty
 node cli/bin/runet-blackbox.js check github.com --json --pretty --issue-file report.issue.md
 node scripts/aggregate.mjs
@@ -197,6 +216,7 @@ data/reports/              Sanitized accepted JSONL reports
 data/aggregates/           Generated dashboard data
 docs/                      Methodology, privacy, volunteer docs
 examples/                  Safe example inputs and reports
+packs/                     Curated target packs: dev, ai, social, cloud, baseline
 schemas/report.schema.json Machine-readable report schema
 scripts/                   Import, validation, aggregation, CI helpers
 src/                       Shared report, diagnosis, privacy, aggregation logic
@@ -219,6 +239,7 @@ npm run aggregate
 Начни с [CONTRIBUTING.md](CONTRIBUTING.md). Хорошие первые задачи:
 
 - собрать реальные отчёты от разных провайдеров и регионов;
+- предложить изменения target packs через PR;
 - улучшить tests для diagnosis edge cases;
 - добавить консервативные blockpage fingerprints без хранения body;
 - улучшить dashboard filtering;
@@ -236,4 +257,5 @@ See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-ch
 
 ```bash
 npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```

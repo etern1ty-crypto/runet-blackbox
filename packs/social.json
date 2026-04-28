@@ -1,0 +1,14 @@
+{
+  "name": "social",
+  "label_ru": "Социальные сервисы",
+  "label": "Social platforms",
+  "description_ru": "Common communication and media platforms for coarse availability triage.",
+  "description": "Common communication and media platforms for coarse availability triage.",
+  "targets": [
+    "telegram.org",
+    "t.me",
+    "discord.com",
+    "youtube.com",
+    "reddit.com"
+  ]
+}

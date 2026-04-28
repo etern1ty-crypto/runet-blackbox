@@ -1,0 +1,13 @@
+{
+  "name": "baseline",
+  "label_ru": "Контрольные цели",
+  "label": "Baseline targets",
+  "description_ru": "Stable public targets for checking whether the local network is broadly healthy.",
+  "description": "Stable public targets for checking whether the local network is broadly healthy.",
+  "targets": [
+    "example.com",
+    "cloudflare.com",
+    "google.com",
+    "wikipedia.org"
+  ]
+}

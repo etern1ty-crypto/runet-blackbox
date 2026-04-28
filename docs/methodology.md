@@ -12,8 +12,11 @@ English: conservative, reproducible network measurements without privileged pack
 4. Try TCP connections к портам `80` и `443`.
 5. Если TCP/443 успешен, выполнить TLS handshake с SNI.
 6. Если TLS успешен и HTTP включён, запросить `https://target/`.
-7. Classify report через deterministic signals.
-8. Sanitize report перед записью JSON.
+7. Локально проверить наличие VPN/tun/proxy-похожих интерфейсов и сохранить только безопасный boolean marker.
+8. Classify report через deterministic signals.
+9. Sanitize report перед записью JSON.
+
+Для `--pack` CLI последовательно выполняет тот же pipeline для каждого target из `packs/*.json` и формирует JSON bundle. Import workflow разбирает bundle на отдельные reports.
 
 ## Что можно предположить
 
@@ -27,6 +30,7 @@ English: conservative, reproducible network measurements without privileged pack
 - Intent. Reset может быть фильтрацией, broken middlebox, поведением сервера или routing trouble.
 - Global outage. `v0.1.0` не опрашивает независимые vantage points автоматически.
 - Exact user location. Проект намеренно её не собирает.
+- VPN status with certainty. CLI видит только локальные признаки интерфейсов и не публикует детали.
 
 ## Classification
 

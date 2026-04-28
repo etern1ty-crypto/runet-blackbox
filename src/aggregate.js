@@ -31,6 +31,8 @@ export function aggregateReports(inputReports) {
     incrementGroup(categories, report.diagnosis.category, report);
   }
 
+  const domainGroups = sortedGroups(domains);
+
   return {
     generated_at: new Date().toISOString(),
     total_reports: reports.length,
@@ -38,7 +40,9 @@ export function aggregateReports(inputReports) {
     degraded_targets: Array.from(domains.values()).filter((group) => group.degraded > group.ok).length,
     status: overallStatus(reports),
     dataset_quality: datasetQuality(reports),
-    domains: sortedGroups(domains),
+    weather: weatherSummary(domainGroups),
+    incident_candidates: domainGroups.filter((group) => group.weather.status === "incident_candidate"),
+    domains: domainGroups,
     providers: sortedGroups(providers),
     regions: sortedGroups(regions),
     days: sortedGroups(days, "key", "asc"),
@@ -104,7 +108,8 @@ function sortedGroups(map, sortKey = "total", order = "desc") {
     ...group,
     status: group.degraded > group.ok ? "degraded" : "ok",
     degraded_ratio: group.total ? Number((group.degraded / group.total).toFixed(3)) : 0,
-    credibility: credibilityFor(group.total)
+    credibility: credibilityFor(group.total),
+    weather: weatherFor(group)
   }));
   return values.sort((a, b) => {
     if (sortKey === "key") {
@@ -112,6 +117,62 @@ function sortedGroups(map, sortKey = "total", order = "desc") {
     }
     return order === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
   });
+}
+
+function weatherSummary(domains) {
+  return {
+    reports_needed: domains.filter((group) => group.weather.status === "reports_needed").length,
+    weak_signals: domains.filter((group) => group.weather.status === "weak_signal").length,
+    degraded_candidates: domains.filter((group) => group.weather.status === "degraded_candidate").length,
+    incident_candidates: domains.filter((group) => group.weather.status === "incident_candidate").length,
+    mostly_ok: domains.filter((group) => group.weather.status === "mostly_ok").length
+  };
+}
+
+function weatherFor(group) {
+  if (group.total <= 1) {
+    return {
+      status: "reports_needed",
+      label_ru: "Нужны отчёты",
+      label: "Reports needed",
+      note_ru: "Один отчёт полезен для triage, но не подтверждает сетевой паттерн.",
+      note: "One report is useful for triage, but does not confirm a network pattern."
+    };
+  }
+  if (group.degraded > group.ok && group.total >= 3) {
+    return {
+      status: "incident_candidate",
+      label_ru: "Кандидат на инцидент",
+      label: "Incident candidate",
+      note_ru: "Несколько отчётов указывают на деградацию; нужны независимые сети и повторные замеры.",
+      note: "Several reports point to degradation; independent networks and repeats are still needed."
+    };
+  }
+  if (group.degraded > group.ok) {
+    return {
+      status: "degraded_candidate",
+      label_ru: "Сигнал деградации",
+      label: "Degraded candidate",
+      note_ru: "Есть симптомы деградации, но выборка пока мала.",
+      note: "Degradation symptoms exist, but the sample is still small."
+    };
+  }
+  if (group.total < 3) {
+    return {
+      status: "weak_signal",
+      label_ru: "Слабый сигнал",
+      label: "Weak signal",
+      note_ru: "Пока мало данных для уверенной сводки.",
+      note: "Not enough data for a confident status."
+    };
+  }
+  return {
+    status: "mostly_ok",
+    label_ru: "В основном доступно",
+    label: "Mostly OK",
+    note_ru: "Текущие публичные отчёты в основном успешны.",
+    note: "Current public reports are mostly successful."
+  };
 }
 
 function providerKey(report) {

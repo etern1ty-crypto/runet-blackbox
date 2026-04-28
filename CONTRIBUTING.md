@@ -20,6 +20,7 @@ npm run check
 npm test
 node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
+node cli/bin/runet-blackbox.js check --pack baseline --no-http
 ```
 
 ## Measurement Reports
@@ -51,7 +52,7 @@ node .\cli\bin\runet-blackbox.js check github.com `
 - используй грубый регион, не адрес;
 - не вставляй IP, account IDs или private URLs в issue text;
 - проверяй JSON: `node scripts/validate-report.mjs report.json`;
-- отправляй одну цель на один issue;
+- отправляй одну цель на один issue или один CLI-generated pack bundle;
 - если включён VPN/proxy/tun, явно укажи это и не называй отчёт обычной сетью провайдера.
 
 ## Code Style

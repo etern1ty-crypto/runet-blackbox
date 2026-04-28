@@ -1,0 +1,15 @@
+{
+  "name": "ai",
+  "label_ru": "AI-инфраструктура",
+  "label": "AI infrastructure",
+  "description_ru": "AI assistants, model hubs and API entrypoints used by developers.",
+  "description": "AI assistants, model hubs and API entrypoints used by developers.",
+  "targets": [
+    "openai.com",
+    "chatgpt.com",
+    "api.openai.com",
+    "huggingface.co",
+    "cdn-lfs.huggingface.co",
+    "anthropic.com"
+  ]
+}

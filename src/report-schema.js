@@ -41,6 +41,7 @@ export function validateReport(report) {
   }
 
   validateNetwork(report.network, errors);
+  validateEnvironment(report.environment, errors);
   validateResults(report.results, errors);
   validateDiagnosis(report.diagnosis, errors);
 
@@ -69,6 +70,19 @@ function validateNetwork(network, errors) {
   }
   if (!CONNECTION_TYPES.has(network.connection_type)) {
     errors.push("network.connection_type is invalid");
+  }
+}
+
+function validateEnvironment(environment, errors) {
+  if (environment === undefined) {
+    return;
+  }
+  if (!environment || typeof environment !== "object" || Array.isArray(environment)) {
+    errors.push("environment must be an object");
+    return;
+  }
+  if (environment.suspected_vpn_or_tunnel !== undefined && typeof environment.suspected_vpn_or_tunnel !== "boolean") {
+    errors.push("environment.suspected_vpn_or_tunnel must be boolean");
   }
 }
 

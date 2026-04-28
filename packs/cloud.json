@@ -1,0 +1,15 @@
+{
+  "name": "cloud",
+  "label_ru": "Cloud/CDN",
+  "label": "Cloud and CDN",
+  "description_ru": "Large cloud, CDN and developer platform front doors.",
+  "description": "Large cloud, CDN and developer platform front doors.",
+  "targets": [
+    "cloudflare.com",
+    "google.com",
+    "microsoft.com",
+    "aws.amazon.com",
+    "vercel.com",
+    "netlify.com"
+  ]
+}

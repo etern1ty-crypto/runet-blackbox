@@ -14,6 +14,10 @@ test("parseCliArgs returns sample", () => {
   assert.deepEqual(parseCliArgs(["sample", "--pretty"]), { command: "sample", pretty: true });
 });
 
+test("parseCliArgs returns packs", () => {
+  assert.deepEqual(parseCliArgs(["packs"]), { command: "packs" });
+});
+
 test("parseCliArgs rejects unknown command", () => {
   assert.throws(() => parseCliArgs(["scan"]));
 });
@@ -66,6 +70,12 @@ test("parseCheckArgs parses copy issue", () => {
   assert.equal(parseCheckArgs(["github.com", "--copy-issue"]).copyIssue, true);
 });
 
+test("parseCheckArgs parses pack", () => {
+  const options = parseCheckArgs(["--pack", "DEV"]);
+  assert.equal(options.pack, "dev");
+  assert.equal(options.target, null);
+});
+
 test("parseCheckArgs parses json and pretty", () => {
   const options = parseCheckArgs(["github.com", "--json", "--pretty"]);
   assert.equal(options.json, true);
@@ -82,6 +92,10 @@ test("parseCheckArgs parses fail-on-degraded", () => {
 
 test("parseCheckArgs rejects missing target", () => {
   assert.throws(() => parseCheckArgs([]));
+});
+
+test("parseCheckArgs rejects target with pack", () => {
+  assert.throws(() => parseCheckArgs(["github.com", "--pack", "dev"]));
 });
 
 test("parseCheckArgs rejects extra target", () => {

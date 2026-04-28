@@ -11,6 +11,9 @@
 - DNS checks now use the OS resolver by default, which avoids Windows tunnel-adapter `ECONNREFUSED` false failures.
 - `--dns` is accepted as a short alias for `--dns-server`.
 - CLI can generate a ready-to-submit GitHub issue body through `--issue-file` or `--copy-issue`.
+- CLI supports curated target packs through `runet-blackbox packs` and `check --pack dev|ai|social|cloud|baseline`.
+- Pack runs generate JSON bundles, and the GitHub issue importer can ingest bundles as multiple sanitized reports.
+- Reports include a safe `environment.suspected_vpn_or_tunnel` marker when the local CLI detects VPN/tun/proxy-like interfaces.
 
 ### Changed
 
@@ -18,6 +21,7 @@
 - Dashboard onboarding was redesigned around first-run usage, safety boundaries, and report submission.
 - Empty production dashboards now fall back to explicit synthetic demo data.
 - Aggregates include sample credibility labels for early/single-report data.
+- Aggregates include Network Weather labels and incident candidates.
 
 ## v0.1.0 - 2026-04-27
 

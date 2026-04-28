@@ -22,10 +22,13 @@ English: the project is designed to publish useful network evidence without expo
 - Coarse region label.
 - Provider label и optional ASN.
 - Connection type category.
+- Safe boolean marker `environment.suspected_vpn_or_tunnel`.
 - Rounded UTC timestamp.
 - Check statuses и coarse latency.
 - Diagnosis category и confidence.
 - Deterministic report ID от sanitized report.
+
+`environment.suspected_vpn_or_tunnel` не содержит имена интерфейсов, IP-адреса, DNS-настройки, routing table или конфиги. Это только marker качества данных: отчёт может отражать VPN/tun/proxy путь, а не обычную сеть провайдера.
 
 ## Округление времени
 

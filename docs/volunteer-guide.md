@@ -11,7 +11,7 @@ English: use this guide to collect safe, privacy-preserving measurements from ne
 3. Не пытайся обходить фильтрацию.
 4. Не запускай частые циклы и не нагружай чужие сервисы.
 5. Отправляй только sanitized JSON из CLI.
-6. Если включён VPN/proxy/tun, не называй отчёт `no-vpn` и не выдавай его за обычную сеть провайдера.
+6. Если включён VPN/proxy/tun, не называй отчёт `no-vpn` и не выдавай его за обычную сеть провайдера. CLI предупредит локально и добавит только безопасный boolean-маркер без деталей интерфейсов.
 
 ## Рекомендуемая команда
 
@@ -68,6 +68,21 @@ node cli/bin/runet-blackbox.js check github.com \
 ```bash
 node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
 ```
+
+## Pack-измерение
+
+Для кампании “First 50 Reports” лучше использовать маленькие готовые packs:
+
+```bash
+node cli/bin/runet-blackbox.js packs
+node cli/bin/runet-blackbox.js check --pack dev \
+  --region Moscow \
+  --provider Rostelecom \
+  --connection-type home \
+  --issue-file dev.issue.md
+```
+
+Pack issue содержит JSON bundle. GitHub Actions импортирует его как несколько отдельных sanitized reports.
 
 ## Сравнение DNS
 

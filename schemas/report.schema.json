@@ -62,6 +62,15 @@
         }
       }
     },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "suspected_vpn_or_tunnel": {
+          "type": "boolean"
+        }
+      }
+    },
     "results": {
       "type": "object",
       "required": ["dns"],

@@ -14,6 +14,10 @@ const baseReport = {
     provider: "  Rostelecom ",
     connection_type: "home"
   },
+  environment: {
+    suspected_vpn_or_tunnel: "yes",
+    interface_name: "tun0"
+  },
   results: {
     dns: {
       status: "ok",
@@ -115,6 +119,10 @@ test("sanitizeReport defaults invalid connection type", () => {
   const report = structuredClone(baseReport);
   report.network.connection_type = "satellite";
   assert.equal(sanitizeReport(report).network.connection_type, "unknown");
+});
+
+test("sanitizeReport keeps only safe environment marker", () => {
+  assert.deepEqual(sanitizeReport(baseReport).environment, { suspected_vpn_or_tunnel: true });
 });
 
 test("findSensitivePaths reports nested sensitive fields", () => {

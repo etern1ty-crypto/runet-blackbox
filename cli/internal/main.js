@@ -2,8 +2,11 @@ import fs from "node:fs/promises";
 import { TOOL_VERSION } from "../../src/constants.js";
 import { buildReport } from "../../src/report.js";
 import { parseCliArgs } from "./args.js";
+import { buildReportBundle } from "./bundle.js";
 import { runCheck } from "./checks/run.js";
-import { formatHumanReport, helpText } from "./format.js";
+import { detectEnvironment } from "./environment.js";
+import { formatBatchReport, formatHumanReport, formatPacksList, helpText } from "./format.js";
+import { availablePacks, loadPack } from "./packs.js";
 import { buildIssueBody, copyIssueBody } from "./submit.js";
 
 export async function runCli(argv, io = {}) {
@@ -12,6 +15,7 @@ export async function runCli(argv, io = {}) {
   const writeFile = io.writeFile || fs.writeFile;
   const copyText = io.copyText || copyIssueBody;
   const runNetworkCheck = io.runCheck || runCheck;
+  const readEnvironment = io.detectEnvironment || detectEnvironment;
 
   try {
     const args = parseCliArgs(argv);
@@ -29,8 +33,21 @@ export async function runCli(argv, io = {}) {
       stdout.write(`${JSON.stringify(sample, null, args.pretty ? 2 : 0)}\n`);
       return 0;
     }
+    if (args.command === "packs") {
+      stdout.write(formatPacksList(availablePacks()));
+      return 0;
+    }
 
-    const report = await runNetworkCheck(args.target, args);
+    const environment = readEnvironment();
+    if (environment.warning_ru) {
+      stderr.write(`runet-blackbox: ${environment.warning_ru}\n`);
+    }
+
+    if (args.pack) {
+      return await runPackCheck(args, { stdout, stderr, writeFile, copyText, runNetworkCheck, environment });
+    }
+
+    const report = await runNetworkCheck(args.target, { ...args, environment });
     const json = JSON.stringify(report, null, args.pretty ? 2 : 0);
 
     if (args.output) {
@@ -59,6 +76,39 @@ export async function runCli(argv, io = {}) {
     stderr.write("Run `runet-blackbox help` for usage.\n");
     return error.exitCode || 70;
   }
+}
+
+async function runPackCheck(args, io) {
+  const pack = loadPack(args.pack);
+  const reports = [];
+  for (const target of pack.targets) {
+    reports.push(await io.runNetworkCheck(target, { ...args, target, environment: io.environment }));
+  }
+
+  const bundle = buildReportBundle({ pack, reports, environment: io.environment });
+  const json = JSON.stringify(bundle, null, args.pretty ? 2 : 0);
+
+  if (args.output) {
+    await io.writeFile(args.output, `${JSON.stringify(bundle, null, 2)}\n`, "utf8");
+  }
+  if (args.issueFile || args.copyIssue) {
+    const body = buildIssueBody(bundle);
+    if (args.issueFile) {
+      await io.writeFile(args.issueFile, body, "utf8");
+    }
+    if (args.copyIssue) {
+      const copied = await io.copyText(body);
+      io.stderr.write(copied ? "runet-blackbox: issue body copied to clipboard\n" : "runet-blackbox: clipboard unavailable; use --issue-file instead\n");
+    }
+  }
+
+  if (args.json) {
+    io.stdout.write(`${json}\n`);
+  } else {
+    io.stdout.write(formatBatchReport(bundle, { output: args.output, issueFile: args.issueFile, copiedIssue: args.copyIssue }));
+  }
+
+  return args.failOnDegraded && reports.some((report) => report.diagnosis.category !== "ok") ? 2 : 0;
 }
 
 function sampleReport() {

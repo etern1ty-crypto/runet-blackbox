@@ -26,6 +26,8 @@ const invalidCases = [
   ["network asn high", { network: { asn: 4294967296, provider: "x", connection_type: "home" } }, "network.asn is out of range"],
   ["missing provider", { network: { asn: null, provider: "", connection_type: "home" } }, "network.provider is required"],
   ["bad connection type", { network: { asn: null, provider: "x", connection_type: "vpn" } }, "network.connection_type is invalid"],
+  ["bad environment", { environment: "vpn" }, "environment must be an object"],
+  ["bad environment VPN marker", { environment: { suspected_vpn_or_tunnel: "yes" } }, "environment.suspected_vpn_or_tunnel must be boolean"],
   ["missing results", { results: null }, "results must be an object"],
   ["missing dns", { results: { dns: undefined } }, "results.dns is required"],
   ["unknown check", { results: { dns: { status: "ok" }, smtp: { status: "ok" } } }, "results.smtp is not a supported check"],

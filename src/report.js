@@ -6,7 +6,7 @@ import { normalizeCountry, normalizeOptionalText, normalizeTarget, parseAsn } fr
 import { assertMeasurementTarget } from "./target-policy.js";
 import { toIsoTimestamp } from "./time.js";
 
-export function buildReport({ target, country, region, provider, asn, connectionType, results, timestamp = new Date() }) {
+export function buildReport({ target, country, region, provider, asn, connectionType, results, environment, timestamp = new Date() }) {
   assertMeasurementTarget(target);
 
   const report = {
@@ -20,6 +20,9 @@ export function buildReport({ target, country, region, provider, asn, connection
       asn: parseAsn(asn),
       provider: normalizeOptionalText(provider),
       connection_type: connectionType || "unknown"
+    },
+    environment: {
+      suspected_vpn_or_tunnel: Boolean(environment?.suspected_vpn_or_tunnel)
     },
     results: results || {}
   };

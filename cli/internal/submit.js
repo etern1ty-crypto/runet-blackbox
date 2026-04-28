@@ -1,19 +1,24 @@
 import { spawn } from "node:child_process";
+import { isReportBundle } from "./bundle.js";
 
-export function buildIssueBody(report) {
+export function buildIssueBody(payload) {
+  const bundle = isReportBundle(payload);
+  const jsonHeading = bundle ? "## Report JSON Bundle" : "## Report JSON";
+  const json = JSON.stringify(payload, null, 2);
   return `## Контекст / Context
 
 - Я понимаю, что это публичный отчёт.
 - Я не добавляю IP-адреса, точную локацию, cookies, headers, packet captures, private URLs или приватные логи.
 - Если VPN/proxy/tun был включён, я явно укажу это в тексте issue и не буду выдавать отчёт за обычную сеть провайдера.
 - Это не запрос инструкций по bypass/proxy/VPN.
+- ${bundle ? "Это batch-отчёт по pack; каждый вложенный отчёт уже очищен sanitizer." : "Это одиночный очищенный отчёт."}
 
 English: this is a sanitized public measurement report, not a request for VPN/proxy/bypass instructions.
 
-## Report JSON
+${jsonHeading}
 
 \`\`\`json
-${JSON.stringify(report, null, 2)}
+${json}
 \`\`\`
 `;
 }

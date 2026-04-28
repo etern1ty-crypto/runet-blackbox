@@ -32,3 +32,5 @@ Runet Blackbox занимает другой слой: локальный triage
 - Signed release artifacts и checksums.
 - Multi-resolver DNS comparison как first-class report field.
 - Более явные “signals for / signals against” в diagnosis explanations.
+
+См. также [Strategy](strategy.md) про core/packs/campaigns и Network Weather roadmap.

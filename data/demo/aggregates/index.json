@@ -11,6 +11,14 @@
     "note_ru": "Это искусственный пример интерфейса, не реальные измерения.",
     "note": "Synthetic interface example, not real measurements."
   },
+  "weather": {
+    "reports_needed": 1,
+    "weak_signals": 3,
+    "degraded_candidates": 2,
+    "incident_candidates": 0,
+    "mostly_ok": 0
+  },
+  "incident_candidates": [],
   "domains": [
     {
       "key": "github.com",

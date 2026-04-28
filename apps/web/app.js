@@ -67,7 +67,7 @@ function render() {
   const aggregate = state.aggregate;
   $("#total-reports").textContent = aggregate.total_reports || 0;
   $("#total-targets").textContent = aggregate.total_targets || 0;
-  $("#degraded-targets").textContent = aggregate.degraded_targets ?? (aggregate.domains || []).filter((domain) => domain.status === "degraded").length;
+  $("#degraded-targets").textContent = aggregate.weather?.incident_candidates ?? aggregate.degraded_targets ?? (aggregate.domains || []).filter((domain) => domain.status === "degraded").length;
   $("#generated-at").textContent = aggregate.generated_at
     ? `Агрегаты обновлены: ${new Date(aggregate.generated_at).toLocaleString("ru-RU", { timeZone: "UTC" })} UTC`
     : "Агрегаты пока не созданы";
@@ -98,7 +98,7 @@ function renderTargets(domains) {
             </div>
             <span>${Math.round(domain.degraded_ratio * 100)}% degraded</span>
             <span>${formatDate(domain.last_seen)}</span>
-            <span class="pill ${classForStatus(domain.status)}">${statusLabel(domain.status)} · ${escapeHtml(domain.credibility?.label_ru || "sample")}</span>
+            <span class="pill ${classForStatus(domain.weather?.status || domain.status)}">${escapeHtml(domain.weather?.label_ru || statusLabel(domain.status))} · ${escapeHtml(domain.credibility?.label_ru || "sample")}</span>
           </div>`
         )
         .join("")
@@ -155,7 +155,7 @@ function datasetNote(quality) {
 
 function classForStatus(status) {
   if (status === "ok" || status === "mostly_ok") return "ok";
-  if (status === "warning") return "warning";
+  if (status === "warning" || status === "weak_signal" || status === "reports_needed") return "warning";
   if (status === "unknown" || status === "no_data") return "unknown";
   return "degraded";
 }

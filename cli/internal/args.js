@@ -11,6 +11,9 @@ export function parseCliArgs(argv) {
   if (command === "sample") {
     return parseSampleArgs(rest);
   }
+  if (command === "packs") {
+    return { command: "packs" };
+  }
   if (command !== "check") {
     throw usageError(`unknown command: ${command}`);
   }
@@ -31,6 +34,7 @@ export function parseCheckArgs(argv) {
     output: null,
     issueFile: null,
     copyIssue: false,
+    pack: null,
     http: true,
     dnsServer: null,
     failOnDegraded: false
@@ -77,6 +81,9 @@ export function parseCheckArgs(argv) {
       case "--copy-issue":
         options.copyIssue = true;
         break;
+      case "--pack":
+        options.pack = requiredValue(argv, ++i, token).toLowerCase();
+        break;
       case "--json":
         options.json = true;
         break;
@@ -94,11 +101,14 @@ export function parseCheckArgs(argv) {
     }
   }
 
-  if (positionals.length !== 1) {
-    throw usageError("check requires exactly one target");
+  if (options.pack && positionals.length > 0) {
+    throw usageError("check accepts either <target> or --pack, not both");
+  }
+  if (!options.pack && positionals.length !== 1) {
+    throw usageError("check requires exactly one target or --pack <name>");
   }
 
-  options.target = positionals[0];
+  options.target = positionals[0] || null;
   return options;
 }
 

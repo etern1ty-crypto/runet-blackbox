@@ -63,6 +63,9 @@ export function sanitizeReport(report) {
   if (sanitized.network !== undefined) {
     sanitized.network = sanitizeNetwork(sanitized.network);
   }
+  if (sanitized.environment !== undefined) {
+    sanitized.environment = sanitizeEnvironment(sanitized.environment);
+  }
   if (sanitized.results !== undefined) {
     sanitized.results = sanitizeResults(sanitized.results);
   }
@@ -130,6 +133,12 @@ function sanitizeNetwork(network = {}) {
     asn,
     provider: normalizeOptionalText(network.provider),
     connection_type: connectionType
+  };
+}
+
+function sanitizeEnvironment(environment = {}) {
+  return {
+    suspected_vpn_or_tunnel: Boolean(environment.suspected_vpn_or_tunnel)
   };
 }
 

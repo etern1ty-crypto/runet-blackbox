@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T10:45:45.424Z",
+  "generated_at": "2026-04-28T11:44:48.818Z",
   "total_reports": 0,
   "total_targets": 0,
   "degraded_targets": 0,
@@ -11,6 +11,14 @@
     "note_ru": "Dashboard покажет демо, пока нет публичных отчётов.",
     "note": "Dashboard shows demo data until public reports arrive."
   },
+  "weather": {
+    "reports_needed": 0,
+    "weak_signals": 0,
+    "degraded_candidates": 0,
+    "incident_candidates": 0,
+    "mostly_ok": 0
+  },
+  "incident_candidates": [],
   "domains": [],
   "providers": [],
   "regions": [],

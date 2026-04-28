@@ -15,21 +15,32 @@ try {
   if (Buffer.byteLength(body, "utf8") > 262144) {
     throw new Error("issue body is too large; paste one sanitized report only");
   }
-  const rawReport = extractReportJson(body);
-  const sensitivePaths = findSensitivePaths(rawReport);
-  const report = sanitizeReport(rawReport);
-  const validation = validateReport(report);
-  if (!validation.valid) {
-    throw new Error(`invalid report:\n${validation.errors.join("\n")}`);
+  const outDir = args.out || "data/reports";
+  await fs.mkdir(outDir, { recursive: true });
+  const payload = extractReportJson(body);
+  const rawReports = Array.isArray(payload?.reports) ? payload.reports : [payload];
+  if (!rawReports.length) {
+    throw new Error("issue body does not contain any reports");
   }
 
-  const day = reportDay(report.timestamp_utc);
-  const outDir = args.out || "data/reports";
-  const outFile = path.join(outDir, `${day}.jsonl`);
-  await fs.mkdir(outDir, { recursive: true });
-  const imported = await appendIfNew(outFile, report);
-  const privacyNote = sensitivePaths.length ? `; stripped ${sensitivePaths.length} sensitive field(s)` : "";
-  process.stdout.write(`${imported ? "imported" : "already imported"} ${report.target} ${report.diagnosis.category} into ${outFile}${privacyNote}\n`);
+  let importedCount = 0;
+  let duplicateCount = 0;
+  let strippedCount = 0;
+  for (const rawReport of rawReports) {
+    strippedCount += findSensitivePaths(rawReport).length;
+    const report = sanitizeReport(rawReport);
+    const validation = validateReport(report);
+    if (!validation.valid) {
+      throw new Error(`invalid report for ${rawReport?.target || "unknown target"}:\n${validation.errors.join("\n")}`);
+    }
+    const outFile = path.join(outDir, `${reportDay(report.timestamp_utc)}.jsonl`);
+    const imported = await appendIfNew(outFile, report);
+    if (imported) importedCount += 1;
+    else duplicateCount += 1;
+  }
+
+  const privacyNote = strippedCount ? `; stripped ${strippedCount} sensitive field(s)` : "";
+  process.stdout.write(`import complete: ${importedCount} imported, ${duplicateCount} duplicate${duplicateCount === 1 ? "" : "s"}${privacyNote}\n`);
 } catch (error) {
   process.stderr.write(`${error.message}\n`);
   process.exit(1);
