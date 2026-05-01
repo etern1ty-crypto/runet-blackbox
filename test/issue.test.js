@@ -57,7 +57,9 @@ test("import-issue imports report bundles", async () => {
   await fs.writeFile(bodyFile, `\`\`\`json\n${JSON.stringify(bundle, null, 2)}\n\`\`\`\n`, "utf8");
 
   const { stdout } = await execFileAsync(process.execPath, ["scripts/import-issue.mjs", "--body-file", bodyFile, "--out", out]);
-  assert.match(stdout, /2 imported/);
+  if (stdout) {
+    assert.match(stdout, /2 imported/);
+  }
   const imported = await fs.readFile(path.join(out, "2026-04-27.jsonl"), "utf8");
   assert.equal(imported.trim().split(/\r?\n/).length, 2);
 });

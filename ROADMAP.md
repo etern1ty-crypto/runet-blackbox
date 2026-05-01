@@ -14,12 +14,13 @@
 
 - Optional multi-resolver DNS comparison.
 - Better provider/ASN normalization.
-- Dashboard timeline charts.
-- Weekly Network Weather digest in `data/digests/YYYY-WW.md`.
-- Safe share cards or SVG summaries without sensitive fields.
+- Provider/ASN normalization beyond free-text labels.
 
 ## v0.3
 
+- Dashboard timeline charts and target detail panels.
+- Weekly Network Weather digest in `data/digests/YYYY-WW.md`.
+- Safe share cards or SVG summaries without sensitive fields.
 - Conservative optional QUIC/HTTP3 probe with low request volume.
 - Target detail pages and per-provider incident candidates.
 - Signed release checksums and provenance notes.

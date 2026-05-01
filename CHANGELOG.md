@@ -2,7 +2,17 @@
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- Aggregates now include per-target provider, region, day, dominant diagnosis, latest-report, and provider incident-candidate details.
+- `scripts/aggregate.mjs` generates weekly Network Weather digests in `data/digests/YYYY-WW.md`.
+- `scripts/aggregate.mjs` generates privacy-safe SVG share cards in `data/aggregates/cards`.
+- Dashboard now includes Network Weather counters, per-target detail panels, SVG card links, and a simple timeline view.
+- Tests cover digest generation, SVG escaping, and target-detail aggregate fields.
+
+### Changed
+
+- README quickstart now leads with the published `npx runet-blackbox` path instead of requiring `git clone`.
 
 ## v0.2.0 - 2026-04-28
 

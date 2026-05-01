@@ -25,7 +25,12 @@ jobs:
           node-version: "22"
       - run: npm run check
       - run: node scripts/aggregate.mjs
-      - run: mkdir -p dist/data && cp -R apps/web/* dist/ && cp -R data/aggregates dist/data/ && cp -R data/demo dist/data/
+      - run: |
+          mkdir -p dist/data
+          cp -R apps/web/* dist/
+          cp -R data/aggregates dist/data/
+          cp -R data/demo dist/data/
+          if [ -d data/digests ]; then cp -R data/digests dist/data/; fi
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

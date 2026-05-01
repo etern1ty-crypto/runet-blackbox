@@ -1,7 +1,8 @@
 const state = {
   aggregate: null,
   demo: false,
-  query: ""
+  query: "",
+  selectedTarget: null
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -76,6 +77,9 @@ function render() {
     : datasetNote(aggregate.dataset_quality);
 
   renderTargets(aggregate.domains || []);
+  renderWeather(aggregate.weather || {});
+  renderTargetDetail(selectedDomain(aggregate.domains || []));
+  renderTimeline(aggregate.days || []);
   renderGroups("#providers", aggregate.providers || []);
   renderGroups("#regions", aggregate.regions || []);
   renderGroups("#categories", aggregate.categories || [], { categories: true });
@@ -88,21 +92,86 @@ function matchesQuery(value) {
 
 function renderTargets(domains) {
   const filtered = domains.filter(matchesQuery);
+  if (!state.selectedTarget && filtered[0]) {
+    state.selectedTarget = filtered[0].key;
+  }
   $("#targets").innerHTML = filtered.length
     ? filtered
         .map(
-          (domain) => `<div class="row">
+          (domain) => `<button class="row target-row ${domain.key === state.selectedTarget ? "selected" : ""}" type="button" data-target="${escapeAttr(domain.key)}">
             <div>
               <strong>${escapeHtml(domain.key)}</strong>
-              <small>${domain.total} отчётов / reports</small>
+              <small>${domain.total} отчётов · ${escapeHtml(domain.dominant_category?.title_ru || categoryLabel(domain.dominant_category?.category || "insufficient_data"))}</small>
             </div>
             <span>${Math.round(domain.degraded_ratio * 100)}% degraded</span>
             <span>${formatDate(domain.last_seen)}</span>
             <span class="pill ${classForStatus(domain.weather?.status || domain.status)}">${escapeHtml(domain.weather?.label_ru || statusLabel(domain.status))} · ${escapeHtml(domain.credibility?.label_ru || "sample")}</span>
-          </div>`
+          </button>`
         )
         .join("")
     : emptyState("Пока нет целей по этому фильтру.", "No matching targets yet.");
+
+  document.querySelectorAll(".target-row").forEach((row) => {
+    row.addEventListener("click", () => {
+      state.selectedTarget = row.dataset.target;
+      render();
+    });
+  });
+}
+
+function renderWeather(weather) {
+  $("#weather-ok").textContent = weather.mostly_ok || 0;
+  $("#weather-weak").textContent = weather.weak_signals || 0;
+  $("#weather-needed").textContent = weather.reports_needed || 0;
+  $("#weather-incidents").textContent = weather.incident_candidates || 0;
+}
+
+function renderTargetDetail(domain) {
+  if (!domain) {
+    $("#target-detail-title").textContent = "Цель не выбрана";
+    $("#target-card").href = "data/aggregates/cards/overview.svg";
+    $("#target-detail").innerHTML = emptyState("Выбери цель в таблице выше.", "Select a target above.");
+    return;
+  }
+  $("#target-detail-title").textContent = domain.key;
+  $("#target-card").href = state.demo ? "data/aggregates/cards/overview.svg" : `data/aggregates/cards/${safeFileName(domain.key)}.svg`;
+  const providerRows = compactBreakdown(domain.providers || [], "Провайдеров пока мало.");
+  const regionRows = compactBreakdown(domain.regions || [], "Регионов пока мало.");
+  const latestRows = (domain.latest_reports || []).slice(0, 4).map((report) => `<li>${formatDate(report.timestamp_utc)} · ${escapeHtml(report.region)} · ${escapeHtml(report.provider)} · ${escapeHtml(report.diagnosis.title_ru || categoryLabel(report.diagnosis.category))}</li>`).join("");
+  $("#target-detail").innerHTML = `
+    <div class="detail-summary">
+      <span class="pill ${classForStatus(domain.weather?.status || domain.status)}">${escapeHtml(domain.weather?.label_ru || statusLabel(domain.status))}</span>
+      <p>${escapeHtml(domain.weather?.note_ru || "Одиночные отчёты полезны для triage, но не являются доказательством.")}</p>
+      <p><strong>${escapeHtml(domain.credibility?.label_ru || "sample")}</strong>: ${escapeHtml(domain.credibility?.note_ru || "")}</p>
+    </div>
+    <div class="detail-columns">
+      <div><h3>Провайдеры</h3>${providerRows}</div>
+      <div><h3>Регионы</h3>${regionRows}</div>
+    </div>
+    <div class="detail-latest">
+      <h3>Последние сигналы</h3>
+      ${latestRows ? `<ul>${latestRows}</ul>` : emptyState("Пока нет последних отчётов.", "No latest reports yet.")}
+    </div>
+  `;
+}
+
+function renderTimeline(days) {
+  const recent = days.slice(-14);
+  $("#timeline").innerHTML = recent.length
+    ? recent
+        .map((day) => {
+          const degraded = Math.round((day.degraded_ratio || 0) * 100);
+          const ok = 100 - degraded;
+          return `<div class="timeline-row">
+            <span>${escapeHtml(day.key)}</span>
+            <div class="timeline-bar" aria-label="${degraded}% degraded">
+              <i class="ok" style="width:${ok}%"></i><i class="bad" style="width:${degraded}%"></i>
+            </div>
+            <strong>${day.total}</strong>
+          </div>`;
+        })
+        .join("")
+    : emptyState("Пока нет временного ряда.", "No timeline yet.");
 }
 
 function renderGroups(selector, groups, options = {}) {
@@ -169,6 +238,20 @@ function emptyState(ru, en) {
   return `<p class="muted">${escapeHtml(ru)} <span lang="en">${escapeHtml(en)}</span></p>`;
 }
 
+function selectedDomain(domains) {
+  return domains.find((domain) => domain.key === state.selectedTarget) || domains.filter(matchesQuery)[0] || domains[0] || null;
+}
+
+function compactBreakdown(groups, emptyText) {
+  return groups.length
+    ? `<div class="mini-list">${groups.slice(0, 5).map((group) => `<span><b>${escapeHtml(group.key)}</b><em>${group.degraded}/${group.total}</em></span>`).join("")}</div>`
+    : `<p class="muted">${escapeHtml(emptyText)}</p>`;
+}
+
+function safeFileName(value) {
+  return String(value).replace(/[^a-z0-9.-]/gi, "_");
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -176,6 +259,10 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replaceAll("`", "&#096;");
 }
 
 const loaded = await loadAggregate();

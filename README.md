@@ -20,32 +20,26 @@ Runet Blackbox отвечает на практический вопрос:
 
 ## Быстрый старт за 60 секунд
 
-Требования: Node.js `22+`. Runtime-зависимостей нет. `npm ci` поддерживается для чистого checkout.
+Требования: Node.js `22+`. Runtime-зависимостей нет.
 
 Linux/macOS:
 
 ```bash
-git clone https://github.com/etern1ty-crypto/runet-blackbox.git
-cd runet-blackbox
-npm ci
-npm test
-node cli/bin/runet-blackbox.js check github.com --region Moscow --provider Rostelecom
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```
 
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/etern1ty-crypto/runet-blackbox.git
-cd runet-blackbox
-npm ci
-npm test
-node .\cli\bin\runet-blackbox.js check github.com --region Moscow --provider Rostelecom
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```
 
 Создать публичный JSON-отчёт:
 
 ```bash
-node cli/bin/runet-blackbox.js check github.com \
+npx runet-blackbox check github.com \
   --region Moscow \
   --provider Rostelecom \
   --asn AS12389 \
@@ -54,7 +48,7 @@ node cli/bin/runet-blackbox.js check github.com \
   --output report.json
 ```
 
-Проверить перед отправкой:
+Если работаешь из checkout, можно отдельно провалидировать файл перед отправкой:
 
 ```bash
 node scripts/validate-report.mjs report.json
@@ -65,7 +59,7 @@ node scripts/validate-report.mjs report.json
 Быстрее: CLI может сам подготовить issue body:
 
 ```bash
-node cli/bin/runet-blackbox.js check github.com \
+npx runet-blackbox check github.com \
   --region Moscow \
   --provider Rostelecom \
   --json --pretty \
@@ -75,18 +69,28 @@ node cli/bin/runet-blackbox.js check github.com \
 Если clipboard доступен:
 
 ```bash
-node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
+npx runet-blackbox check github.com --json --pretty --copy-issue
 ```
 
 Проверить готовый набор целей:
 
 ```bash
-node cli/bin/runet-blackbox.js packs
-node cli/bin/runet-blackbox.js check --pack dev --region Moscow --provider Rostelecom --copy-issue
-node cli/bin/runet-blackbox.js check --pack ai --region Moscow --provider MTS --issue-file ai.issue.md
+npx runet-blackbox packs
+npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox check --pack ai --region Moscow --provider MTS --issue-file ai.issue.md
 ```
 
 Доступные packs: `dev`, `ai`, `social`, `cloud`, `baseline`.
+
+Для разработки и тестов из исходников:
+
+```bash
+git clone https://github.com/etern1ty-crypto/runet-blackbox.git
+cd runet-blackbox
+npm ci
+npm run check
+node cli/bin/runet-blackbox.js check github.com --region Moscow --provider Rostelecom
+```
 
 ## Windows DNS
 
@@ -95,7 +99,7 @@ node cli/bin/runet-blackbox.js check --pack ai --region Moscow --provider MTS --
 Для сравнения можно явно указать DNS:
 
 ```powershell
-node .\cli\bin\runet-blackbox.js check github.com `
+npx runet-blackbox check github.com `
   --region Moscow `
   --provider Rostelecom `
   --asn AS12389 `
@@ -181,7 +185,8 @@ Summary:    Измеренный путь завершился успешно.
 4. GitHub Actions валидирует и санитизирует отчёт ещё раз.
 5. Принятые отчёты сохраняются в `data/reports/*.jsonl`.
 6. Агрегаты пересобираются в `data/aggregates`.
-7. GitHub Pages показывает статический dashboard “Network Weather”.
+7. Генерируются safe SVG cards в `data/aggregates/cards` и weekly digest в `data/digests/YYYY-WW.md`.
+8. GitHub Pages показывает статический dashboard “Network Weather” с target detail и timeline.
 
 В текущей архитектуре нет центрального сервера.
 
@@ -214,6 +219,7 @@ apps/web/                  Static GitHub Pages dashboard
 cli/                       User-facing measurement CLI
 data/reports/              Sanitized accepted JSONL reports
 data/aggregates/           Generated dashboard data
+data/digests/              Generated weekly Network Weather digests
 docs/                      Methodology, privacy, volunteer docs
 examples/                  Safe example inputs and reports
 packs/                     Curated target packs: dev, ai, social, cloud, baseline

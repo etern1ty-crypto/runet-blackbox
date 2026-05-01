@@ -116,3 +116,25 @@ test("aggregateReports marks low sample credibility", () => {
   assert.equal(aggregate.domains[0].credibility.level, "single_report");
   assert.equal(aggregate.latest_reports[0].credibility.level, "single_report");
 });
+
+test("aggregateReports exposes per-target provider region and day details", () => {
+  const aggregate = aggregateReports([
+    makeReport({ target: "github.com", provider: "Rostelecom", asn: 12389, region: "Moscow", ts: "2026-04-27T12:00:00.000Z" }),
+    makeReport({ target: "github.com", provider: "MTS", asn: 8359, region: "Kazan", category: "tls_timeout", ts: "2026-04-28T12:00:00.000Z" })
+  ]);
+  const domain = aggregate.domains.find((item) => item.key === "github.com");
+  assert.equal(domain.providers.length, 2);
+  assert.equal(domain.regions.length, 2);
+  assert.equal(domain.days.length, 2);
+  assert.equal(domain.latest_reports[0].region, "Kazan");
+});
+
+test("aggregateReports exposes dominant category metadata", () => {
+  const aggregate = aggregateReports([
+    makeReport({ category: "tls_timeout" }),
+    makeReport({ category: "tls_timeout", ts: "2026-04-27T12:15:00.000Z" }),
+    makeReport({ category: "ok", ts: "2026-04-27T12:30:00.000Z" })
+  ]);
+  assert.equal(aggregate.domains[0].dominant_category.category, "tls_timeout");
+  assert.equal(aggregate.domains[0].dominant_category.title_ru, "Таймаут TLS");
+});

@@ -22,16 +22,18 @@ export function aggregateReports(inputReports) {
   const regions = new Map();
   const days = new Map();
   const categories = new Map();
+  const domainDetails = new Map();
 
   for (const report of reports) {
     incrementDomain(domains, report);
+    incrementDomainDetails(domainDetails, report);
     incrementGroup(providers, providerKey(report), report);
     incrementGroup(regions, report.region, report);
     incrementGroup(days, reportDay(report.timestamp_utc), report);
     incrementGroup(categories, report.diagnosis.category, report);
   }
 
-  const domainGroups = sortedGroups(domains);
+  const domainGroups = sortedGroups(domains).map((group) => enrichDomainGroup(group, domainDetails.get(group.key)));
 
   return {
     generated_at: new Date().toISOString(),
@@ -78,6 +80,22 @@ function incrementDomain(domains, report) {
   incrementGroup(domains, report.target, report);
 }
 
+function incrementDomainDetails(map, report) {
+  if (!map.has(report.target)) {
+    map.set(report.target, {
+      providers: new Map(),
+      regions: new Map(),
+      days: new Map(),
+      reports: []
+    });
+  }
+  const detail = map.get(report.target);
+  incrementGroup(detail.providers, providerKey(report), report);
+  incrementGroup(detail.regions, report.region, report);
+  incrementGroup(detail.days, reportDay(report.timestamp_utc), report);
+  detail.reports.push(report);
+}
+
 function incrementGroup(map, key, report) {
   const safeKey = key || "unknown";
   if (!map.has(safeKey)) {
@@ -103,6 +121,29 @@ function incrementGroup(map, key, report) {
   }
 }
 
+function enrichDomainGroup(group, detail) {
+  const providers = detail ? sortedGroups(detail.providers) : [];
+  const regions = detail ? sortedGroups(detail.regions) : [];
+  const days = detail ? sortedGroups(detail.days, "key", "asc") : [];
+  const latestReports = detail
+    ? detail.reports
+        .slice()
+        .sort((a, b) => b.timestamp_utc.localeCompare(a.timestamp_utc))
+        .slice(0, 25)
+        .map(publicReportSummary)
+    : [];
+
+  return {
+    ...group,
+    dominant_category: dominantCategory(group.categories),
+    providers,
+    regions,
+    days,
+    latest_reports: latestReports,
+    provider_incident_candidates: providers.filter((provider) => provider.weather.status === "incident_candidate" || provider.weather.status === "degraded_candidate")
+  };
+}
+
 function sortedGroups(map, sortKey = "total", order = "desc") {
   const values = Array.from(map.values()).map((group) => ({
     ...group,
@@ -117,6 +158,22 @@ function sortedGroups(map, sortKey = "total", order = "desc") {
     }
     return order === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
   });
+}
+
+function dominantCategory(categories) {
+  const entries = Object.entries(categories || {}).sort((a, b) => {
+    if (b[1] !== a[1]) return b[1] - a[1];
+    return a[0].localeCompare(b[0]);
+  });
+  const [category = "insufficient_data", count = 0] = entries[0] || [];
+  const metadata = diagnosisMetadata(category);
+  return {
+    category,
+    count,
+    severity: metadata.severity,
+    title: metadata.title,
+    title_ru: metadata.title_ru || metadata.title
+  };
 }
 
 function weatherSummary(domains) {

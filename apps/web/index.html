@@ -65,6 +65,13 @@ node ./cli/bin/runet-blackbox.js check --pack dev --region Moscow --provider Ros
       <p id="data-mode" class="mode-banner"></p>
       <p id="generated-at" class="muted generated"></p>
 
+      <section class="weather-grid" aria-label="Network Weather">
+        <article><span>Mostly OK</span><strong id="weather-ok">0</strong></article>
+        <article><span>Weak signals</span><strong id="weather-weak">0</strong></article>
+        <article><span>Reports needed</span><strong id="weather-needed">0</strong></article>
+        <article><span>Incident candidates</span><strong id="weather-incidents">0</strong></article>
+      </section>
+
       <section class="how">
         <div>
           <p class="eyebrow">Как пользоваться</p>
@@ -87,6 +94,24 @@ node ./cli/bin/runet-blackbox.js check --pack dev --region Moscow --provider Ros
           <input id="search" type="search" placeholder="Фильтр: домен, провайдер, регион">
         </div>
         <div id="targets" class="table"></div>
+      </section>
+
+      <section class="grid">
+        <article class="panel panel-strong">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Target detail</p>
+              <h2 id="target-detail-title">Цель не выбрана</h2>
+            </div>
+            <a id="target-card" class="button secondary small" href="data/aggregates/cards/overview.svg">SVG card</a>
+          </div>
+          <div id="target-detail" class="target-detail"></div>
+        </article>
+        <article class="panel panel-strong">
+          <p class="eyebrow">Timeline</p>
+          <h2>Динамика отчётов</h2>
+          <div id="timeline" class="timeline"></div>
+        </article>
       </section>
 
       <section class="grid">

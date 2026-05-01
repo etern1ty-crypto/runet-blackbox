@@ -139,6 +139,11 @@ h2 {
   background: rgba(255, 255, 255, 0.42);
 }
 
+.button.small {
+  padding: 10px 13px;
+  font-size: 0.78rem;
+}
+
 .terminal {
   display: flex;
   flex-direction: column;
@@ -195,7 +200,8 @@ pre {
 
 .trust-grid,
 .stats,
-.grid {
+.grid,
+.weather-grid {
   display: grid;
   gap: 16px;
 }
@@ -233,6 +239,35 @@ pre {
 .stats {
   grid-template-columns: repeat(3, 1fr);
   margin-top: 18px;
+}
+
+.weather-grid {
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 18px;
+}
+
+.weather-grid article {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 18px;
+  color: #fff8e8;
+  background: rgba(23, 22, 18, 0.82);
+  box-shadow: var(--shadow);
+}
+
+.weather-grid span {
+  display: block;
+  color: #d7cbb6;
+  font: 900 0.76rem/1 Bahnschrift, "Segoe UI", sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.weather-grid strong {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.07em;
 }
 
 .stats strong {
@@ -314,6 +349,10 @@ pre {
   margin-bottom: 18px;
 }
 
+.panel-head.compact {
+  align-items: center;
+}
+
 input {
   width: min(430px, 100%);
   border: 1px solid var(--line-strong);
@@ -349,6 +388,21 @@ input {
   grid-template-columns: minmax(0, 1.4fr) 0.7fr 0.85fr auto;
 }
 
+.target-row {
+  appearance: none;
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.target-row:hover,
+.target-row.selected {
+  border-color: rgba(181, 61, 31, 0.45);
+  background: rgba(255, 246, 220, 0.72);
+}
+
 .row small {
   color: var(--muted);
   font: 700 0.78rem/1.2 Bahnschrift, "Segoe UI", sans-serif;
@@ -369,6 +423,102 @@ input {
   border: 1px solid var(--line);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.4);
+}
+
+.target-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.detail-summary {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.detail-summary p,
+.detail-latest ul {
+  margin: 0;
+}
+
+.detail-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.detail-columns h3,
+.detail-latest h3 {
+  margin: 0 0 10px;
+  font: 900 0.78rem/1 Bahnschrift, "Segoe UI", sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mini-list {
+  display: grid;
+  gap: 8px;
+}
+
+.mini-list span {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.mini-list em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.detail-latest ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+}
+
+.timeline {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  font: 800 0.86rem/1 Bahnschrift, "Segoe UI", sans-serif;
+}
+
+.timeline-bar {
+  display: flex;
+  overflow: hidden;
+  height: 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.timeline-bar i {
+  display: block;
+  min-width: 1px;
+}
+
+.timeline-bar .ok {
+  background: var(--ok);
+}
+
+.timeline-bar .bad {
+  background: var(--bad);
 }
 
 .pill {
@@ -417,7 +567,9 @@ footer {
   .trust-grid,
   .stats,
   .grid,
-  .steps {
+  .steps,
+  .weather-grid,
+  .detail-columns {
     grid-template-columns: 1fr;
   }
 

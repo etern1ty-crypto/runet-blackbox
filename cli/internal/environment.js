@@ -8,8 +8,18 @@ const TUNNEL_INTERFACE_PATTERNS = [
   /(^|[-_.\s])(vpn|tun|tap|utun|wireguard|tailscale|zerotier|openvpn|sing|clash|outline|warp|ppp)($|[-_.\s\d])/i
 ];
 
-export function detectEnvironment(networkInterfaces = os.networkInterfaces()) {
-  const names = Object.keys(networkInterfaces || {});
+export function detectEnvironment(networkInterfaces) {
+  let interfaces = networkInterfaces;
+  try {
+    interfaces = interfaces || os.networkInterfaces();
+  } catch {
+    return {
+      suspected_vpn_or_tunnel: false,
+      warning_ru: null,
+      warning: null
+    };
+  }
+  const names = Object.keys(interfaces || {});
   const suspected = names.some((name) => TUNNEL_INTERFACE_PATTERNS.some((pattern) => pattern.test(name)));
   return {
     suspected_vpn_or_tunnel: suspected,

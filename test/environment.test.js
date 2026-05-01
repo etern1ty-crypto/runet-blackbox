@@ -27,3 +27,8 @@ test("detectEnvironment ignores ordinary interface names", () => {
   assert.equal(result.suspected_vpn_or_tunnel, false);
   assert.equal(result.warning_ru, null);
 });
+
+test("detectEnvironment is non-fatal when OS interfaces are unavailable", () => {
+  const result = detectEnvironment(null);
+  assert.equal(typeof result.suspected_vpn_or_tunnel, "boolean");
+});
