@@ -253,7 +253,7 @@ npm run aggregate
 
 ## Release Status
 
-Current release: `v0.2.0`, first npm/npx release with target packs and Network Weather bundles.
+Current release: `v0.3.0`, Network Weather release with target details, weekly digests, and safe SVG share cards.
 
 See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-checklist.md](docs/release-checklist.md).
 

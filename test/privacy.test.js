@@ -4,7 +4,7 @@ import { findSensitivePaths, sanitizeReport, stripSensitive } from "../src/priva
 
 const baseReport = {
   schema_version: "1.0",
-  tool_version: "0.2.0",
+  tool_version: "0.3.0",
   timestamp_utc: "2026-04-27T12:07:33.000Z",
   target: "GitHub.com",
   country: "ru",

@@ -1,7 +1,7 @@
 {
   "report_id": "rbb_f398bd2be658ead1ae2a",
   "schema_version": "1.0",
-  "tool_version": "0.2.0",
+  "tool_version": "0.3.0",
   "timestamp_utc": "2026-04-27T12:00:00.000Z",
   "target": "example.com",
   "country": "RU",

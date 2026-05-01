@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## v0.3.0 - 2026-05-01
+
 ### Added
 
 - Aggregates now include per-target provider, region, day, dominant diagnosis, latest-report, and provider incident-candidate details.
