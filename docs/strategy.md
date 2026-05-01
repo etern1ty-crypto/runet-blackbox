@@ -76,9 +76,10 @@ QUIC/HTTP3 и ECH можно добавлять только как консер
 ## Road to GitHub Visibility
 
 1. Publish npm package for true `npx runet-blackbox ...`.
-2. Make `--pack dev --copy-issue` the main public workflow.
-3. Run the First 50 Reports campaign before external launch.
-4. Show Network Weather on the dashboard, not empty tables.
-5. Generate weekly Markdown digests from public aggregates.
-6. Add signed releases and checksums.
-7. Keep README as a landing page: one command, one screenshot/GIF, one clear safety boundary.
+2. Make `doctor` + single-target `--issue-url` the fastest public workflow.
+3. Use `--pack dev --issue-file` or `--copy-issue` for batch reports that are too large for browser URLs.
+4. Run the First 50 Reports campaign before external launch.
+5. Show Network Weather on the dashboard, not empty tables.
+6. Generate weekly Markdown digests from public aggregates.
+7. Add signed releases and checksums.
+8. Keep README as a landing page: one command, one screenshot/GIF, one clear safety boundary.

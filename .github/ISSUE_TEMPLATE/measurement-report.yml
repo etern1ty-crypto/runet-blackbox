@@ -9,13 +9,19 @@ body:
       value: |
         Запусти CLI и вставь JSON ниже:
 
-        `node cli/bin/runet-blackbox.js check <domain> --region Moscow --provider <provider> --json --pretty --output report.json`
+        Самый простой путь:
+
+        `npx runet-blackbox check <domain> --region Moscow --provider <provider> --issue-url`
+
+        Если ссылка слишком большая или ты отправляешь pack:
+
+        `npx runet-blackbox check --pack dev --region Moscow --provider <provider> --issue-file report.issue.md`
 
         Windows PowerShell:
 
-        `node .\cli\bin\runet-blackbox.js check <domain> --region Moscow --provider <provider> --json --pretty --output .\report.json`
+        `npx runet-blackbox check <domain> --region Moscow --provider <provider> --issue-url`
 
-        English: run the CLI locally and paste the sanitized JSON below.
+        English: run the CLI locally and paste the sanitized JSON below. For one target, `--issue-url` can prefill this form.
 
         Не добавляй IP-адреса, точную локацию, account IDs, private URLs, cookies, headers, packet captures или логи.
         Do not add IP addresses, exact location, account IDs, private URLs, cookies, headers, packet captures, or logs.

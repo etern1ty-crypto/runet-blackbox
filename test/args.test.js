@@ -18,6 +18,10 @@ test("parseCliArgs returns packs", () => {
   assert.deepEqual(parseCliArgs(["packs"]), { command: "packs" });
 });
 
+test("parseCliArgs returns doctor", () => {
+  assert.deepEqual(parseCliArgs(["doctor"]), { command: "doctor" });
+});
+
 test("parseCliArgs rejects unknown command", () => {
   assert.throws(() => parseCliArgs(["scan"]));
 });
@@ -68,6 +72,10 @@ test("parseCheckArgs parses issue file", () => {
 
 test("parseCheckArgs parses copy issue", () => {
   assert.equal(parseCheckArgs(["github.com", "--copy-issue"]).copyIssue, true);
+});
+
+test("parseCheckArgs parses issue url", () => {
+  assert.equal(parseCheckArgs(["github.com", "--issue-url"]).issueUrl, true);
 });
 
 test("parseCheckArgs parses pack", () => {

@@ -44,6 +44,11 @@ export function formatHumanReport(report, options = {}) {
   if (options.copiedIssue) {
     lines.push("GitHub issue body подготовлен для clipboard.");
   }
+  if (options.issueUrl) {
+    lines.push("");
+    lines.push("GitHub issue URL:");
+    lines.push(options.issueUrl);
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -77,6 +82,37 @@ export function formatBatchReport(bundle, options = {}) {
   if (options.copiedIssue) {
     lines.push("GitHub issue body подготовлен для clipboard.");
   }
+  if (options.issueUrl) {
+    lines.push("GitHub issue URL:");
+    lines.push(options.issueUrl);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+export function formatDoctorReport(environment, options = {}) {
+  const nodeMajor = Number(String(options.nodeVersion || "").split(".")[0]);
+  const nodeOk = Number.isInteger(nodeMajor) && nodeMajor >= 22;
+  const lines = [];
+  lines.push("Runet Blackbox doctor");
+  lines.push("");
+  lines.push(`Node.js: ${options.nodeVersion || "unknown"} ${nodeOk ? "ok" : "needs 22+"}`);
+  lines.push(`Platform: ${options.platform || process.platform}`);
+  lines.push(`Clipboard providers: ${(options.clipboardCommands || []).join(", ") || "none detected"}`);
+  lines.push("");
+  lines.push("Environment:");
+  if (environment?.suspected_vpn_or_tunnel) {
+    lines.push("  warning: похоже, активен VPN/tun/proxy adapter; публичный отчёт будет помечен safe boolean-маркером.");
+    lines.push("  details: имена интерфейсов, IP и конфиги не публикуются.");
+  } else {
+    lines.push("  ok: явных VPN/tun/proxy-like интерфейсов не найдено.");
+  }
+  lines.push("");
+  lines.push("Recommended first report:");
+  lines.push("  npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url");
+  lines.push("");
+  lines.push("Windows note:");
+  lines.push("  Если DNS даёт ECONNREFUSED, сравни системный DNS с явным резолвером через --dns 8.8.8.8.");
+  lines.push("  Для файлов предпочитай --output report.json вместо PowerShell Out-File.");
   return `${lines.join("\n")}\n`;
 }
 
@@ -105,6 +141,7 @@ Open network observability for unstable networks.
   runet-blackbox check <domain> [options]
   runet-blackbox check --pack <name> [options]
   runet-blackbox packs
+  runet-blackbox doctor
   runet-blackbox sample [--pretty]
   runet-blackbox version
 
@@ -115,8 +152,10 @@ Open network observability for unstable networks.
   runet-blackbox check github.com --region Moscow --provider MTS --connection-type mobile --json --pretty
   runet-blackbox check github.com --dns 8.8.8.8 --json --pretty
   runet-blackbox check github.com --json --pretty --issue-file report.issue.md
+  runet-blackbox check github.com --json --pretty --issue-url
   runet-blackbox check github.com --json --pretty --copy-issue
   runet-blackbox check example.com --no-http --fail-on-degraded
+  runet-blackbox doctor
   runet-blackbox sample --pretty
 
 Опции / Options:
@@ -131,6 +170,7 @@ Open network observability for unstable networks.
   --json                     Напечатать JSON-отчёт
   --pretty                   Красиво форматировать JSON
   --issue-file <file>        Записать готовый GitHub issue body
+  --issue-url                Напечатать prefilled GitHub issue URL, если он не слишком большой
   --copy-issue               Скопировать GitHub issue body в clipboard, если возможно
   --pack <name>              Проверить готовый набор целей: dev, ai, social, cloud, baseline
   --fail-on-degraded         Exit 2, если диагноз не ok

@@ -14,6 +14,9 @@ export function parseCliArgs(argv) {
   if (command === "packs") {
     return { command: "packs" };
   }
+  if (command === "doctor") {
+    return { command: "doctor" };
+  }
   if (command !== "check") {
     throw usageError(`unknown command: ${command}`);
   }
@@ -33,6 +36,7 @@ export function parseCheckArgs(argv) {
     pretty: false,
     output: null,
     issueFile: null,
+    issueUrl: false,
     copyIssue: false,
     pack: null,
     http: true,
@@ -77,6 +81,9 @@ export function parseCheckArgs(argv) {
         break;
       case "--issue-file":
         options.issueFile = requiredValue(argv, ++i, token);
+        break;
+      case "--issue-url":
+        options.issueUrl = true;
         break;
       case "--copy-issue":
         options.copyIssue = true;

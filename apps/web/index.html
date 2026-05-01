@@ -31,10 +31,17 @@
             <span></span><span></span><span></span>
             <strong>60 секунд / quickstart</strong>
           </div>
-          <pre><code>git clone https://github.com/etern1ty-crypto/runet-blackbox.git
-cd runet-blackbox
-npm ci
-node ./cli/bin/runet-blackbox.js check --pack dev --region Moscow --provider Rostelecom --asn AS12389 --issue-file dev.issue.md</code></pre>
+          <pre><code>npx runet-blackbox doctor
+npx runet-blackbox check github.com \
+  --region Moscow \
+  --provider Rostelecom \
+  --issue-url
+
+# pack отчёт: лучше issue-file
+npx runet-blackbox check --pack dev \
+  --region Moscow \
+  --provider Rostelecom \
+  --issue-file dev.issue.md</code></pre>
         </aside>
       </section>
 
@@ -79,8 +86,8 @@ node ./cli/bin/runet-blackbox.js check --pack dev --region Moscow --provider Ros
         </div>
         <div class="steps">
           <article><b>1</b><span>Запусти одну цель или pack: <code>--pack dev</code>, <code>--pack ai</code>, <code>--pack baseline</code>.</span></article>
-          <article><b>2</b><span>CLI создаст готовый Markdown для issue через <code>--issue-file</code> или попробует скопировать его через <code>--copy-issue</code>.</span></article>
-          <article><b>3</b><span>Открой Measurement report issue и вставь готовый публичный отчёт.</span></article>
+          <article><b>2</b><span>Для одной цели используй <code>--issue-url</code>: CLI даст ссылку на prefilled GitHub issue.</span></article>
+          <article><b>3</b><span>Для pack-отчёта используй <code>--issue-file</code> или <code>--copy-issue</code>, чтобы не упереться в лимит длины URL.</span></article>
           <article><b>4</b><span>GitHub Actions повторно санитизирует отчёт и обновит агрегаты dashboard.</span></article>
         </div>
       </section>

@@ -18,37 +18,41 @@ English: use this guide to collect safe, privacy-preserving measurements from ne
 Linux/macOS:
 
 ```bash
-node cli/bin/runet-blackbox.js check github.com \
+npx runet-blackbox doctor
+npx runet-blackbox check github.com \
   --region Moscow \
   --provider Rostelecom \
   --asn AS12389 \
   --connection-type home \
-  --json --pretty \
-  --output report.json
+  --issue-url
 ```
 
 Windows PowerShell:
 
 ```powershell
-node .\cli\bin\runet-blackbox.js check github.com `
+npx runet-blackbox doctor
+npx runet-blackbox check github.com `
   --region Moscow `
   --provider Rostelecom `
   --asn AS12389 `
   --connection-type home `
-  --json --pretty `
-  --output .\report.json
+  --issue-url
 ```
 
-Проверка:
+`--issue-url` печатает ссылку на prefilled GitHub issue для одиночной цели. Если хочешь сначала сохранить JSON локально:
+
+```bash
+npx runet-blackbox check github.com \
+  --region Moscow \
+  --provider Rostelecom \
+  --json --pretty \
+  --output report.json
+```
+
+Если работаешь из checkout, можно провалидировать файл:
 
 ```bash
 node scripts/validate-report.mjs report.json
-```
-
-Windows:
-
-```powershell
-node .\scripts\validate-report.mjs .\report.json
 ```
 
 Затем открой GitHub issue **Measurement report** и вставь JSON.
@@ -56,7 +60,7 @@ node .\scripts\validate-report.mjs .\report.json
 Можно подготовить текст issue автоматически:
 
 ```bash
-node cli/bin/runet-blackbox.js check github.com \
+npx runet-blackbox check github.com \
   --region Moscow \
   --provider Rostelecom \
   --json --pretty \
@@ -66,7 +70,7 @@ node cli/bin/runet-blackbox.js check github.com \
 Или попробовать clipboard:
 
 ```bash
-node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
+npx runet-blackbox check github.com --json --pretty --copy-issue
 ```
 
 ## Pack-измерение
@@ -74,8 +78,8 @@ node cli/bin/runet-blackbox.js check github.com --json --pretty --copy-issue
 Для кампании “First 50 Reports” лучше использовать маленькие готовые packs:
 
 ```bash
-node cli/bin/runet-blackbox.js packs
-node cli/bin/runet-blackbox.js check --pack dev \
+npx runet-blackbox packs
+npx runet-blackbox check --pack dev \
   --region Moscow \
   --provider Rostelecom \
   --connection-type home \
@@ -89,7 +93,7 @@ Pack issue содержит JSON bundle. GitHub Actions импортирует �
 По умолчанию используется системный резолвер ОС. Если Windows показывает DNS `ECONNREFUSED` или нужно сравнение, можно явно указать DNS:
 
 ```powershell
-node .\cli\bin\runet-blackbox.js check github.com `
+npx runet-blackbox check github.com `
   --region Moscow `
   --provider Rostelecom `
   --asn AS12389 `

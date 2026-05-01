@@ -5,9 +5,9 @@ import { parseCliArgs } from "./args.js";
 import { buildReportBundle } from "./bundle.js";
 import { runCheck } from "./checks/run.js";
 import { detectEnvironment } from "./environment.js";
-import { formatBatchReport, formatHumanReport, formatPacksList, helpText } from "./format.js";
+import { formatBatchReport, formatDoctorReport, formatHumanReport, formatPacksList, helpText } from "./format.js";
 import { availablePacks, loadPack } from "./packs.js";
-import { buildIssueBody, copyIssueBody } from "./submit.js";
+import { buildIssueBody, buildIssueUrl, clipboardCommandLabels, copyIssueBody, ISSUE_URL_LENGTH_LIMIT, issueUrlFits } from "./submit.js";
 
 export async function runCli(argv, io = {}) {
   const stdout = io.stdout || process.stdout;
@@ -37,6 +37,14 @@ export async function runCli(argv, io = {}) {
       stdout.write(formatPacksList(availablePacks()));
       return 0;
     }
+    if (args.command === "doctor") {
+      stdout.write(formatDoctorReport(readEnvironment(), {
+        nodeVersion: process.versions.node,
+        platform: process.platform,
+        clipboardCommands: clipboardCommandLabels(process.platform)
+      }));
+      return 0;
+    }
 
     const environment = readEnvironment();
     if (environment.warning_ru) {
@@ -53,6 +61,7 @@ export async function runCli(argv, io = {}) {
     if (args.output) {
       await writeFile(args.output, `${JSON.stringify(report, null, 2)}\n`, "utf8");
     }
+    const issueUrl = prepareIssueUrl(report, args, stderr);
     if (args.issueFile || args.copyIssue) {
       const body = buildIssueBody(report);
       if (args.issueFile) {
@@ -67,7 +76,7 @@ export async function runCli(argv, io = {}) {
     if (args.json) {
       stdout.write(`${json}\n`);
     } else {
-      stdout.write(formatHumanReport(report, { output: args.output, issueFile: args.issueFile, copiedIssue: args.copyIssue }));
+      stdout.write(formatHumanReport(report, { output: args.output, issueFile: args.issueFile, copiedIssue: args.copyIssue, issueUrl }));
     }
 
     return args.failOnDegraded && report.diagnosis.category !== "ok" ? 2 : 0;
@@ -91,6 +100,7 @@ async function runPackCheck(args, io) {
   if (args.output) {
     await io.writeFile(args.output, `${JSON.stringify(bundle, null, 2)}\n`, "utf8");
   }
+  const issueUrl = prepareIssueUrl(bundle, args, io.stderr);
   if (args.issueFile || args.copyIssue) {
     const body = buildIssueBody(bundle);
     if (args.issueFile) {
@@ -105,10 +115,23 @@ async function runPackCheck(args, io) {
   if (args.json) {
     io.stdout.write(`${json}\n`);
   } else {
-    io.stdout.write(formatBatchReport(bundle, { output: args.output, issueFile: args.issueFile, copiedIssue: args.copyIssue }));
+    io.stdout.write(formatBatchReport(bundle, { output: args.output, issueFile: args.issueFile, copiedIssue: args.copyIssue, issueUrl }));
   }
 
   return args.failOnDegraded && reports.some((report) => report.diagnosis.category !== "ok") ? 2 : 0;
+}
+
+function prepareIssueUrl(payload, args, stderr) {
+  if (!args.issueUrl) return null;
+  const url = buildIssueUrl(payload);
+  if (!issueUrlFits(url)) {
+    stderr.write(`runet-blackbox: GitHub issue URL is too large for safe browser use (${Buffer.byteLength(url, "utf8")} bytes > ${ISSUE_URL_LENGTH_LIMIT}); use --issue-file or --copy-issue instead\n`);
+    return null;
+  }
+  if (args.json) {
+    stderr.write(`runet-blackbox: GitHub issue URL: ${url}\n`);
+  }
+  return url;
 }
 
 function sampleReport() {

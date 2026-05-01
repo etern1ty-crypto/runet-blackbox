@@ -25,14 +25,16 @@ Runet Blackbox отвечает на практический вопрос:
 Linux/macOS:
 
 ```bash
-npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox doctor
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url
 npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```
 
 Windows PowerShell:
 
 ```powershell
-npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox doctor
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url
 npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```
 
@@ -56,6 +58,15 @@ node scripts/validate-report.mjs report.json
 
 Отправка: открой GitHub issue по шаблону **Measurement report** и вставь JSON.
 
+Для одиночной цели быстрее всего получить prefilled GitHub issue URL:
+
+```bash
+npx runet-blackbox check github.com \
+  --region Moscow \
+  --provider Rostelecom \
+  --issue-url
+```
+
 Быстрее: CLI может сам подготовить issue body:
 
 ```bash
@@ -71,6 +82,8 @@ npx runet-blackbox check github.com \
 ```bash
 npx runet-blackbox check github.com --json --pretty --copy-issue
 ```
+
+Для pack-отчётов `--issue-file` или `--copy-issue` обычно надёжнее, чем `--issue-url`: URL браузера может стать слишком длинным.
 
 Проверить готовый набор целей:
 
@@ -93,6 +106,12 @@ node cli/bin/runet-blackbox.js check github.com --region Moscow --provider Roste
 ```
 
 ## Windows DNS
+
+Перед первым отчётом можно запустить локальную диагностику окружения:
+
+```powershell
+npx runet-blackbox doctor
+```
 
 По умолчанию CLI использует системный резолвер ОС. На Windows это важно: `dns.promises.Resolver()` может попасть в DNS виртуального/tun адаптера и получить `ECONNREFUSED`, хотя обычный системный резолвинг работает.
 
@@ -194,12 +213,14 @@ Summary:    Измеренный путь завершился успешно.
 
 ```bash
 node cli/bin/runet-blackbox.js help
+node cli/bin/runet-blackbox.js doctor
 node cli/bin/runet-blackbox.js version
 node cli/bin/runet-blackbox.js sample --pretty
 node cli/bin/runet-blackbox.js check example.com --no-http
 node cli/bin/runet-blackbox.js packs
 node cli/bin/runet-blackbox.js check --pack dev --copy-issue
 node cli/bin/runet-blackbox.js check github.com --dns 8.8.8.8 --json --pretty
+node cli/bin/runet-blackbox.js check github.com --issue-url
 node cli/bin/runet-blackbox.js check github.com --json --pretty --issue-file report.issue.md
 node scripts/aggregate.mjs
 npm run check
@@ -262,6 +283,7 @@ See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-ch
 Основной быстрый путь через npm:
 
 ```bash
-npx runet-blackbox check github.com --region Moscow --provider Rostelecom --copy-issue
+npx runet-blackbox doctor
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url
 npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```

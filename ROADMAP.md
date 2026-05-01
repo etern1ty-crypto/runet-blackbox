@@ -1,30 +1,25 @@
 # Roadmap
 
-## v0.1.x
+## v0.4
 
-- Collect the first 100-300 reports from volunteers.
-- Improve dashboard domain detail pages.
-- Add signed release artifacts through GitHub Actions.
+- Make the first report flow almost zero-friction: `doctor`, `--issue-url`, and robust `--issue-file` fallbacks.
+- Improve GitHub issue import comments for accepted/rejected reports.
+- Add signed release checksums and provenance notes.
 - Add more diagnosis fixtures from real sanitized reports.
-- Improve issue import comments for accepted/rejected reports.
-- Publish the npm package once npm ownership/auth is ready.
 - Run the "First 50 Reports" campaign around `dev`, `ai`, and `baseline` packs.
 
-## v0.2
+## v0.5
 
 - Optional multi-resolver DNS comparison.
 - Better provider/ASN normalization.
 - Provider/ASN normalization beyond free-text labels.
+- More dashboard filtering for provider, region, pack, and diagnosis category.
 
-## v0.3
+## Later
 
-- Dashboard timeline charts and target detail panels.
-- Weekly Network Weather digest in `data/digests/YYYY-WW.md`.
-- Safe share cards or SVG summaries without sensitive fields.
 - Conservative optional QUIC/HTTP3 probe with low request volume.
-- Target detail pages and per-provider incident candidates.
-- Signed release checksums and provenance notes.
 - Community-maintained regional campaigns built around the core CLI.
+- Exportable weekly summaries for Habr/dev.to posts.
 
 ## Non-Goals
 

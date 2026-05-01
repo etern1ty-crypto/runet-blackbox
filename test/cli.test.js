@@ -22,6 +22,8 @@ test("CLI help includes examples and exit codes", async () => {
   assert.match(result.stdout, /Exit codes:/);
   assert.match(result.stdout, /--dns, --dns-server/);
   assert.match(result.stdout, /--pack/);
+  assert.match(result.stdout, /--issue-url/);
+  assert.match(result.stdout, /doctor/);
 });
 
 test("CLI sample prints valid JSON with report id", async () => {
@@ -91,6 +93,48 @@ test("CLI copies issue body when clipboard adapter is available", async () => {
   assert.equal(result.exitCode, 0);
   assert.match(result.stderr, /copied to clipboard/);
   assert.match(copied, /"target": "github.com"/);
+});
+
+test("CLI prints issue URL in human output", async () => {
+  const result = await runCliCapture(
+    ["check", "github.com", "--no-http", "--issue-url"],
+    {
+      runCheck: async () => fakeReport()
+    }
+  );
+  assert.equal(result.exitCode, 0);
+  assert.match(result.stdout, /GitHub issue URL:/);
+  assert.match(result.stdout, /issues\/new/);
+  assert.match(result.stdout, /report_json=/);
+});
+
+test("CLI keeps JSON stdout stable when printing issue URL", async () => {
+  const result = await runCliCapture(
+    ["check", "github.com", "--no-http", "--json", "--issue-url"],
+    {
+      runCheck: async () => fakeReport()
+    }
+  );
+  assert.equal(result.exitCode, 0);
+  assert.equal(JSON.parse(result.stdout).target, "github.com");
+  assert.match(result.stderr, /GitHub issue URL:/);
+});
+
+test("CLI doctor prints safe local diagnostics", async () => {
+  const result = await runCliCapture(
+    ["doctor"],
+    {
+      detectEnvironment: () => ({
+        suspected_vpn_or_tunnel: true,
+        warning_ru: "test warning"
+      })
+    }
+  );
+  assert.equal(result.exitCode, 0);
+  assert.match(result.stdout, /Runet Blackbox doctor/);
+  assert.match(result.stdout, /Node\.js:/);
+  assert.match(result.stdout, /VPN\/tun\/proxy/);
+  assert.doesNotMatch(result.stdout, /test warning/);
 });
 
 test("CLI lists target packs", async () => {

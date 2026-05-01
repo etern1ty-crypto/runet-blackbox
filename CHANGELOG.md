@@ -2,7 +2,15 @@
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- CLI `doctor` command for safe local readiness checks before the first public report.
+- CLI `--issue-url` option for single-target prefilled GitHub measurement issue URLs.
+
+### Changed
+
+- Clipboard submission now tries multiple Linux providers (`wl-copy`, `xclip`, `xsel`) before falling back.
+- README, dashboard, issue template, and volunteer guide now lead with `npx`, `doctor`, and `--issue-url` for lower-friction onboarding.
 
 ## v0.3.0 - 2026-05-01
 
