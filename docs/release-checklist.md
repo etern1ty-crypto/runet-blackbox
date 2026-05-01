@@ -13,6 +13,7 @@
 - Privacy and threat model docs are up to date.
 - GitHub issue templates are present.
 - GitHub Actions workflows are present.
+- `release-artifacts` workflow is expected to attach npm tarball, `SHA256SUMS.txt`, and `PROVENANCE.md` to tag releases.
 - `.codex`, credentials, tokens, cookies, and private logs are not staged.
 
 ## Release Notes Template
@@ -28,4 +29,8 @@ Highlights:
 Non-goals:
 - No VPN/proxy/bypass functionality.
 - No central telemetry server.
+
+Verification:
+- Compare the release tarball against `SHA256SUMS.txt`.
+- Read `PROVENANCE.md` for tag, commit, runtime, npm version, and workflow run.
 ```

@@ -2,8 +2,7 @@
 
 ## v0.4
 
-- Make the first report flow almost zero-friction: `doctor`, `--issue-url`, and robust `--issue-file` fallbacks.
-- Improve GitHub issue import comments for accepted/rejected reports.
+- Finish hardening the first report flow around `doctor`, `--issue-url`, robust `--issue-file` fallbacks, and import feedback.
 - Add signed release checksums and provenance notes.
 - Add more diagnosis fixtures from real sanitized reports.
 - Run the "First 50 Reports" campaign around `dev`, `ai`, and `baseline` packs.
@@ -13,7 +12,7 @@
 - Optional multi-resolver DNS comparison.
 - Better provider/ASN normalization.
 - Provider/ASN normalization beyond free-text labels.
-- More dashboard filtering for provider, region, pack, and diagnosis category.
+- More dashboard filtering for pack and time window.
 
 ## Later
 

@@ -196,6 +196,8 @@ Summary:    Измеренный путь завершился успешно.
 
 Подробности: [Privacy](docs/privacy.md), [Methodology](docs/methodology.md), [Threat Model](docs/threat-model.md).
 
+Как читать агрегаты: [Data Trust Model](docs/data-trust-model.md). Как помочь с холодным стартом: [First 50 Reports](docs/first-50-reports.md).
+
 ## Поток отчёта
 
 1. Волонтёр запускает CLI локально.
@@ -266,6 +268,7 @@ npm run aggregate
 Начни с [CONTRIBUTING.md](CONTRIBUTING.md). Хорошие первые задачи:
 
 - собрать реальные отчёты от разных провайдеров и регионов;
+- помочь кампании [First 50 Reports](docs/first-50-reports.md);
 - предложить изменения target packs через PR;
 - улучшить tests для diagnosis edge cases;
 - добавить консервативные blockpage fingerprints без хранения body;

@@ -6,11 +6,15 @@
 
 - CLI `doctor` command for safe local readiness checks before the first public report.
 - CLI `--issue-url` option for single-target prefilled GitHub measurement issue URLs.
+- GitHub issue import feedback comments for accepted, duplicate, rejected, and sanitized reports.
+- Data trust model and First 50 Reports campaign documentation.
+- Release artifact workflow for npm tarball checksums and provenance notes on `v*` tags.
 
 ### Changed
 
 - Clipboard submission now tries multiple Linux providers (`wl-copy`, `xclip`, `xsel`) before falling back.
 - README, dashboard, issue template, and volunteer guide now lead with `npx`, `doctor`, and `--issue-url` for lower-friction onboarding.
+- Dashboard target list can be filtered by Network Weather status, diagnosis, provider, and region.
 
 ## v0.3.0 - 2026-05-01
 

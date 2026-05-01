@@ -63,3 +63,69 @@ test("import-issue imports report bundles", async () => {
   const imported = await fs.readFile(path.join(out, "2026-04-27.jsonl"), "utf8");
   assert.equal(imported.trim().split(/\r?\n/).length, 2);
 });
+
+test("import-issue writes rejected summary for invalid reports", async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "runet-blackbox-import-reject-"));
+  const out = path.join(dir, "reports");
+  const bodyFile = path.join(dir, "issue.md");
+  const summaryFile = path.join(dir, "summary.md");
+  const resultFile = path.join(dir, "result.json");
+  await fs.writeFile(bodyFile, "```json\n{\"target\":\"localhost\"}\n```\n", "utf8");
+
+  await assert.rejects(
+    () => execFileAsync(process.execPath, [
+      "scripts/import-issue.mjs",
+      "--body-file",
+      bodyFile,
+      "--out",
+      out,
+      "--summary-file",
+      summaryFile,
+      "--result-file",
+      resultFile
+    ]),
+    (error) => error.code === 1
+  );
+
+  const summary = await fs.readFile(summaryFile, "utf8");
+  assert.match(summary, /отчёт отклонён/);
+  assert.match(summary, /Rejected: 1/);
+  assert.match(summary, /report #1/);
+  assert.doesNotMatch(summary, /localhost/);
+
+  const result = JSON.parse(await fs.readFile(resultFile, "utf8"));
+  assert.equal(result.status, "rejected");
+  assert.equal(result.rejected, 1);
+  assert.equal(result.imported, 0);
+});
+
+test("import-issue reports partial imports without failing", async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "runet-blackbox-import-partial-"));
+  const out = path.join(dir, "reports");
+  const bodyFile = path.join(dir, "issue.md");
+  const summaryFile = path.join(dir, "summary.md");
+  const valid = JSON.parse(await fs.readFile(new URL("./fixtures/valid-report.json", import.meta.url), "utf8"));
+  const bundle = {
+    bundle_schema_version: "1.0",
+    reports: [valid, { target: "localhost" }]
+  };
+  await fs.writeFile(bodyFile, `\`\`\`json\n${JSON.stringify(bundle, null, 2)}\n\`\`\`\n`, "utf8");
+
+  await execFileAsync(process.execPath, [
+    "scripts/import-issue.mjs",
+    "--body-file",
+    bodyFile,
+    "--out",
+    out,
+    "--summary-file",
+    summaryFile
+  ]);
+
+  const summary = await fs.readFile(summaryFile, "utf8");
+  assert.match(summary, /Imported: 1/);
+  assert.match(summary, /Rejected: 1/);
+  assert.match(summary, /Accepted reports/);
+  assert.match(summary, /Rejected reports/);
+  assert.match(summary, /github.com/);
+  assert.doesNotMatch(summary, /localhost/);
+});

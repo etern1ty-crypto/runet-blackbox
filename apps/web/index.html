@@ -23,6 +23,8 @@
           <div class="actions">
             <a class="button primary" href="https://github.com/etern1ty-crypto/runet-blackbox/issues/new?template=measurement-report.yml">Отправить отчёт</a>
             <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox">GitHub / README</a>
+            <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox/blob/main/docs/first-50-reports.md">First 50 Reports</a>
+            <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox/blob/main/docs/data-trust-model.md">Trust model</a>
           </div>
         </div>
 
@@ -98,7 +100,33 @@ npx runet-blackbox check --pack dev \
             <p class="eyebrow">Live aggregates</p>
             <h2>Цели / Targets</h2>
           </div>
-          <input id="search" type="search" placeholder="Фильтр: домен, провайдер, регион">
+          <input id="search" type="search" placeholder="Поиск: домен, провайдер, регион">
+        </div>
+        <div class="filters" aria-label="Dashboard filters">
+          <label>
+            Weather
+            <select id="weather-filter">
+              <option value="">Все статусы</option>
+            </select>
+          </label>
+          <label>
+            Diagnosis
+            <select id="category-filter">
+              <option value="">Все диагнозы</option>
+            </select>
+          </label>
+          <label>
+            Provider
+            <select id="provider-filter">
+              <option value="">Все провайдеры</option>
+            </select>
+          </label>
+          <label>
+            Region
+            <select id="region-filter">
+              <option value="">Все регионы</option>
+            </select>
+          </label>
         </div>
         <div id="targets" class="table"></div>
       </section>

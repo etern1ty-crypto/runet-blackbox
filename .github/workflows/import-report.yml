@@ -27,10 +27,14 @@ jobs:
       - name: Validate project
         run: npm run check
       - name: Import report
-        run: node scripts/import-issue.mjs --github-event "$GITHUB_EVENT_PATH" --out data/reports
+        id: import
+        continue-on-error: true
+        run: node scripts/import-issue.mjs --github-event "$GITHUB_EVENT_PATH" --out data/reports --summary-file import-summary.md --result-file import-result.json
       - name: Rebuild aggregates
+        if: steps.import.outcome == 'success'
         run: node scripts/aggregate.mjs
       - name: Commit data changes
+        if: steps.import.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -38,3 +42,16 @@ jobs:
           git diff --cached --quiet || git commit -m "Import measurement report"
           git pull --rebase
           git push
+      - name: Comment import result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [ ! -s import-summary.md ]; then
+            printf '## Runet Blackbox: import did not finish\n\nThe workflow failed before producing a structured import summary. Check the Actions log.\n' > import-summary.md
+          fi
+          gh issue comment "$ISSUE_NUMBER" --body-file import-summary.md
+      - name: Fail rejected import
+        if: steps.import.outcome != 'success'
+        run: exit 1

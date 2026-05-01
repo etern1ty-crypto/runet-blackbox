@@ -2,7 +2,13 @@ const state = {
   aggregate: null,
   demo: false,
   query: "",
-  selectedTarget: null
+  selectedTarget: null,
+  filters: {
+    weather: "",
+    category: "",
+    provider: "",
+    region: ""
+  }
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -76,6 +82,7 @@ function render() {
     ? "Демо-режим: показаны искусственные безопасные данные, пока реальные отчёты не собраны. Demo data is synthetic."
     : datasetNote(aggregate.dataset_quality);
 
+  renderFilters(aggregate);
   renderTargets(aggregate.domains || []);
   renderWeather(aggregate.weather || {});
   renderTargetDetail(selectedDomain(aggregate.domains || []));
@@ -90,9 +97,16 @@ function matchesQuery(value) {
   return JSON.stringify(value).toLowerCase().includes(state.query.toLowerCase());
 }
 
+function renderFilters(aggregate) {
+  setSelectOptions("#weather-filter", weatherOptions(aggregate.domains || []), state.filters.weather);
+  setSelectOptions("#category-filter", categoryOptions(aggregate.categories || []), state.filters.category, categoryLabel);
+  setSelectOptions("#provider-filter", keyOptions(aggregate.providers || []), state.filters.provider);
+  setSelectOptions("#region-filter", keyOptions(aggregate.regions || []), state.filters.region);
+}
+
 function renderTargets(domains) {
-  const filtered = domains.filter(matchesQuery);
-  if (!state.selectedTarget && filtered[0]) {
+  const filtered = domains.filter(matchesDomainFilters);
+  if (!filtered.some((domain) => domain.key === state.selectedTarget) && filtered[0]) {
     state.selectedTarget = filtered[0].key;
   }
   $("#targets").innerHTML = filtered.length
@@ -189,7 +203,7 @@ function renderGroups(selector, groups, options = {}) {
 }
 
 function renderLatest(reports) {
-  const filtered = reports.filter(matchesQuery).slice(0, 25);
+  const filtered = reports.filter(matchesReportFilters).slice(0, 25);
   $("#latest").innerHTML = filtered.length
     ? filtered
         .map(
@@ -239,7 +253,65 @@ function emptyState(ru, en) {
 }
 
 function selectedDomain(domains) {
-  return domains.find((domain) => domain.key === state.selectedTarget) || domains.filter(matchesQuery)[0] || domains[0] || null;
+  const filtered = domains.filter(matchesDomainFilters);
+  return filtered.find((domain) => domain.key === state.selectedTarget) || filtered[0] || null;
+}
+
+function matchesDomainFilters(domain) {
+  if (!matchesQuery(domain)) return false;
+  if (state.filters.weather && domain.weather?.status !== state.filters.weather) return false;
+  if (state.filters.category && !domain.categories?.[state.filters.category]) return false;
+  if (state.filters.provider && !(domain.providers || []).some((provider) => provider.key === state.filters.provider)) return false;
+  if (state.filters.region && !(domain.regions || []).some((region) => region.key === state.filters.region)) return false;
+  return true;
+}
+
+function matchesReportFilters(report) {
+  if (!matchesQuery(report)) return false;
+  if (state.filters.category && report.diagnosis?.category !== state.filters.category) return false;
+  if (state.filters.provider && providerReportKey(report) !== state.filters.provider) return false;
+  if (state.filters.region && report.region !== state.filters.region) return false;
+  if (state.filters.weather) {
+    const domain = (state.aggregate.domains || []).find((item) => item.key === report.target);
+    if (domain?.weather?.status !== state.filters.weather) return false;
+  }
+  return true;
+}
+
+function setSelectOptions(selector, options, selectedValue, labeler = (value) => value) {
+  const select = $(selector);
+  const first = select.options[0];
+  select.innerHTML = "";
+  select.append(first);
+  for (const value of options) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = labeler(value);
+    option.selected = value === selectedValue;
+    select.append(option);
+  }
+  select.value = selectedValue;
+}
+
+function weatherOptions(domains) {
+  return unique(domains.map((domain) => domain.weather?.status).filter(Boolean));
+}
+
+function categoryOptions(groups) {
+  return keyOptions(groups);
+}
+
+function keyOptions(groups) {
+  return unique(groups.map((group) => group.key).filter(Boolean));
+}
+
+function unique(values) {
+  return Array.from(new Set(values)).sort((a, b) => String(a).localeCompare(String(b)));
+}
+
+function providerReportKey(report) {
+  const asn = report.asn ? `AS${report.asn}` : "AS?";
+  return `${report.provider} (${asn})`;
 }
 
 function compactBreakdown(groups, emptyText) {
@@ -272,4 +344,15 @@ $("#search").addEventListener("input", (event) => {
   state.query = event.target.value;
   render();
 });
+for (const [id, key] of [
+  ["#weather-filter", "weather"],
+  ["#category-filter", "category"],
+  ["#provider-filter", "provider"],
+  ["#region-filter", "region"]
+]) {
+  $(id).addEventListener("change", (event) => {
+    state.filters[key] = event.target.value;
+    render();
+  });
+}
 render();

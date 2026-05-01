@@ -363,6 +363,32 @@ input {
   font: 700 0.95rem/1 Bahnschrift, "Segoe UI", sans-serif;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: -4px 0 18px;
+}
+
+.filters label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font: 900 0.72rem/1 Bahnschrift, "Segoe UI", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+select {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 11px 13px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.58);
+  font: 800 0.85rem/1 Bahnschrift, "Segoe UI", sans-serif;
+}
+
 .grid {
   grid-template-columns: repeat(2, 1fr);
 }
@@ -569,6 +595,7 @@ footer {
   .grid,
   .steps,
   .weather-grid,
+  .filters,
   .detail-columns {
     grid-template-columns: 1fr;
   }
