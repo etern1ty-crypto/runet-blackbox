@@ -4,6 +4,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { runCli } from "../cli/internal/main.js";
+import { TOOL_VERSION } from "../src/constants.js";
 
 const execFileAsync = promisify(execFile);
 const bin = fileURLToPath(new URL("../cli/bin/runet-blackbox.js", import.meta.url));
@@ -12,7 +13,7 @@ const canRunSubprocessCli = await canCaptureNodeStdout();
 test("CLI version prints version", async () => {
   const result = await runCliCapture(["version"]);
   assert.equal(result.exitCode, 0);
-  assert.match(result.stdout, /^0\.3\.0\n$/);
+  assert.equal(result.stdout, `${TOOL_VERSION}\n`);
 });
 
 test("CLI help includes examples and exit codes", async () => {

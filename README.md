@@ -115,18 +115,18 @@ npx runet-blackbox doctor
 
 По умолчанию CLI использует системный резолвер ОС. На Windows это важно: `dns.promises.Resolver()` может попасть в DNS виртуального/tun адаптера и получить `ECONNREFUSED`, хотя обычный системный резолвинг работает.
 
-Для сравнения можно явно указать DNS:
+Для сравнения системного DNS с публичным резолвером используй `--compare-dns`. Это не меняет дальнейшие TCP/TLS/HTTP проверки:
 
 ```powershell
 npx runet-blackbox check github.com `
   --region Moscow `
   --provider Rostelecom `
   --asn AS12389 `
-  --dns 8.8.8.8 `
+  --compare-dns 8.8.8.8 `
   --json --pretty
 ```
 
-`--dns` и `--dns-server` эквивалентны. Это не обход блокировок, а диагностическое сравнение резолверов.
+`--dns` и `--dns-server` эквивалентны и используют явный DNS как primary resolver. `--compare-dns` добавляет отдельный comparison resolver, но primary остаётся системным. Это не обход блокировок, а диагностическое сравнение резолверов.
 
 Если включён VPN/proxy/tun, не публикуй отчёт как обычную домашнюю сеть. CLI локально предупреждает о похожих интерфейсах и публикует только безопасный boolean-маркер `environment.suspected_vpn_or_tunnel`, без имён интерфейсов, IP или конфигов.
 
@@ -144,7 +144,8 @@ See [Positioning](docs/positioning.md) for “why not another OONI?” and proje
 
 Для одной цели CLI выполняет цепочку:
 
-- DNS `A`/`AAAA` через системный резолвер или явно заданный `--dns`;
+- DNS `A`/`AAAA` через системный резолвер или явно заданный primary `--dns`;
+- optional DNS comparison через `--compare-dns`, без публикации raw DNS answers;
 - TCP connect к `80` и `443`;
 - TLS handshake с SNI на `443`;
 - HTTPS request, если TLS успешен;
@@ -277,7 +278,7 @@ npm run aggregate
 
 ## Release Status
 
-Current release: `v0.3.0`, Network Weather release with target details, weekly digests, and safe SVG share cards.
+Current release: `v0.3.1`, DNS comparison release with safer Windows/provider resolver diagnostics.
 
 See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-checklist.md](docs/release-checklist.md).
 

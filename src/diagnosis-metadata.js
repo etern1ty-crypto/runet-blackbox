@@ -26,6 +26,15 @@ export const DIAGNOSIS_METADATA = {
     next_step: "Check for typos and compare with another resolver before drawing conclusions.",
     next_step_ru: "Проверьте опечатки и сравните с другим резолвером перед выводами."
   },
+  dns_resolver_disagreement: {
+    title: "DNS resolver disagreement",
+    title_ru: "Расхождение DNS-резолверов",
+    severity: "degraded",
+    summary: "The primary resolver failed, while a comparison resolver resolved the target.",
+    summary_ru: "Основной резолвер не ответил корректно, но comparison resolver смог разрешить цель.",
+    next_step: "Submit the report and collect another provider sample; this is a diagnostic signal, not bypass advice.",
+    next_step_ru: "Отправьте отчёт и соберите пример у другого провайдера; это диагностический сигнал, не совет по обходу."
+  },
   dns_suspicious_answer: {
     title: "Suspicious DNS answer",
     title_ru: "Подозрительный DNS-ответ",

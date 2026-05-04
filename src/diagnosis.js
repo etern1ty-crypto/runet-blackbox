@@ -29,12 +29,21 @@ export function classifyReport(report) {
   const tcp80 = result(["tcp_80"], report);
   const tls = result(["tls"], report);
   const http = result(["http"], report);
+  const dnsCompare = result(["dns_compare"], report);
 
   const dnsStatus = statusOf(dns);
+  const dnsCompareStatus = statusOf(dnsCompare);
   const tcp443Status = statusOf(tcp443);
   const tcp80Status = statusOf(tcp80);
   const tlsStatus = statusOf(tls);
   const httpStatus = statusOf(http);
+
+  if (["timeout", "nxdomain", "servfail", "refused", "connection_refused", "error"].includes(dnsStatus) && dnsCompareStatus === "ok") {
+    return diagnosis("dns_resolver_disagreement", 0.82, [
+      `system dns status is ${dnsStatus}`,
+      "comparison resolver resolved target"
+    ]);
+  }
 
   if (dnsStatus === "timeout") {
     return diagnosis("dns_timeout", 0.9, ["dns timed out"]);

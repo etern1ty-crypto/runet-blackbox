@@ -40,6 +40,11 @@ const invalidCases = [
   ["bad diagnosis signals", { diagnosis: { category: "ok", confidence: 1, signals: "ok" } }, "diagnosis.signals must be an array"]
 ];
 
+test("validateReport accepts dns_compare check", () => {
+  const report = merge(structuredClone(valid), { results: { dns_compare: { status: "ok", latency_ms: 12 } } });
+  assert.equal(validateReport(report).valid, true);
+});
+
 for (const [name, patch, expectedError] of invalidCases) {
   test(`validateReport rejects ${name}`, () => {
     const report = merge(structuredClone(valid), patch);

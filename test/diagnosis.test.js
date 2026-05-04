@@ -18,6 +18,7 @@ function report(overrides) {
 const cases = [
   ["all checks ok", {}, "ok"],
   ["dns timeout", { dns: { status: "timeout" } }, "dns_timeout"],
+  ["dns resolver disagreement", { dns: { status: "refused" }, dns_compare: { status: "ok" } }, "dns_resolver_disagreement"],
   ["dns nxdomain", { dns: { status: "nxdomain" } }, "dns_nxdomain"],
   ["dns suspicious", { dns: { status: "suspicious_answer" } }, "dns_suspicious_answer"],
   ["dns servfail", { dns: { status: "servfail" } }, "dns_failure"],

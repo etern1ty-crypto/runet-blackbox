@@ -1,6 +1,6 @@
 import { buildReport } from "../../../src/report.js";
 import { assertMeasurementTarget } from "../../../src/target-policy.js";
-import { checkDns } from "./dns.js";
+import { checkDns, checkDnsComparison } from "./dns.js";
 import { checkHttp } from "./http.js";
 import { checkTcp } from "./tcp.js";
 import { checkTls } from "./tls.js";
@@ -10,6 +10,10 @@ export async function runCheck(targetInput, options = {}) {
   const results = {};
 
   results.dns = await checkDns(target, options);
+  const dnsCompare = await checkDnsComparison(target, options);
+  if (dnsCompare) {
+    results.dns_compare = dnsCompare;
+  }
 
   if (results.dns.status !== "ok") {
     results.tcp_80 = { status: "not_tested_due_to_dns_failure" };

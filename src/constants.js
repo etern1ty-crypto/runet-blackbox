@@ -1,5 +1,5 @@
 export const SCHEMA_VERSION = "1.0";
-export const TOOL_VERSION = "0.3.0";
+export const TOOL_VERSION = "0.3.1";
 
 export const CONNECTION_TYPES = new Set([
   "unknown",
@@ -37,6 +37,7 @@ export const DIAGNOSIS_CATEGORIES = new Set([
   "ok",
   "dns_timeout",
   "dns_nxdomain",
+  "dns_resolver_disagreement",
   "dns_suspicious_answer",
   "dns_failure",
   "tcp_timeout",

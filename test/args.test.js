@@ -62,6 +62,24 @@ test("parseCheckArgs parses dns alias", () => {
   assert.equal(parseCheckArgs(["github.com", "--dns", "8.8.8.8"]).dnsServer, "8.8.8.8");
 });
 
+test("parseCheckArgs parses ipv6 dns resolver", () => {
+  assert.equal(parseCheckArgs(["github.com", "--dns", "2001:4860:4860::8888"]).dnsServer, "2001:4860:4860::8888");
+});
+
+test("parseCheckArgs parses dns comparison resolvers", () => {
+  assert.deepEqual(parseCheckArgs(["github.com", "--compare-dns", "8.8.8.8", "--dns-compare", "1.1.1.1"]).dnsCompareServers, [
+    "8.8.8.8",
+    "1.1.1.1"
+  ]);
+});
+
+test("parseCheckArgs deduplicates and caps dns comparison resolvers", () => {
+  assert.deepEqual(
+    parseCheckArgs(["github.com", "--compare-dns", "8.8.8.8", "--compare-dns", "8.8.8.8", "--compare-dns", "1.1.1.1", "--compare-dns", "9.9.9.9", "--compare-dns", "76.76.2.0"]).dnsCompareServers,
+    ["8.8.8.8", "1.1.1.1", "9.9.9.9"]
+  );
+});
+
 test("parseCheckArgs parses output short option", () => {
   assert.equal(parseCheckArgs(["github.com", "-o", "report.json"]).output, "report.json");
 });
@@ -120,6 +138,10 @@ test("parseCheckArgs rejects missing option value", () => {
 
 test("parseCheckArgs rejects invalid timeout", () => {
   assert.throws(() => parseCheckArgs(["github.com", "--timeout", "10"]));
+});
+
+test("parseCheckArgs rejects invalid dns resolver", () => {
+  assert.throws(() => parseCheckArgs(["github.com", "--compare-dns", "resolver.example"]));
 });
 
 test("parseCliArgs usage errors expose exit code 64", () => {

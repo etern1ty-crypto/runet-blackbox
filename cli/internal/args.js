@@ -1,3 +1,4 @@
+import net from "node:net";
 import { parseAsn } from "../../src/target.js";
 
 export function parseCliArgs(argv) {
@@ -41,6 +42,7 @@ export function parseCheckArgs(argv) {
     pack: null,
     http: true,
     dnsServer: null,
+    dnsCompareServers: [],
     failOnDegraded: false
   };
 
@@ -73,7 +75,11 @@ export function parseCheckArgs(argv) {
         break;
       case "--dns":
       case "--dns-server":
-        options.dnsServer = requiredValue(argv, ++i, token);
+        options.dnsServer = parseDnsServer(requiredValue(argv, ++i, token), token);
+        break;
+      case "--compare-dns":
+      case "--dns-compare":
+        options.dnsCompareServers.push(parseDnsServer(requiredValue(argv, ++i, token), token));
         break;
       case "--output":
       case "-o":
@@ -116,6 +122,7 @@ export function parseCheckArgs(argv) {
   }
 
   options.target = positionals[0] || null;
+  options.dnsCompareServers = [...new Set(options.dnsCompareServers)].slice(0, 3);
   return options;
 }
 
@@ -145,6 +152,14 @@ function parseTimeout(value) {
     throw usageError("--timeout must be an integer between 250 and 60000 milliseconds");
   }
   return number;
+}
+
+function parseDnsServer(value, option) {
+  const server = String(value || "").trim();
+  if (!net.isIP(server)) {
+    throw usageError(`${option} requires a DNS resolver IP address`);
+  }
+  return server;
 }
 
 function usageError(message) {

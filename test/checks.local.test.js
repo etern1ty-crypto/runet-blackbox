@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import net from "node:net";
-import { checkDns } from "../cli/internal/checks/dns.js";
+import { checkDns, checkDnsComparison } from "../cli/internal/checks/dns.js";
 import { checkHttp } from "../cli/internal/checks/http.js";
 import { checkTcp } from "../cli/internal/checks/tcp.js";
 
@@ -43,6 +43,29 @@ test("checkDns maps refused OS resolver errors", async () => {
   });
   assert.equal(result.status, "refused");
   assert.equal(result.resolver, "system");
+});
+
+test("checkDnsComparison compares resolvers without raw addresses", async () => {
+  const result = await checkDnsComparison("example.com", {
+    dnsCompareServers: ["8.8.8.8", "1.1.1.1"],
+    resolveWithServer: async (_target, server) => ({
+      status: server === "8.8.8.8" ? "ok" : "timeout",
+      latency_ms: 12.4,
+      addresses_count: server === "8.8.8.8" ? 2 : 0,
+      addresses: ["93.184.216.34"]
+    })
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.resolvers.length, 2);
+  assert.equal(result.resolvers[0].resolver, "8.8.8.8");
+  assert.equal(result.resolvers[0].addresses_count, 2);
+  assert.equal(result.resolvers[0].addresses, undefined);
+});
+
+test("checkDnsComparison skips IP literals", async () => {
+  const result = await checkDnsComparison("8.8.8.8", { dnsCompareServers: ["1.1.1.1"] });
+  assert.equal(result.status, "skipped");
+  assert.deepEqual(result.resolvers, []);
 });
 
 test("checkTcp connects to local server", { skip: !canUseLocalNetwork && "sandbox blocks local networking" }, async () => {

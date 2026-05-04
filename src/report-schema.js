@@ -2,7 +2,7 @@ import { CONNECTION_TYPES, DIAGNOSIS_CATEGORIES, RESULT_STATUS, SCHEMA_VERSION }
 import { isValidTarget } from "./target.js";
 import { validateMeasurementTarget } from "./target-policy.js";
 
-const CHECK_NAMES = new Set(["dns", "tcp_80", "tcp_443", "tls", "http", "quic"]);
+const CHECK_NAMES = new Set(["dns", "dns_compare", "tcp_80", "tcp_443", "tls", "http", "quic"]);
 
 export function validateReport(report) {
   const errors = [];

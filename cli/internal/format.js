@@ -19,7 +19,7 @@ export function formatHumanReport(report, options = {}) {
   for (const [name, result] of Object.entries(report.results)) {
     const latency = Number.isFinite(result.latency_ms) ? ` ${Math.round(result.latency_ms)}ms` : "";
     const detail = result.error ? ` - ${result.error}` : "";
-    lines.push(`  ${name.padEnd(8)} ${result.status}${latency}${detail}`);
+    lines.push(`  ${name.padEnd(12)} ${result.status}${latency}${detail}`);
   }
   if (report.diagnosis.signals.length) {
     lines.push("");
@@ -111,7 +111,7 @@ export function formatDoctorReport(environment, options = {}) {
   lines.push("  npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url");
   lines.push("");
   lines.push("Windows note:");
-  lines.push("  Если DNS даёт ECONNREFUSED, сравни системный DNS с явным резолвером через --dns 8.8.8.8.");
+  lines.push("  Если DNS даёт ECONNREFUSED, сравни системный DNS с публичным резолвером через --compare-dns 8.8.8.8.");
   lines.push("  Для файлов предпочитай --output report.json вместо PowerShell Out-File.");
   return `${lines.join("\n")}\n`;
 }
@@ -151,6 +151,7 @@ Open network observability for unstable networks.
   runet-blackbox check --pack ai --region Moscow --provider MTS --issue-file ai.issue.md
   runet-blackbox check github.com --region Moscow --provider MTS --connection-type mobile --json --pretty
   runet-blackbox check github.com --dns 8.8.8.8 --json --pretty
+  runet-blackbox check github.com --compare-dns 8.8.8.8 --json --pretty
   runet-blackbox check github.com --json --pretty --issue-file report.issue.md
   runet-blackbox check github.com --json --pretty --issue-url
   runet-blackbox check github.com --json --pretty --copy-issue
@@ -165,7 +166,8 @@ Open network observability for unstable networks.
   --asn <number|ASnumber>    ASN сети
   --connection-type <type>   unknown, home, mobile, office, public_wifi, hosting, other
   --timeout <ms>             Таймаут проверки, 250..60000, default 5000
-  --dns, --dns-server <ip>   Явный DNS-резолвер для сравнения
+  --dns, --dns-server <ip>   Использовать явный DNS-резолвер как primary
+  --compare-dns <ip>         Добавить DNS comparison resolver, primary остаётся системным
   --no-http                  Не делать HTTP/HTTPS запрос после TLS
   --json                     Напечатать JSON-отчёт
   --pretty                   Красиво форматировать JSON
