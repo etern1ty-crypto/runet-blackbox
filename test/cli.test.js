@@ -198,7 +198,7 @@ test("CLI writes pack issue body", async () => {
 
 test("CLI binary runs as a subprocess", { skip: canRunSubprocessCli ? false : "sandbox blocks child process stdout" }, async () => {
   const { stdout } = await execFileAsync(process.execPath, [bin, "version"]);
-  assert.match(stdout, /^0\.3\.0\n$/);
+  assert.equal(stdout, `${TOOL_VERSION}\n`);
 });
 
 async function runCliCapture(argv, overrides = {}) {
