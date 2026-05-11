@@ -1,28 +1,32 @@
-# Runet Blackbox
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1b27,50:F7DF1E,100:1a1b27&height=200&section=header&text=Runet%20Blackbox&fontSize=50&fontColor=FFFFFF&fontAlignY=35&desc=Open%20Network%20Observability%20for%20Unstable%20Networks&descSize=16&descColor=F7DF1E&descAlignY=55&animation=fadeIn" width="100%"/>
+
+<div align="center">
 
 [![validate](https://github.com/etern1ty-crypto/runet-blackbox/actions/workflows/validate.yml/badge.svg)](https://github.com/etern1ty-crypto/runet-blackbox/actions/workflows/validate.yml)
 [![pages](https://github.com/etern1ty-crypto/runet-blackbox/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/etern1ty-crypto/runet-blackbox/actions/workflows/deploy-pages.yml)
-[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Node.js 22+](https://img.shields.io/badge/node-22+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Version](https://img.shields.io/badge/version-0.3.1-blue?style=flat-square)]()
+[![Zero Dependencies](https://img.shields.io/badge/deps-zero-brightgreen?style=flat-square)]()
+[![Privacy First](https://img.shields.io/badge/privacy-first-important?style=flat-square)]()
 
-**Открытая диагностика нестабильных сетей.**
+**🇷🇺 [Русский](#-описание) · 🇬🇧 [English](#-overview)**
 
-**Open network observability for unstable networks.**
+</div>
 
-**Концепт:** сетевая метеосводка для разработчиков. Один запуск показывает, где ломается доступ к GitHub, npm, Docker, AI-сервисам или социальным платформам: DNS, TCP, TLS, HTTP, провайдер, регион или сам сервис.
+---
 
-**Concept:** Network Weather for developer infrastructure. One command to see where access breaks, one sanitized report to help others compare symptoms.
+## 🇬🇧 Overview
 
-Runet Blackbox отвечает на практический вопрос:
+**Runet Blackbox** is a privacy-first network measurement toolkit for unstable networks. One command shows where access breaks — DNS, TCP, TLS, HTTP — and produces sanitized JSON reports for community aggregation.
 
-> Сервис не открывается из этой сети. Это похоже на DNS-сбой, TCP timeout, TLS reset, HTTP blockpage, деградацию провайдера, локальную проблему или возможный сбой самого сервиса?
+> Network Weather for developer infrastructure. One command to see where access breaks, one sanitized report to help others compare symptoms.
 
-Это не VPN, не proxy, не bypass guide и не инструмент обхода ограничений. Проект только измеряет, классифицирует, очищает и агрегирует публичные свидетельства.
+**This is NOT** a VPN, proxy, bypass guide, or circumvention tool. It only measures, classifies, sanitizes, and aggregates public evidence.
 
-## Быстрый старт за 60 секунд
+### Quick Start (60 seconds)
 
-Требования: Node.js `22+`. Runtime-зависимостей нет.
-
-Linux/macOS:
+Requirements: Node.js `22+`. Zero runtime dependencies.
 
 ```bash
 npx runet-blackbox doctor
@@ -30,230 +34,177 @@ npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issu
 npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```
 
-Windows PowerShell:
+### What CLI Does
 
-```powershell
-npx runet-blackbox doctor
-npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url
-npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
+For each target, the CLI performs a diagnostic chain:
+
+| Step | Check |
+|:---|:---|
+| 1 | DNS `A`/`AAAA` via system resolver (or explicit `--dns`) |
+| 2 | Optional DNS comparison via `--compare-dns` |
+| 3 | TCP connect to ports `80` and `443` |
+| 4 | TLS handshake with SNI on `443` |
+| 5 | HTTPS request (if TLS succeeds) |
+| 6 | Deterministic diagnosis with confidence & signals |
+| 7 | Privacy sanitizer before JSON output |
+
+### Example Output
+
+```
+Measurement: Runet Blackbox
+
+Target:     github.com
+Report ID:  rbb_...
+Location:   RU/Moscow
+Network:    Rostelecom AS12389 (home)
+Diagnosis:  Available [ok]
+Confidence: 94%
+Summary:    Measured path completed successfully.
 ```
 
-Создать публичный JSON-отчёт:
+### What Gets Published / What Doesn't
 
-```bash
-npx runet-blackbox check github.com \
-  --region Moscow \
-  --provider Rostelecom \
-  --asn AS12389 \
-  --connection-type home \
-  --json --pretty \
-  --output report.json
-```
+<details>
+<summary><b>Published</b></summary>
 
-Если работаешь из checkout, можно отдельно провалидировать файл перед отправкой:
+- Target domain or public IP
+- Country and region (coarse)
+- Provider label and optional ASN
+- Connection type category
+- `suspected_vpn_or_tunnel` boolean flag
+- Timestamp (rounded to 15 min)
+- Check statuses and coarse latency
+- Diagnosis category, confidence, signals
+</details>
 
-```bash
-node scripts/validate-report.mjs report.json
-```
+<details>
+<summary><b>NOT published</b></summary>
 
-Отправка: открой GitHub issue по шаблону **Measurement report** и вставь JSON.
+- User IP address
+- Exact location
+- Raw DNS answers
+- HTTP headers, cookies, response bodies
+- Packet captures, traceroute hops
+- Credentials or private URLs
+</details>
 
-Для одиночной цели быстрее всего получить prefilled GitHub issue URL:
-
-```bash
-npx runet-blackbox check github.com \
-  --region Moscow \
-  --provider Rostelecom \
-  --issue-url
-```
-
-Быстрее: CLI может сам подготовить issue body:
-
-```bash
-npx runet-blackbox check github.com \
-  --region Moscow \
-  --provider Rostelecom \
-  --json --pretty \
-  --issue-file report.issue.md
-```
-
-Если clipboard доступен:
-
-```bash
-npx runet-blackbox check github.com --json --pretty --copy-issue
-```
-
-Для pack-отчётов `--issue-file` или `--copy-issue` обычно надёжнее, чем `--issue-url`: URL браузера может стать слишком длинным.
-
-Проверить готовый набор целей:
+### Available Target Packs
 
 ```bash
 npx runet-blackbox packs
-npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
-npx runet-blackbox check --pack ai --region Moscow --provider MTS --issue-file ai.issue.md
+# dev, ai, social, cloud, baseline
 ```
 
-Доступные packs: `dev`, `ai`, `social`, `cloud`, `baseline`.
+### Project Structure
 
-Для разработки и тестов из исходников:
+```
+apps/web/              Static GitHub Pages dashboard
+cli/                   User-facing measurement CLI
+data/reports/          Sanitized accepted JSONL reports
+data/aggregates/       Generated dashboard data
+data/digests/          Generated weekly Network Weather digests
+docs/                  Methodology, privacy, volunteer docs
+packs/                 Curated target packs
+schemas/               Machine-readable report schema
+scripts/               Import, validation, aggregation, CI helpers
+src/                   Shared report, diagnosis, privacy logic
+test/                  Unit and integration tests
+```
+
+### Development
 
 ```bash
 git clone https://github.com/etern1ty-crypto/runet-blackbox.git
 cd runet-blackbox
 npm ci
-npm run check
-node cli/bin/runet-blackbox.js check github.com --region Moscow --provider Rostelecom
+npm run check    # lint + validate
+npm test         # tests
+npm run aggregate
 ```
 
-## Windows DNS
+### Exit Codes
 
-Перед первым отчётом можно запустить локальную диагностику окружения:
+| Code | Meaning |
+|:---|:---|
+| `0` | Measurement completed |
+| `2` | Measurement completed, `--fail-on-degraded` found degradation |
+| `64` | CLI argument error |
+| `70` | Internal error |
 
-```powershell
-npx runet-blackbox doctor
-```
+### Documentation
 
-По умолчанию CLI использует системный резолвер ОС. На Windows это важно: `dns.promises.Resolver()` может попасть в DNS виртуального/tun адаптера и получить `ECONNREFUSED`, хотя обычный системный резолвинг работает.
+- [Positioning](docs/positioning.md) — "why not another OONI?"
+- [Privacy](docs/privacy.md)
+- [Methodology](docs/methodology.md)
+- [Threat Model](docs/threat-model.md)
+- [Data Trust Model](docs/data-trust-model.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CHANGELOG.md](CHANGELOG.md)
+- [ROADMAP.md](ROADMAP.md)
 
-Для сравнения системного DNS с публичным резолвером используй `--compare-dns`. Это не меняет дальнейшие TCP/TLS/HTTP проверки:
+### Tech Stack
 
-```powershell
-npx runet-blackbox check github.com `
-  --region Moscow `
-  --provider Rostelecom `
-  --asn AS12389 `
-  --compare-dns 8.8.8.8 `
-  --json --pretty
-```
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![Node.js](https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![GitHub Pages](https://img.shields.io/badge/github_pages-222222?style=for-the-badge&logo=github&logoColor=white)
 
-`--dns` и `--dns-server` эквивалентны и используют явный DNS как primary resolver. `--compare-dns` добавляет отдельный comparison resolver, но primary остаётся системным. Это не обход блокировок, а диагностическое сравнение резолверов.
+---
 
-Если включён VPN/proxy/tun, не публикуй отчёт как обычную домашнюю сеть. CLI локально предупреждает о похожих интерфейсах и публикует только безопасный boolean-маркер `environment.suspected_vpn_or_tunnel`, без имён интерфейсов, IP или конфигов.
+## 🇷🇺 Описание
 
-На Windows предпочитай `--output report.json` вместо `Out-File`: так файл пишет Node.js без BOM. Валидатор BOM принимает, но `--output` чище.
+**Runet Blackbox** — приватный инструмент измерения доступности для нестабильных сетей. Одна команда показывает, где ломается доступ — DNS, TCP, TLS, HTTP — и формирует санитизированные JSON-отчёты для агрегации сообществом.
 
-## What This Is
+> Сетевая метеосводка для разработчиков. Один запуск — видно где ломается, один отчёт — сравнение симптомов.
 
-Runet Blackbox is a privacy-first measurement toolkit for unstable networks. It runs conservative DNS/TCP/TLS/HTTP checks, produces a sanitized JSON report, and aggregates community evidence through GitHub.
+**Это НЕ** VPN, proxy, bypass guide и не инструмент обхода ограничений. Проект только измеряет, классифицирует, очищает и агрегирует публичные свидетельства.
 
-It is not a circumvention tool. It does not proxy traffic, tunnel connections, store packet captures, or collect exact user location.
+### Быстрый Старт (60 секунд)
 
-See [Positioning](docs/positioning.md) for “why not another OONI?” and project boundaries.
-
-## Что делает CLI
-
-Для одной цели CLI выполняет цепочку:
-
-- DNS `A`/`AAAA` через системный резолвер или явно заданный primary `--dns`;
-- optional DNS comparison через `--compare-dns`, без публикации raw DNS answers;
-- TCP connect к `80` и `443`;
-- TLS handshake с SNI на `443`;
-- HTTPS request, если TLS успешен;
-- детерминированный диагноз с confidence и signals;
-- privacy sanitizer перед JSON-выводом.
-
-Для pack CLI последовательно проверяет несколько целей и формирует JSON bundle, который GitHub Actions импортирует как набор отдельных sanitized reports.
-
-Пример human-readable вывода:
-
-```text
-Измерение Runet Blackbox
-
-Цель:       github.com
-Report ID:  rbb_...
-Локация:    RU/Moscow
-Сеть:       Rostelecom AS12389 (home)
-Диагноз:    Доступно [ok]
-Confidence: 94%
-Summary:    Измеренный путь завершился успешно.
-```
-
-## Что публикуется
-
-Публичные отчёты намеренно содержат меньше данных, чем CLI видит локально.
-
-Хранится:
-
-- target domain или публичный IP;
-- грубая страна и регион;
-- provider label и optional ASN;
-- connection type category;
-- безопасный маркер `suspected_vpn_or_tunnel`, если локально замечена VPN/tun/proxy-похожая среда;
-- timestamp, округлённый до 15 минут;
-- статусы проверок и грубая latency;
-- diagnosis category, confidence и короткие signals.
-
-Не хранится:
-
-- IP пользователя;
-- точная локация;
-- raw DNS answers;
-- HTTP headers;
-- cookies;
-- response bodies;
-- packet captures;
-- traceroute hops;
-- credentials или private URLs.
-
-Подробности: [Privacy](docs/privacy.md), [Methodology](docs/methodology.md), [Threat Model](docs/threat-model.md).
-
-Как читать агрегаты: [Data Trust Model](docs/data-trust-model.md). Как помочь с холодным стартом: [First 50 Reports](docs/first-50-reports.md).
-
-## Поток отчёта
-
-1. Волонтёр запускает CLI локально.
-2. CLI печатает локальный диагноз и sanitized JSON.
-3. Волонтёр открывает GitHub measurement issue и вставляет JSON.
-4. GitHub Actions валидирует и санитизирует отчёт ещё раз.
-5. Принятые отчёты сохраняются в `data/reports/*.jsonl`.
-6. Агрегаты пересобираются в `data/aggregates`.
-7. Генерируются safe SVG cards в `data/aggregates/cards` и weekly digest в `data/digests/YYYY-WW.md`.
-8. GitHub Pages показывает статический dashboard “Network Weather” с target detail и timeline.
-
-В текущей архитектуре нет центрального сервера.
-
-## Команды
+Требования: Node.js `22+`. Runtime-зависимостей нет.
 
 ```bash
-node cli/bin/runet-blackbox.js help
-node cli/bin/runet-blackbox.js doctor
-node cli/bin/runet-blackbox.js version
-node cli/bin/runet-blackbox.js sample --pretty
-node cli/bin/runet-blackbox.js check example.com --no-http
-node cli/bin/runet-blackbox.js packs
-node cli/bin/runet-blackbox.js check --pack dev --copy-issue
-node cli/bin/runet-blackbox.js check github.com --dns 8.8.8.8 --json --pretty
-node cli/bin/runet-blackbox.js check github.com --issue-url
-node cli/bin/runet-blackbox.js check github.com --json --pretty --issue-file report.issue.md
-node scripts/aggregate.mjs
-npm run check
+npx runet-blackbox doctor
+npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url
+npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
 ```
 
-Коды выхода:
+### Что Делает CLI
 
-- `0`: измерение завершено;
-- `2`: измерение завершено и `--fail-on-degraded` нашёл деградацию;
-- `64`: ошибка аргументов CLI;
-- `70`: внутренняя ошибка.
+Для каждой цели CLI выполняет цепочку:
 
-## Структура
+| Шаг | Проверка |
+|:---|:---|
+| 1 | DNS `A`/`AAAA` через системный резолвер (или `--dns`) |
+| 2 | Опциональное DNS сравнение через `--compare-dns` |
+| 3 | TCP connect на порты `80` и `443` |
+| 4 | TLS handshake с SNI на `443` |
+| 5 | HTTPS запрос (если TLS успешен) |
+| 6 | Детерминированный диагноз с confidence и signals |
+| 7 | Privacy sanitizer перед JSON-выводом |
 
-```text
-apps/web/                  Static GitHub Pages dashboard
-cli/                       User-facing measurement CLI
-data/reports/              Sanitized accepted JSONL reports
-data/aggregates/           Generated dashboard data
-data/digests/              Generated weekly Network Weather digests
-docs/                      Methodology, privacy, volunteer docs
-examples/                  Safe example inputs and reports
-packs/                     Curated target packs: dev, ai, social, cloud, baseline
-schemas/report.schema.json Machine-readable report schema
-scripts/                   Import, validation, aggregation, CI helpers
-src/                       Shared report, diagnosis, privacy, aggregation logic
-test/                      Unit and integration tests
+### Поток Отчёта
+
+```
+1. Волонтёр запускает CLI локально
+2. CLI печатает диагноз и санитизированный JSON
+3. Волонтёр открывает GitHub issue и вставляет JSON
+4. GitHub Actions валидирует и санитизирует повторно
+5. Принятые отчёты → data/reports/*.jsonl
+6. Агрегаты → data/aggregates
+7. Dashboard "Network Weather" на GitHub Pages
 ```
 
-## Разработка
+### Как Помочь
+
+Начни с [CONTRIBUTING.md](CONTRIBUTING.md):
+
+- Собрать реальные отчёты от разных провайдеров
+- Помочь кампании [First 50 Reports](docs/first-50-reports.md)
+- Предложить изменения target packs через PR
+- Улучшить tests для diagnosis edge cases
+- Перевести и вычитать docs
+
+### Разработка
 
 ```bash
 npm ci
@@ -262,32 +213,18 @@ npm test
 npm run aggregate
 ```
 
-Проект намеренно остаётся zero-dependency. Новые зависимости допустимы только если они заметно упрощают код и не ухудшают аудит публичного measurement path.
+---
 
-## Как помочь
+<div align="center">
 
-Начни с [CONTRIBUTING.md](CONTRIBUTING.md). Хорошие первые задачи:
+**Release:** `v0.3.1` — DNS comparison with safer Windows/provider resolver diagnostics.
 
-- собрать реальные отчёты от разных провайдеров и регионов;
-- помочь кампании [First 50 Reports](docs/first-50-reports.md);
-- предложить изменения target packs через PR;
-- улучшить tests для diagnosis edge cases;
-- добавить консервативные blockpage fingerprints без хранения body;
-- улучшить dashboard filtering;
-- перевести и вычитать docs.
+See [CHANGELOG.md](CHANGELOG.md) · [ROADMAP.md](ROADMAP.md)
 
-## Release Status
+### License
 
-Current release: `v0.3.1`, DNS comparison release with safer Windows/provider resolver diagnostics.
+MIT — see [LICENSE](LICENSE) for details.
 
-See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), and [docs/release-checklist.md](docs/release-checklist.md).
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1b27,50:F7DF1E,100:1a1b27&height=80&section=footer" width="100%"/>
 
-## npx
-
-Основной быстрый путь через npm:
-
-```bash
-npx runet-blackbox doctor
-npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url
-npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
-```
+</div>
