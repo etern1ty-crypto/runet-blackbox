@@ -1,4 +1,4 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1b27,50:F7DF1E,100:1a1b27&height=200&section=header&text=Runet%20Blackbox&fontSize=50&fontColor=FFFFFF&fontAlignY=35&desc=Open%20Network%20Observability%20for%20Unstable%20Networks&descSize=16&descColor=F7DF1E&descAlignY=55&animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1b27,50:F7DF1E,100:1a1b27&height=200&section=header&text=Runet%20Blackbox&fontSize=50&fontColor=FFFFFF&fontAlignY=35&desc=Network%20Observability%20for%20Unstable%20Networks&descSize=16&descColor=F7DF1E&descAlignY=55&animation=fadeIn" width="100%"/>
 
 <div align="center">
 
