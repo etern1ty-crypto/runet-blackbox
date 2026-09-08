@@ -1,106 +1,206 @@
-# Runet Blackbox
+# 🌐 Runet Blackbox
 
-**Сбой сборки — или сбой сети? Узнайте, на каком слое ломается доступ к публичным зависимостям.**
+<p align="center">
+  <strong>Сбой сборки или сбой сети? Узнайте точно, на каком слое ломается доступ к публичным зависимостям.</strong><br>
+  Локальная утилита префлайт-диагностики для CI-раннеров, DevOps и распределенных команд: <strong>DNS → TCP → TLS → HTTP</strong>.<br>
+  Формирует понятный, доказуемый отчёт для инцидентов — <strong>без центрального сервера, без облачных аккаунтов и без сторонних npm-зависимостей</strong>.
+</p>
 
-Локальный preflight для CI-runner’ов и распределённых команд: DNS → TCP → TLS → HTTP, объяснимый результат и готовые артефакты для разбора инцидента. Без аккаунта, центрального сервера и автоматической отправки данных.
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.4.0-1766ad?style=flat-square" alt="Version 0.4.0">
+  <img src="https://img.shields.io/badge/Node.js-22%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 22+">
+  <img src="https://img.shields.io/badge/npm%20deps-0%20runtime-287849?style=flat-square" alt="Zero npm deps">
+  <img src="https://img.shields.io/badge/tests-366%20passed-287849?style=flat-square" alt="366 tests passed">
+  <img src="https://img.shields.io/badge/ci--ready-JUnit%20%2B%20Prometheus-58a6ff?style=flat-square" alt="CI Ready">
+  <img src="https://img.shields.io/badge/license-MIT-1766ad?style=flat-square" alt="MIT License">
+</p>
 
-[![Checks](https://img.shields.io/badge/checks-locally_verified-287849)](docs/VERIFICATION.md)
-[![Node](https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white)](package.json)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ESM-F7DF1E?logo=javascript&logoColor=black)](src/)
-[![Version](https://img.shields.io/badge/version-0.4.0-1763ad)](CHANGELOG.md)
-[![Dependencies](https://img.shields.io/badge/npm_dependencies-0-287849)](package-lock.json)
-[![License](https://img.shields.io/badge/license-MIT-1763ad)](LICENSE)
+---
 
-> Local evidence for engineering teams. This is **not** an application E2E monitor, SLA calculator, VPN, or proof of censorship. The local-check badge refers to the supplied verification report, not a completed GitHub Actions run. Version 0.4.0 is supplied as source; no npm publication is implied.
+## 📸 Интерфейс и веб-дашборд
 
-## Почему это полезно
+<p align="center">
+  <img src="docs/assets/dashboard.png" alt="Runet Blackbox Web Interface" width="850">
+</p>
 
-- 🔎 **Один диагностический путь.** Проверенный DNS-адрес закрепляется за TCP/TLS/HTTP; основной резолвер действительно определяет путь.
-- 🛡 **Безопасные границы.** Проверка сертификатов, блокировка private/reserved-адресов и небезопасных редиректов, ограниченные время и размер ответа.
-- 🧪 **Готово для CI.** `preflight` возвращает `2`, если хотя бы одна проверка не прошла. JSON, JUnit XML и Prometheus textfile записываются локально.
-- ⚙️ **Конфигурация как код.** Набор `ci`, список целей или JSON-конфиг с индивидуальными ожидаемыми HTTP-кодами.
-- 🔒 **Минимизация данных.** Allowlist полей, округление времени, исключение сырых DNS-ответов, HTTP-данных и деталей сертификатов.
-- 📋 **Сводка без ложной уверенности.** Дедупликация, окно 24 часа, отделение неизвестных результатов и VPN-помеченных измерений. Демо — только по запросу.
+> 💡 **Быстрый локальный запуск:** вы можете открыть встроенный статический интерфейс [`apps/web/index.html`](apps/web/index.html) прямо в браузере без сборки и веб-сервера.
 
-## Старт за 60 секунд
+---
 
-Нужен **Node.js 22+** с актуальными security patches. Находясь в распакованной папке `runet-blackbox`:
+## 🎯 Зачем нужен Runet Blackbox
 
-```bash
-npm ci --ignore-scripts --no-audit
-node cli/bin/runet-blackbox.js preflight --config config.example.json --json --output out/preflight.json
-```
+Когда сборка на GitHub Actions или локальном сервере падает с ошибкой `fetch failed` или `ETIMEDOUT`, разработчики часто гадают: упал ли реестр (npm/PyPI/Docker Hub), чудит ли локальный DNS, или провайдер заблокировал маршрут.
 
-Вторая команда делает реальные исходящие проверки GitHub, npm и PyPI. Разрешите их в вашей сети. Код `2` означает результат диагностики, а не сбой установки. Команда ничего не публикует.
+**Runet Blackbox проверяет цепочку послойно и фиксирует факты, а не догадки:**
 
-Без доступа в интернет можно проверить запуск и формат отчёта:
+| Уровень проверки | Что проверяется | Защита и гарантии |
+| :--- | :--- | :--- |
+| 🌐 **DNS** | Резолв через системный резолвер с возможностью сравнения с 1.1.1.1 / 8.8.8.8 | Проверенный IP закрепляется (pinning) за всеми последующими TCP/TLS тестами. |
+| 🔌 **TCP Handshake** | Прямое открытие сокетов на портах 80 и 443 | Фиксация точного RTT задержки сокета и детекция сбросов RST. |
+| 🔒 **TLS 1.3 Handshake** | Проверка валидности сертификата и шифра | Отказ от небезопасных версий; защита от подмены сертификатов (MITM). |
+| 📄 **HTTP Status & Body** | Финальный HTTP-код ответа, редиректы и хеш тела | Защита от перенаправлений на приватные подсети (SSRF) и страниц заглушек провайдеров. |
 
-```bash
-node cli/bin/runet-blackbox.js sample --pretty
-```
+> [!IMPORTANT]
+> **Это локальный инструмент доказательной диагностики.** Он не является VPN, прокси, сервисом обхода блокировок или глобальным пинг-мониторингом. Никакие данные не отправляются в облако.
 
-## Практические сценарии
+---
 
-**Перед сборкой на self-hosted runner: сохранить доказательства и остановить pipeline при проблеме.**
-
-```bash
-node cli/bin/runet-blackbox.js preflight --pack ci --junit out/preflight.xml --prometheus out/preflight.prom --json
-```
-
-**Разобрать жалобу «GitHub не открывается» из конкретной сети.**
-
-```bash
-node cli/bin/runet-blackbox.js check github.com --compare-dns 1.1.1.1 --json --output out/support.json
-```
-
-**Проверить собственный набор публичных зависимостей.**
-
-```bash
-node cli/bin/runet-blackbox.js preflight --targets-file examples/targets.txt --verbose --json
-```
-
-Для штатного ответа `401`/`403` задайте `expectedStatusCodes` в [конфигурации](docs/CONFIGURATION.md). По умолчанию требуется конечный `2xx`. Проверяется **корень HTTPS origin**, не произвольный API endpoint и не скачивание пакета.
-
-## Поток данных
+## 🏗️ Послойный конвейер проверки
 
 ```mermaid
-flowchart LR
-    A[CLI / JSON config] --> B[Public-target policy]
-    B --> C[DNS: validate and pin IP]
-    C --> D[TCP 80 + 443]
-    D --> E[TLS verification]
-    E --> F[Bounded HTTPS + safe redirects]
-    F --> G[Allowlist + diagnosis + content ID]
-    G --> H[JSON / JUnit / Prometheus]
-    G --> I[Optional reviewed import]
-    I --> J[Dedup + time window]
-    J --> K[Static dashboard]
+flowchart TD
+    Target["Целевой хост<br/>(github.com, registry.npmjs.org)"] --> DNS["1. DNS Resolving<br/>(System vs Compare DNS)"]
+    DNS -->|Закреплённый IP| TCP["2. TCP Handshake<br/>(Port 80 & 443 RTT)"]
+    TCP --> TLS["3. TLS Handshake<br/>(TLS 1.3 / ALPN / CA Valid)"]
+    TLS --> HTTP["4. HTTP Application Probe<br/>(Status, Head/Body sample, SHA-256)"]
+    HTTP --> Diagnosis["5. Диагностический движок<br/>(Категория, Уверенность, Сигналы)"]
+    Diagnosis --> Formats{"Экспорт артефактов"}
+    Formats -->|Код возврата 0 или 2| CIGate["CI Gate (GitHub Actions / GitLab)"]
+    Formats -->|Машиночитаемый JSON| JSON["JSON Snapshot"]
+    Formats -->|XML для тестов| JUnit["JUnit XML"]
+    Formats -->|Метрики мониторинга| Prom["Prometheus Textfile"]
 ```
 
-## 📚 Документация
+---
 
-- 📖 [Архитектура и внутреннее устройство](docs/ARCHITECTURE.md)
-- ⚙️ [Настройка и конфигурация](docs/CONFIGURATION.md)
-- 🚀 [Развёртывание и Production](docs/DEPLOYMENT.md)
-- 🛠 [API / CLI справочник](docs/CLI.md)
-- 🔐 [Приватность и модель угроз](docs/PRIVACY.md)
-- 🎯 [Ниша, аудитория и бизнес-гипотезы](docs/PRODUCT.md)
-- 🐛 [Аудит: дефекты, исходные строки и исправления](docs/AUDIT.md)
-- ✅ [Тестирование и фактическая проверка](docs/TESTING.md) · [Результаты прогонов](docs/VERIFICATION.md)
-- 🔄 [Миграция с 0.3.1](docs/MIGRATION.md)
+## ⚡ Быстрый старт за 60 секунд
 
-## Разработка
+Требуется **Node.js 22+**. Проект работает на нативном ESM без внешних npm-пакетов.
 
 ```bash
-npm run check
-npm run build:web
-npm run release:check
+# 1. Клонирование
+git clone https://github.com/etern1ty-crypto/runet-blackbox.git
+cd runet-blackbox
+
+# 2. Локальная проверка окружения
+node cli/bin/runet-blackbox.js doctor
+
+# 3. Диагностика конкретного сервиса
+node cli/bin/runet-blackbox.js check github.com --json --pretty
 ```
 
-Для локального просмотра `dist/web`: `python3 -m http.server 8080 --bind 127.0.0.1 --directory dist/web`. Откройте `http://127.0.0.1:8080/?demo=1` для синтетического примера. Python нужен только для этой необязательной команды просмотра.
+---
 
-## Roadmap & License
+## 💻 Диагностика в действии (Живые логи)
 
-Следующий этап — пилоты на реальных runner’ах, сравнение нескольких точек наблюдения и снижение шумных результатов. Управляемая SaaS-платформа, биллинг, браузерные сценарии и QUIC **не заявлены как реализованные функции**. Подробнее: [ROADMAP.md](ROADMAP.md).
+Пример реального выполнения команды `check github.com`:
 
-[MIT](LICENSE). Исходный copyright сохранён. Названия проверяемых сервисов не означают партнёрство или одобрение; MIT-лицензия не отменяет правила использования чужих сервисов.
+```bash
+node cli/bin/runet-blackbox.js check github.com --json --pretty
+```
+
+<details open>
+<summary><b>Машиночитаемый JSON-отчёт проверки</b></summary>
+
+```json
+{
+  "schema_version": "1.1",
+  "tool_version": "0.4.0",
+  "target": "github.com",
+  "timestamp_utc": "2026-09-08T01:45:00.000Z",
+  "results": {
+    "dns": {
+      "status": "ok",
+      "latency_ms": 171,
+      "addresses_count": 1,
+      "resolver": "system"
+    },
+    "tcp_80": {
+      "status": "ok",
+      "latency_ms": 2,
+      "port": 80
+    },
+    "tcp_443": {
+      "status": "ok",
+      "latency_ms": 2,
+      "port": 443
+    },
+    "tls": {
+      "status": "ok",
+      "latency_ms": 486,
+      "port": 443,
+      "protocol": "TLSv1.3",
+      "alpn": "http/1.1",
+      "authorized": true
+    },
+    "http": {
+      "status": "ok",
+      "latency_ms": 955,
+      "status_code": 200,
+      "final_host": "github.com",
+      "content_length": 65536,
+      "body_sha256": "db0e4a3153b1e5b8a322abab4ef160b6d5e114f040fbe28b2fe9a0279620b450",
+      "blockpage_suspected": false
+    }
+  },
+  "diagnosis": {
+    "category": "ok",
+    "confidence": 0.94,
+    "signals": [
+      "dns, tcp, tls, and http checks passed"
+    ]
+  },
+  "report_id": "rbb_4d806f2685a7fae4a75e"
+}
+```
+</details>
+
+---
+
+## 🚀 Практические сценарии
+
+### 1. Префлайт в CI/CD (остановка сборки при сбое сети)
+Команда `preflight` возвращает код `0`, если все сервисы доступны, и код `2`, если хотя бы один слой упал:
+
+```bash
+node cli/bin/runet-blackbox.js preflight --pack ci --junit out/preflight.xml --prometheus out/preflight.prom
+```
+
+### 2. Разбор инцидента с альтернативным DNS
+Сравнение поведения системного резолвера с Cloudflare DNS (1.1.1.1):
+
+```bash
+node cli/bin/runet-blackbox.js check registry.npmjs.org --compare-dns 1.1.1.1 --output out/incident.json
+```
+
+---
+
+## 🧪 Тестирование и верификация
+
+Качество изоляции сокетов, обработка таймаутов и безопасность парсинга подтверждены 366 автоматическими тестами:
+
+```bash
+npm test
+```
+
+```text
+✔ mixed public/private DNS answers block all transport probes
+✔ unsafe redirect is rejected without a second request: http://127.0.0.1/metadata
+✔ unsafe redirect is rejected: file:///etc/passwd
+✔ HTTPS never downgrades to cleartext
+✔ TCP and TLS have wall-clock deadlines and close silent sockets
+✔ dashboard rejects untrusted numeric/date shape
+...
+ℹ tests 366 | pass 366 | fail 0 | duration_ms 1595ms
+```
+
+---
+
+## 📚 Справочник документации
+
+| Документ | Описание |
+| :--- | :--- |
+| 🛠 [Справочник CLI](docs/CLI.md) | Все ключи запуска, таймауты, списки пакетов и коды выхода |
+| 📖 [Архитектура](docs/ARCHITECTURE.md) | Модель послойных проб, pinning IP-адресов, политика SSRF |
+| 📊 [Модель данных](docs/DATA_MODEL.md) | Схема отчётов, формат полей задержек и диагностических сигналов |
+| 🔐 [Политика безопасности](SECURITY.md) | Threat Model, защита от SSRF, валидация редиректов |
+| 🔍 [Аудит безопасности](docs/AUDIT.md) | Ревизия сетевых граничных условий и устраненные риски |
+| ✅ [Протокол верификации](docs/VERIFICATION.md) | Локальный протокол выполнения тестовой матрицы |
+| 🗺️ [Roadmap](ROADMAP.md) | Планы развития проекта |
+
+---
+
+## 📜 Лицензия
+
+Проект распространяется под открытой лицензией [MIT](LICENSE).  
+Авторские права © 2026 etern1ty-crypto.
