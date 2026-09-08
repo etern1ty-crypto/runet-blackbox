@@ -1,0 +1,8 @@
+{
+  "name": "ci",
+  "label_ru": "Публичные зависимости CI",
+  "label": "Public CI dependencies",
+  "description_ru": "Небольшой preflight публичных front doors GitHub, npm и PyPI. Не проверяет скачивание пакетов или весь API.",
+  "description": "Small public front-door preflight for GitHub, npm and PyPI; not an authenticated package download test.",
+  "targets": ["github.com", "registry.npmjs.org", "pypi.org"]
+}

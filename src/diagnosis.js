@@ -40,7 +40,7 @@ export function classifyReport(report) {
 
   if (["timeout", "nxdomain", "servfail", "refused", "connection_refused", "error"].includes(dnsStatus) && dnsCompareStatus === "ok") {
     return diagnosis("dns_resolver_disagreement", 0.82, [
-      `system dns status is ${dnsStatus}`,
+      `primary dns status is ${dnsStatus}`,
       "comparison resolver resolved target"
     ]);
   }
@@ -59,7 +59,7 @@ export function classifyReport(report) {
   }
 
   if (tcp443Status === "timeout" && tcp80Status === "timeout") {
-    return diagnosis("service_global_outage_possible", 0.54, ["tcp/80 and tcp/443 both timed out"]);
+    return diagnosis("tcp_timeout", 0.76, ["tcp/80 and tcp/443 timed out from this vantage point; cause unknown"]);
   }
   if (tcp443Status === "timeout") {
     return diagnosis("tcp_timeout", 0.76, ["tcp/443 timed out"]);
@@ -72,7 +72,7 @@ export function classifyReport(report) {
   }
 
   if (tlsStatus === "reset_after_client_hello" || tlsStatus === "reset") {
-    return diagnosis("possible_tls_dpi_or_middlebox_reset", 0.82, ["tls reset after client hello"]);
+    return diagnosis("tls_reset", 0.7, ["tls connection reset; cause not established"]);
   }
   if (tlsStatus === "timeout") {
     return diagnosis("tls_timeout", 0.75, ["tls handshake timed out"]);
@@ -80,6 +80,18 @@ export function classifyReport(report) {
   if (tlsStatus === "certificate_mismatch" || tlsStatus === "certificate_error") {
     return diagnosis("tls_certificate_mismatch", 0.72, [`tls status is ${tlsStatus}`]);
   }
+
+  if (tls?.authorized === false) {
+    return diagnosis("tls_certificate_mismatch", 0.8, ["tls certificate was not authorized"]);
+  }
+  if ([tcp443Status, tlsStatus, httpStatus].includes("unreachable")) {
+    return diagnosis("local_network_problem_possible", 0.6, ["network or host route unreachable from this vantage point"]);
+  }
+  if (httpStatus === "timeout") return diagnosis("http_timeout", 0.8, ["http response exceeded the deadline"]);
+  if (httpStatus === "reset") return diagnosis("http_reset", 0.75, ["http stream ended before completion"]);
+  if (httpStatus === "ok" && Number.isInteger(http?.status_code) && !(http.expected_status_codes ? http.expected_status_codes.includes(http.status_code) : http.status_code >= 200 && http.status_code < 300)) return diagnosis("http_error", 0.9, ["http status did not meet the configured expectation"]);
+  if (httpStatus === "http_error") return diagnosis("http_error", 0.9, ["http status did not meet the configured expectation"]);
+  if (["certificate_error", "certificate_mismatch"].includes(httpStatus)) return diagnosis("tls_certificate_mismatch", 0.8, ["https certificate failed validation"]);
 
   if (httpStatus === "blockpage_suspected" || http?.blockpage_suspected === true) {
     return diagnosis("http_blockpage_suspected", 0.85, ["http response matched blockpage signals"]);

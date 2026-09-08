@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="github.com: Mostly OK">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#1763ad"/>
+  <text x="64" y="67" fill="#1763ad" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2">SYNTHETIC DEMO · NOT LIVE DATA</text>
+  <text x="64" y="134" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="42" font-weight="700">github.com</text>
+  <text x="64" y="235" fill="#287849" font-family="Arial, sans-serif" font-size="23" font-weight="700">Mostly OK</text>
+  <g><rect x="64" y="276" width="250" height="160" rx="8" fill="#f9f8f7"/>
+    <text x="82" y="309" fill="#605e5a" font-family="Arial, sans-serif" font-size="16">Measurements</text>
+    <text x="82" y="381" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="48" font-weight="700">4</text></g>
+  <g><rect x="338" y="276" width="250" height="160" rx="8" fill="#f9f8f7"/>
+    <text x="356" y="309" fill="#605e5a" font-family="Arial, sans-serif" font-size="16">Degraded share</text>
+    <text x="356" y="381" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="48" font-weight="700">0%</text></g>
+  <g><rect x="612" y="276" width="250" height="160" rx="8" fill="#f9f8f7"/>
+    <text x="630" y="309" fill="#605e5a" font-family="Arial, sans-serif" font-size="16">Top signal</text>
+    <text x="630" y="351" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="23" font-weight="700">Reachable</text></g>
+  <g><rect x="886" y="276" width="250" height="160" rx="8" fill="#f9f8f7"/>
+    <text x="904" y="309" fill="#605e5a" font-family="Arial, sans-serif" font-size="16">Sample volume</text>
+    <text x="904" y="351" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="23" font-weight="700">Low sample</text></g>
+  <text x="64" y="490" fill="#605e5a" font-family="Arial, sans-serif" font-size="20">Current public reports are mostly successful.</text>
+  <line x1="64" x2="1136" y1="552" y2="552" stroke="#dedddb"/>
+  <text x="64" y="590" fill="#605e5a" font-family="Arial, sans-serif" font-size="17">No raw DNS answers, headers, cookies or response bodies.</text>
+  <text x="1136" y="590" text-anchor="end" fill="#605e5a" font-family="Arial, sans-serif" font-size="17">2026-06-10 UTC</text>
+</svg>

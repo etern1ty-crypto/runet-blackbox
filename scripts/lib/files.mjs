@@ -32,7 +32,7 @@ export async function collectFiles(root, predicate) {
       const absolute = path.join(directory, entry.name);
       if (entry.isDirectory()) {
         await walk(absolute);
-      } else if (predicate(absolute)) {
+      } else if (entry.isFile() && predicate(absolute)) {
         files.push(absolute);
       }
     }

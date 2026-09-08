@@ -17,8 +17,11 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
       - run: npm ci
+      - name: Verify release version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: node -e 'const p=JSON.parse(require("node:fs").readFileSync("package.json")); if(process.env.GITHUB_REF_NAME!=="v"+p.version) process.exit(1)'
       - run: npm run release:check
       - name: Build package, checksums, and provenance
         run: |

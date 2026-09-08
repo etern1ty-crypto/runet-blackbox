@@ -8,6 +8,26 @@ export const DIAGNOSIS_METADATA = {
     next_step: "Submit the report as a healthy control sample.",
     next_step_ru: "Отправьте отчёт как контрольный здоровый пример."
   },
+  tls_reset: {
+    title: "TLS reset", title_ru: "Сброс TLS", severity: "degraded",
+    summary: "TLS was reset; this alone does not identify the cause.", summary_ru: "TLS-соединение сброшено; причина не установлена.",
+    next_step: "Compare another network and review the service status.", next_step_ru: "Сравните другую сеть и статус сервиса."
+  },
+  http_error: {
+    title: "Unexpected HTTP status", title_ru: "Неожиданный HTTP-статус", severity: "degraded",
+    summary: "The response did not meet the configured status expectation.", summary_ru: "Ответ не соответствует ожидаемому HTTP-статусу.",
+    next_step: "Inspect status_code; configure explicit expected codes only for intended behavior.", next_step_ru: "Проверьте status_code; добавляйте ожидаемые коды только для штатного поведения."
+  },
+  http_timeout: {
+    title: "HTTP timeout", title_ru: "Таймаут HTTP", severity: "degraded",
+    summary: "HTTP exceeded its total deadline.", summary_ru: "HTTP превысил общий лимит времени.",
+    next_step: "Compare from another network before increasing the budget.", next_step_ru: "Сравните другую сеть, прежде чем увеличивать таймаут."
+  },
+  http_reset: {
+    title: "HTTP interrupted", title_ru: "HTTP прерван", severity: "degraded",
+    summary: "The response stream ended prematurely.", summary_ru: "Поток HTTP-ответа завершился преждевременно.",
+    next_step: "Retry once and compare paths.", next_step_ru: "Повторите один раз и сравните сети."
+  },
   dns_timeout: {
     title: "DNS timeout",
     title_ru: "Таймаут DNS",

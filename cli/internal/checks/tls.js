@@ -1,48 +1,48 @@
 import tls from "node:tls";
-import { elapsedMs, errorMessage, statusFromNetworkError } from "./util.js";
+import net from "node:net";
+import { elapsedMs, errorMessage, statusFromNetworkError, throwIfAborted, abortError } from "./util.js";
 
 export function checkTls(target, options = {}) {
+  throwIfAborted(options.signal);
   const startedAt = performance.now();
-  const timeoutMs = options.timeoutMs || 5000;
-  const port = options.port || 443;
-
-  return new Promise((resolve) => {
+  const port = options.port ?? 443;
+  return new Promise((resolve, reject) => {
+    let socket;
     let settled = false;
-    const socket = tls.connect({
-      host: target,
-      port,
-      servername: target,
-      rejectUnauthorized: false,
-      ALPNProtocols: ["h2", "http/1.1"]
-    });
-
-    function done(result) {
+    const finish = (result, error) => {
       if (settled) return;
       settled = true;
-      socket.destroy();
-      resolve({ ...result, latency_ms: elapsedMs(startedAt) });
-    }
-
-    socket.setTimeout(timeoutMs);
-    socket.once("secureConnect", () => {
-      const certificate = socket.getPeerCertificate();
-      const authorizationError = socket.authorizationError || null;
-      done({
-        status: authorizationError === "ERR_TLS_CERT_ALTNAME_INVALID" ? "certificate_mismatch" : "ok",
+      clearTimeout(timer);
+      options.signal?.removeEventListener("abort", aborted);
+      socket?.destroy();
+      if (error) reject(error); else resolve({ ...result, port, latency_ms: elapsedMs(startedAt) });
+    };
+    const aborted = () => finish(null, abortError());
+    const timer = setTimeout(() => finish({ status: "timeout", error: "ETIMEDOUT" }), options.timeoutMs ?? 5000);
+    options.signal?.addEventListener("abort", aborted, { once: true });
+    try {
+      socket = (options.connectTls || tls.connect)({
+        host: options.address || target,
         port,
-        protocol: socket.getProtocol(),
-        alpn: socket.alpnProtocol || null,
-        authorized: socket.authorized,
-        authorization_error: authorizationError,
-        certificate_subject: certificate?.subject?.CN || null,
-        certificate_issuer: certificate?.issuer?.CN || null,
-        valid_to: certificate?.valid_to || null
+        servername: net.isIP(target) ? undefined : target,
+        rejectUnauthorized: true,
+        checkServerIdentity: (_hostname, certificate) => tls.checkServerIdentity(target, certificate),
+        minVersion: "TLSv1.2",
+        ALPNProtocols: ["http/1.1"],
+        ...(options.ca ? { ca: options.ca } : {})
       });
-    });
-    socket.once("timeout", () => done({ status: "timeout", port, error: "timeout" }));
-    socket.once("error", (error) => {
-      const status = statusFromNetworkError(error);
-      done({ status: status === "reset" ? "reset_after_client_hello" : status, port, error: errorMessage(error) });
-    });
+      socket.once("secureConnect", () => {
+        const identityError = tls.checkServerIdentity(target, socket.getPeerCertificate());
+        if (!socket.authorized || identityError) {
+          const error = identityError || { code: socket.authorizationError || "ERR_CERT_AUTHORITY_INVALID" };
+          finish({ status: statusFromNetworkError(error), authorized: false, error: errorMessage(error) });
+          return;
+        }
+        finish({ status: "ok", protocol: socket.getProtocol(), alpn: socket.alpnProtocol || null, authorized: true });
+      });
+      socket.once("error", error => finish({ status: statusFromNetworkError(error), authorized: false, error: errorMessage(error) }));
+    } catch (error) {
+      finish({ status: statusFromNetworkError(error), error: errorMessage(error) });
+    }
   });
 }

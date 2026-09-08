@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
 import path from "node:path";
-import { stableHash } from "../src/hash.js";
-import { findSensitivePaths, sanitizeReport } from "../src/privacy.js";
-import { validateReport } from "../src/report-schema.js";
-import { reportDay } from "../src/time.js";
+import { prepareReport } from "../src/report.js";
+import { withStoreLock, appendReport } from "./lib/store.mjs";
+import { findSensitivePaths } from "../src/privacy.js";
 import { readText } from "./lib/files.mjs";
 import { extractReportJson } from "./lib/issue.mjs";
 
-const args = parseArgs(process.argv.slice(2));
+let args = {};
 
 try {
+  args = parseArgs(process.argv.slice(2));
   const body = await readBody(args);
   if (Buffer.byteLength(body, "utf8") > 262144) {
     throw new Error("issue body is too large; paste one sanitized report only");
@@ -19,8 +19,8 @@ try {
   await fs.mkdir(outDir, { recursive: true });
   const payload = extractReportJson(body);
   const rawReports = Array.isArray(payload?.reports) ? payload.reports : [payload];
-  if (!rawReports.length) {
-    throw new Error("issue body does not contain any reports");
+  if (!rawReports.length || rawReports.length > 32) {
+    throw new Error("issue body must contain 1..32 reports");
   }
 
   const result = {
@@ -33,26 +33,20 @@ try {
     rejected_reports: []
   };
 
+  await withStoreLock(outDir, async () => {
   for (const [index, rawReport] of rawReports.entries()) {
     result.stripped_sensitive_fields += findSensitivePaths(rawReport).length;
     let report = null;
     try {
-      report = sanitizeReport(rawReport);
+      report = prepareReport(rawReport);
+      if (Date.parse(report.timestamp_utc) > Date.now() + 5 * 60000) throw new Error("report timestamp is in the future");
     } catch (error) {
       result.rejected += 1;
-      result.rejected_reports.push(rejectedReport(index, [`sanitizer failed: ${error.message}`]));
+      result.rejected_reports.push(rejectedReport(index, ["report failed privacy/schema validation; regenerate with the current CLI"]));
       continue;
     }
 
-    const validation = validateReport(report);
-    if (!validation.valid) {
-      result.rejected += 1;
-      result.rejected_reports.push(rejectedReport(index, validation.errors));
-      continue;
-    }
-
-    const outFile = path.join(outDir, `${reportDay(report.timestamp_utc)}.jsonl`);
-    const imported = await appendIfNew(outFile, report);
+    const imported = await appendReport(outDir, report);
     if (imported) result.imported += 1;
     else result.duplicates += 1;
     result.accepted_reports.push({
@@ -62,6 +56,8 @@ try {
       imported
     });
   }
+
+  });
 
   if (result.rejected > 0 && result.imported === 0 && result.duplicates === 0) {
     result.status = "rejected";
@@ -83,62 +79,54 @@ try {
     rejected: 1,
     stripped_sensitive_fields: 0,
     accepted_reports: [],
-    rejected_reports: [{ index: null, errors: [error.message] }]
+    rejected_reports: [{ index: null, errors: ["import failed; check input format, size limits and store permissions"] }]
   };
   await writeResultFiles(args, result).catch(() => {});
-  process.stderr.write(`${error.message}\n`);
+  process.stderr.write(`import failed (${error.code || "ERR_IMPORT"}); raw input omitted\n`);
   process.exit(1);
-}
-
-async function appendIfNew(outFile, report) {
-  const line = JSON.stringify(report);
-  const hash = report.report_id || stableHash(report);
-  let existing = "";
-  try {
-    existing = await fs.readFile(outFile, "utf8");
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-  }
-  for (const existingLine of existing.split(/\r?\n/).filter(Boolean)) {
-    const existingReport = JSON.parse(existingLine);
-    if ((existingReport.report_id || stableHash(existingReport)) === hash) {
-      return false;
-    }
-  }
-  await fs.appendFile(outFile, `${line}\n`, "utf8");
-  return true;
 }
 
 async function readBody(args) {
   if (args.bodyFile) {
-    return readText(args.bodyFile);
+    return boundedRead(args.bodyFile, 262144);
   }
   if (args.githubEvent) {
-    const event = JSON.parse(await readText(args.githubEvent));
+    const event = JSON.parse(await boundedRead(args.githubEvent, 2 * 1024 * 1024));
     return event.issue?.body || "";
   }
   throw new Error("use --body-file or --github-event");
 }
 
 function parseArgs(argv) {
+  const keys = { "--body-file": "bodyFile", "--github-event": "githubEvent", "--out": "out", "--summary-file": "summaryFile", "--result-file": "resultFile" };
   const parsed = {};
-  for (let i = 0; i < argv.length; i += 1) {
-    const token = argv[i];
-    if (token === "--body-file") parsed.bodyFile = argv[++i];
-    else if (token === "--github-event") parsed.githubEvent = argv[++i];
-    else if (token === "--out") parsed.out = argv[++i];
-    else if (token === "--summary-file") parsed.summaryFile = argv[++i];
-    else if (token === "--result-file") parsed.resultFile = argv[++i];
-    else throw new Error(`unknown option: ${token}`);
+  for (let i = 0; i < argv.length; i++) {
+    const key = keys[argv[i]];
+    const value = argv[++i];
+    if (!key || !value || value.startsWith("--") || parsed[key]) throw new Error("invalid import arguments");
+    parsed[key] = value;
   }
+  if (Boolean(parsed.bodyFile) === Boolean(parsed.githubEvent)) throw new Error("select one body source");
+  const files = [parsed.bodyFile, parsed.githubEvent, parsed.summaryFile, parsed.resultFile].filter(Boolean).map(file => path.resolve(file));
+  if (new Set(files).size !== files.length) throw new Error("input and result paths must be distinct");
   return parsed;
+}
+
+async function boundedRead(file, limit) {
+  const stat = await fs.stat(file);
+  if (!stat.isFile() || stat.size > limit) throw new Error("input too large or not a regular file");
+  const text = await readText(file);
+  if (Buffer.byteLength(text) > limit) throw new Error("input too large");
+  return text;
 }
 
 async function writeResultFiles(args, result) {
   if (args.resultFile) {
+    await fs.mkdir(path.dirname(args.resultFile), { recursive: true });
     await fs.writeFile(args.resultFile, `${JSON.stringify(result, null, 2)}\n`, "utf8");
   }
   if (args.summaryFile) {
+    await fs.mkdir(path.dirname(args.summaryFile), { recursive: true });
     await fs.writeFile(args.summaryFile, buildImportSummary(result), "utf8");
   }
 }

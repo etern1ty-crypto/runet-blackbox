@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.4.0 — 2026-09-08 (prepared source revision)
+
+### Added
+- Local-first `preflight` CI gate, validated JSON configuration, per-target expected HTTP status codes, `ci` pack and targets-file input.
+- Bounded concurrency, JUnit/Prometheus artifacts, atomic output, SIGINT/SIGTERM handling.
+- Canonical ingestion, locked JSONL store, rolling-window/freshness metadata, opt-in demo and static build.
+- Regression tests, production guidance, product discovery and source-level audit.
+
+### Fixed
+- Unsafe redirect/private-IP access, DNS rebinding and resolver/transport mismatch.
+- Invalid certificates treated as healthy; HTTP 4xx/5xx false success; infinite body/deadline and early-close issues.
+- Allowlist/privacy gaps, forged report identity/diagnosis, duplicate inflation and concurrent writes.
+- Misleading global-outage/DPI inference, unknown-as-degraded, stale/demonstration data ambiguity and CI publication sequencing.
+
+### Changed
+- Report output 1.1 (legacy 1.0 accepted through canonical ingestion); unknown country ZZ.
+- Root-only CLI validation, default final 2xx, explicit resolver labels, maintainer approval label for public import.
+- Existing API/CLI compatibility details: docs/MIGRATION.md.
+
+No npm release, hosted deployment, customer traction or blanket production certification is implied.
+
+---
+
+## Historical upstream changelog (unchanged below)
+
+# Changelog
+
 ## Unreleased
 
 ### Added

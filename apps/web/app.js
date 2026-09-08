@@ -1,6 +1,9 @@
+import { loadFirstJson } from "./data.js";
+
 const state = {
   aggregate: null,
   demo: false,
+  loadError: false,
   query: "",
   selectedTarget: null,
   filters: {
@@ -15,6 +18,11 @@ const $ = (selector) => document.querySelector(selector);
 
 const categoryRu = {
   ok: "Доступно",
+  dns_resolver_disagreement: "Расхождение DNS-резолверов",
+  tls_reset: "Сброс TLS",
+  http_error: "Неожиданный HTTP-статус",
+  http_timeout: "Таймаут HTTP",
+  http_reset: "HTTP прерван",
   dns_timeout: "Таймаут DNS",
   dns_nxdomain: "DNS NXDOMAIN",
   dns_suspicious_answer: "Подозрительный DNS",
@@ -34,40 +42,11 @@ const categoryRu = {
 };
 
 async function loadAggregate() {
-  const real = await loadFirstJson(["data/aggregates/index.json", "../data/aggregates/index.json", "../../data/aggregates/index.json"]);
-  if (real && real.total_reports > 0) {
-    return { aggregate: real, demo: false };
-  }
-
-  const demo = await loadFirstJson(["data/demo/aggregates/index.json", "../data/demo/aggregates/index.json", "../../data/demo/aggregates/index.json"]);
-  if (demo) {
-    return { aggregate: demo, demo: true };
-  }
-
-  return {
-    aggregate: real || {
-      total_reports: 0,
-      total_targets: 0,
-      domains: [],
-      providers: [],
-      regions: [],
-      categories: [],
-      latest_reports: []
-    },
-    demo: false
-  };
-}
-
-async function loadFirstJson(paths) {
-  for (const path of paths) {
-    try {
-      const response = await fetch(path, { cache: "no-store" });
-      if (response.ok) return response.json();
-    } catch {
-      // Try next local/deployed path.
-    }
-  }
-  return null;
+  const demoRequested = new URLSearchParams(location.search).get("demo") === "1";
+  const prefix = demoRequested ? "demo/aggregates" : "aggregates";
+  const aggregate = await loadFirstJson([`data/${prefix}/index.json`, `../data/${prefix}/index.json`, `../../data/${prefix}/index.json`]);
+  state.loadError = !aggregate;
+  return { aggregate: aggregate || { total_reports: 0, total_targets: 0, domains: [], providers: [], regions: [], categories: [], latest_reports: [] }, demo: demoRequested };
 }
 
 function render() {
@@ -78,9 +57,10 @@ function render() {
   $("#generated-at").textContent = aggregate.generated_at
     ? `Агрегаты обновлены: ${new Date(aggregate.generated_at).toLocaleString("ru-RU", { timeZone: "UTC" })} UTC`
     : "Агрегаты пока не созданы";
-  $("#data-mode").textContent = state.demo
-    ? "Демо-режим: показаны искусственные безопасные данные, пока реальные отчёты не собраны. Demo data is synthetic."
-    : datasetNote(aggregate.dataset_quality);
+  $("#data-mode").textContent = state.loadError ? "Не удалось загрузить корректные данные. Проверьте сборку и соединение; реальная доступность неизвестна." : state.demo
+    ? "ДЕМО · Синтетические данные для знакомства с интерфейсом. Это не реальные измерения."
+    : `${datasetNote(aggregate.dataset_quality)} Окно: ${aggregate.window_hours ?? "не указано"} ч.`;
+  if (!state.demo && aggregate.generated_at && Date.now() - Date.parse(aggregate.generated_at) > 2 * 3600000) $("#data-mode").textContent += " Внимание: снимок старше 2 часов; это не текущий статус.";
 
   renderFilters(aggregate);
   renderTargets(aggregate.domains || []);
@@ -143,12 +123,14 @@ function renderWeather(weather) {
 function renderTargetDetail(domain) {
   if (!domain) {
     $("#target-detail-title").textContent = "Цель не выбрана";
+    $("#target-card").hidden = true;
     $("#target-card").href = "data/aggregates/cards/overview.svg";
     $("#target-detail").innerHTML = emptyState("Выбери цель в таблице выше.", "Select a target above.");
     return;
   }
+  $("#target-card").hidden = false;
   $("#target-detail-title").textContent = domain.key;
-  $("#target-card").href = state.demo ? "data/aggregates/cards/overview.svg" : `data/aggregates/cards/${safeFileName(domain.key)}.svg`;
+  $("#target-card").href = `${state.demo ? "data/demo/aggregates" : "data/aggregates"}/cards/${safeFileName(domain.key)}.svg`;
   const providerRows = compactBreakdown(domain.providers || [], "Провайдеров пока мало.");
   const regionRows = compactBreakdown(domain.regions || [], "Регионов пока мало.");
   const latestRows = (domain.latest_reports || []).slice(0, 4).map((report) => `<li>${formatDate(report.timestamp_utc)} · ${escapeHtml(report.region)} · ${escapeHtml(report.provider)} · ${escapeHtml(report.diagnosis.title_ru || categoryLabel(report.diagnosis.category))}</li>`).join("");
@@ -175,11 +157,12 @@ function renderTimeline(days) {
     ? recent
         .map((day) => {
           const degraded = Math.round((day.degraded_ratio || 0) * 100);
-          const ok = 100 - degraded;
+          const unknown = Math.round(((day.unknown || 0) / (day.total || 1)) * 100);
+          const ok = Math.max(0, 100 - degraded - unknown);
           return `<div class="timeline-row">
             <span>${escapeHtml(day.key)}</span>
-            <div class="timeline-bar" aria-label="${degraded}% degraded">
-              <i class="ok" style="width:${ok}%"></i><i class="bad" style="width:${degraded}%"></i>
+            <div class="timeline-bar" aria-label="${ok}% успешно, ${degraded}% деградация, ${unknown}% неизвестно">
+              <i class="ok" style="width:${ok}%"></i><i class="bad" style="width:${degraded}%"></i><i class="unknown" style="width:${unknown}%"></i>
             </div>
             <strong>${day.total}</strong>
           </div>`;
@@ -245,7 +228,8 @@ function classForStatus(status) {
 
 function formatDate(value) {
   if (!value) return "нет даты";
-  return new Date(value).toISOString().slice(0, 16).replace("T", " ");
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 16).replace("T", " ") : "нет даты";
 }
 
 function emptyState(ru, en) {
@@ -270,7 +254,7 @@ function matchesReportFilters(report) {
   if (!matchesQuery(report)) return false;
   if (state.filters.category && report.diagnosis?.category !== state.filters.category) return false;
   if (state.filters.provider && providerReportKey(report) !== state.filters.provider) return false;
-  if (state.filters.region && report.region !== state.filters.region) return false;
+  if (state.filters.region && `${report.country}/${report.region}` !== state.filters.region) return false;
   if (state.filters.weather) {
     const domain = (state.aggregate.domains || []).find((item) => item.key === report.target);
     if (domain?.weather?.status !== state.filters.weather) return false;

@@ -2,110 +2,73 @@ const WIDTH = 1200;
 const HEIGHT = 630;
 
 export function buildOverviewShareCard(aggregate, options = {}) {
-  const generatedAt = options.generatedAt || aggregate.generated_at || new Date().toISOString();
-  const title = "Runet Blackbox";
-  const subtitle = "Network Weather";
-  const status = aggregate.status || "no_data";
-  const rows = [
-    ["reports", aggregate.total_reports || 0],
-    ["targets", aggregate.total_targets || 0],
-    ["incident candidates", aggregate.weather?.incident_candidates || 0],
-    ["reports needed", aggregate.weather?.reports_needed || 0]
-  ];
-  return renderCard({
-    title,
-    subtitle,
-    status,
-    badge: statusLabel(status),
-    accent: colorForStatus(status),
-    rows,
-    note: aggregate.dataset_quality?.note_ru || aggregate.dataset_quality?.note || "Privacy-first public network diagnostics.",
-    generatedAt
+  return render({
+    title: "Runet Blackbox", subtitle: aggregate.demo ? "SYNTHETIC DEMO · NOT LIVE DATA" : "PUBLIC DEPENDENCY PREFLIGHT",
+    status: aggregate.status || "no_data", badge: statusLabel(aggregate.status),
+    metrics: [["Measurements", aggregate.total_reports || 0], ["Targets", aggregate.total_targets || 0], ["Incident candidates", aggregate.weather?.incident_candidates || 0], ["Window", `${aggregate.window_hours ?? 24} h`]],
+    note: aggregate.demo ? "Synthetic examples for interface review. Not evidence of service availability." : "One network, one moment. Counts do not prove independent sources or an SLA.",
+    generatedAt: options.generatedAt || aggregate.generated_at || new Date().toISOString()
   });
 }
 
 export function buildTargetShareCard(domain, aggregate = {}, options = {}) {
-  const generatedAt = options.generatedAt || aggregate.generated_at || new Date().toISOString();
-  const status = domain.weather?.status || domain.status || "no_data";
-  const rows = [
-    ["reports", domain.total || 0],
-    ["degraded", `${Math.round((domain.degraded_ratio || 0) * 100)}%`],
-    ["top diagnosis", domain.dominant_category?.title_ru || domain.dominant_category?.category || "unknown"],
-    ["credibility", domain.credibility?.label_ru || domain.credibility?.label || "unknown"]
-  ];
-  return renderCard({
-    title: domain.key || "unknown target",
-    subtitle: "Runet Blackbox target card",
-    status,
-    badge: domain.weather?.label_ru || statusLabel(status),
-    accent: colorForStatus(status),
-    rows,
-    note: domain.weather?.note_ru || "Community reports are triage signals, not proof by themselves.",
-    generatedAt
+  return render({
+    title: domain.key || "Unknown target", subtitle: aggregate.demo ? "SYNTHETIC DEMO · NOT LIVE DATA" : "RUNET BLACKBOX · TARGET EVIDENCE",
+    status: domain.weather?.status || domain.status, badge: domain.weather?.label || domain.weather?.label_ru || statusLabel(domain.status),
+    metrics: [["Measurements", domain.total || 0], ["Degraded share", `${Math.round((domain.degraded_ratio || 0) * 100)}%`], ["Top signal", domain.dominant_category?.title || domain.dominant_category?.title_ru || "Unknown"], ["Sample volume", domain.credibility?.label || domain.credibility?.label_ru || "Unknown"]],
+    note: domain.weather?.note || domain.weather?.note_ru || "A local triage signal, not proof of a global incident.",
+    generatedAt: options.generatedAt || aggregate.generated_at || new Date().toISOString()
   });
 }
 
-function renderCard({ title, subtitle, status, badge, accent, rows, note, generatedAt }) {
-  const safeRows = rows.slice(0, 4);
+function render({ title, subtitle, status, badge, metrics, note, generatedAt }) {
+  const good = ["ok", "mostly_ok"].includes(status);
+  const uncertain = ["no_data", "unknown", "weak_signal", "reports_needed"].includes(status);
+  const accent = good ? "#287849" : uncertain ? "#605e5a" : "#aa3228";
+  const titleLines = wrap(title, 48, 2);
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="${xml(`${title} ${badge}`)}">
-  <defs>
-    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#fff7e4"/>
-      <stop offset="54%" stop-color="#f1eadb"/>
-      <stop offset="100%" stop-color="#dfe9e6"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#2b2214" flood-opacity="0.22"/>
-    </filter>
-  </defs>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)"/>
-  <circle cx="112" cy="96" r="210" fill="#b53d1f" opacity="0.16"/>
-  <circle cx="1078" cy="98" r="250" fill="#0d5c63" opacity="0.16"/>
-  <rect x="70" y="66" width="1060" height="498" rx="42" fill="#fffdf4" opacity="0.88" filter="url(#shadow)"/>
-  <text x="108" y="132" fill="#b53d1f" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="25" font-weight="800" letter-spacing="4">${xml(subtitle.toUpperCase())}</text>
-  <text x="108" y="222" fill="#171612" font-family="Georgia, serif" font-size="${title.length > 32 ? 62 : 78}" font-weight="800">${xml(title)}</text>
-  <rect x="108" y="262" width="${Math.max(210, badge.length * 15)}" height="52" rx="26" fill="${accent}"/>
-  <text x="132" y="297" fill="${status === "weak_signal" || status === "reports_needed" ? "#20150a" : "#fffaf0"}" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="24" font-weight="900">${xml(badge.toUpperCase())}</text>
-  ${safeRows.map((row, index) => metric(row[0], row[1], 108 + index * 258, 374)).join("\n  ")}
-  <text x="108" y="498" fill="#4b463d" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="23" font-weight="700">${xml(truncate(note, 94))}</text>
-  <text x="108" y="532" fill="#6b665b" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="18" font-weight="700">No IPs, headers, cookies, bodies, packet captures, or exact location. Generated ${xml(generatedAt.slice(0, 10))} UTC.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="${xml(title + ': ' + badge)}">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#1763ad"/>
+  <text x="64" y="67" fill="#1763ad" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2">${xml(subtitle)}</text>
+  ${titleLines.map((line, i) => `<text x="64" y="${134 + i * 48}" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="42" font-weight="700" ${line.length > 24 ? 'textLength="1072" lengthAdjust="spacingAndGlyphs"' : ""}>${xml(line)}</text>`).join("\n  ")}
+  <text x="64" y="235" fill="${accent}" font-family="Arial, sans-serif" font-size="23" font-weight="700">${xml(truncate(badge, 68))}</text>
+  ${metrics.map(([label, value], i) => metric(label, value, 64 + i * 274)).join("\n  ")}
+  ${wrap(note, 91, 2).map((line, i) => `<text x="64" y="${490 + i * 28}" fill="#605e5a" font-family="Arial, sans-serif" font-size="20">${xml(line)}</text>`).join("\n  ")}
+  <line x1="64" x2="1136" y1="552" y2="552" stroke="#dedddb"/>
+  <text x="64" y="590" fill="#605e5a" font-family="Arial, sans-serif" font-size="17">No raw DNS answers, headers, cookies or response bodies.</text>
+  <text x="1136" y="590" text-anchor="end" fill="#605e5a" font-family="Arial, sans-serif" font-size="17">${xml(String(generatedAt).slice(0, 10))} UTC</text>
 </svg>
 `;
 }
 
-function metric(label, value, x, y) {
-  return `<g>
-    <text x="${x}" y="${y}" fill="#6b665b" font-family="Bahnschrift, Segoe UI, sans-serif" font-size="20" font-weight="800" letter-spacing="2">${xml(String(label).toUpperCase())}</text>
-    <text x="${x}" y="${y + 58}" fill="#171612" font-family="Georgia, serif" font-size="52" font-weight="800">${xml(String(value))}</text>
-  </g>`;
-}
-
-function colorForStatus(status) {
-  if (status === "mostly_ok" || status === "ok") return "#1f8f55";
-  if (status === "reports_needed" || status === "weak_signal") return "#f0bd55";
-  if (status === "no_data" || status === "unknown") return "#65717b";
-  return "#c43d2b";
+function metric(label, value, x) {
+  const text = String(value);
+  const numeric = typeof value === "number" || /^\d+(?:%| h)?$/.test(text);
+  const lines = wrap(text, 18, 3);
+  return `<g><rect x="${x}" y="276" width="250" height="160" rx="8" fill="#f9f8f7"/>
+    <text x="${x + 18}" y="309" fill="#605e5a" font-family="Arial, sans-serif" font-size="16">${xml(label)}</text>
+    ${lines.map((line, i) => `<text x="${x + 18}" y="${numeric ? 381 : 351 + i * 29}" fill="#2c2c2b" font-family="Arial, sans-serif" font-size="${numeric ? 48 : 23}" font-weight="700">${xml(line)}</text>`).join("\n")}</g>`;
 }
 
 function statusLabel(status) {
-  if (status === "mostly_ok" || status === "ok") return "Mostly OK";
-  if (status === "reports_needed") return "Reports needed";
-  if (status === "weak_signal") return "Weak signal";
-  if (status === "no_data") return "No data";
-  return "Degraded";
+  if (["ok", "mostly_ok"].includes(status)) return "Mostly OK";
+  if (["no_data", undefined].includes(status)) return "No data";
+  if (status === "unknown") return "Inconclusive";
+  return "Needs investigation";
 }
-
-function truncate(value, max) {
-  const text = String(value || "");
-  return text.length > max ? `${text.slice(0, max - 1)}...` : text;
+function wrap(value, limit, maxLines) {
+  const words = String(value || "").replace(/\s+/g, " ").trim().split(" ");
+  const lines = [];
+  let line = "";
+  for (let word of words) {
+    if (word.length > limit) word = truncate(word, limit);
+    if (line && line.length + word.length + 1 > limit) { lines.push(line); line = ""; }
+    line += (line ? " " : "") + word;
+  }
+  if (line) lines.push(line);
+  if (lines.length > maxLines) { lines[maxLines - 1] = truncate(lines.slice(maxLines - 1).join(" "), limit); lines.length = maxLines; }
+  return lines;
 }
-
-function xml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
+function truncate(value, max) { const text = String(value || ""); return text.length > max ? text.slice(0, max - 1) + "…" : text; }
+function xml(value) { return String(value ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;"); }

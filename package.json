@@ -1,7 +1,7 @@
 {
   "name": "runet-blackbox",
-  "version": "0.3.1",
-  "description": "Open-source observability for blocked, degraded, and unstable networks.",
+  "version": "0.4.0",
+  "description": "Local-first public dependency preflight for CI runners and distributed engineering teams.",
   "type": "module",
   "private": false,
   "homepage": "https://etern1ty-crypto.github.io/runet-blackbox/",
@@ -20,29 +20,38 @@
     "packs",
     "src",
     "schemas",
+    "docs",
+    "config.example.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md"
   ],
   "scripts": {
     "aggregate": "node scripts/aggregate.mjs",
-    "check": "node scripts/check-syntax.mjs && npm test",
+    "check": "node scripts/check-syntax.mjs && node scripts/generate-schema.mjs --check && node scripts/check-project.mjs && npm test",
     "lint": "node scripts/check-syntax.mjs",
     "sample": "node cli/bin/runet-blackbox.js sample --pretty",
-    "release:check": "npm run check && node scripts/validate-report.mjs examples/reports/ok.example.json && node cli/bin/runet-blackbox.js sample --pretty",
-    "test": "node scripts/run-tests.mjs",
-    "test:coverage": "node --test --experimental-test-coverage",
-    "validate:sample": "node scripts/validate-report.mjs test/fixtures/valid-report.json"
+    "release:check": "npm run check && npm run validate:sample && npm run build:web && npm pack --dry-run",
+    "test": "node --test --test-concurrency=2",
+    "test:coverage": "node --test --test-concurrency=2 --experimental-test-coverage",
+    "validate:sample": "node scripts/validate-report.mjs examples/reports/ok.example.json",
+    "schema": "node scripts/generate-schema.mjs",
+    "build:web": "node scripts/build-web.mjs",
+    "demo": "node scripts/generate-demo.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "keywords": [
-    "runet",
-    "observability",
-    "censorship-measurement",
+    "ci",
+    "preflight",
     "network-diagnostics",
-    "dpi",
-    "github-pages"
+    "developer-tools",
+    "privacy",
+    "junit",
+    "prometheus",
+    "runet"
   ],
   "license": "MIT"
 }

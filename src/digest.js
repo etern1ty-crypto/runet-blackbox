@@ -13,6 +13,7 @@ export function buildWeeklyDigest(aggregate, options = {}) {
   lines.push("> Open network observability for unstable networks. Community reports are triage signals, not proof by themselves.");
   lines.push("");
   lines.push(`Generated at: ${generatedAt.toISOString()}`);
+  lines.push(`Window: ${aggregate.window_start || "unspecified"} — ${generatedAt.toISOString()}`);
   lines.push("");
   lines.push("## Summary");
   lines.push("");
@@ -52,7 +53,7 @@ export function buildWeeklyDigest(aggregate, options = {}) {
       lines.push(`| ${cell(domain.key)} | ${cell(domain.weather?.label_ru || domain.status)} | ${domain.total} | ${percent(domain.degraded_ratio)} | ${cell(domain.dominant_category?.title_ru || domain.dominant_category?.category)} |`);
     }
   } else {
-    lines.push("No public reports yet. The dashboard will show synthetic demo data until the first accepted reports arrive.");
+    lines.push("No public reports yet. The dashboard stays empty unless demo mode is explicitly requested.");
   }
   lines.push("");
   lines.push("## Privacy Boundary");
@@ -64,7 +65,7 @@ export function buildWeeklyDigest(aggregate, options = {}) {
   lines.push("## Volunteer Command");
   lines.push("");
   lines.push("```bash");
-  lines.push("npx runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue");
+  lines.push("node cli/bin/runet-blackbox.js preflight --config config.example.json --json --output out/preflight.json");
   lines.push("```");
   lines.push("");
   return `${lines.join("\n")}\n`;
@@ -89,6 +90,7 @@ function percent(value) {
 
 function cell(value) {
   return String(value ?? "")
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
     .replaceAll("|", "\\|")
     .replaceAll("\n", " ")
     .trim();

@@ -78,7 +78,9 @@ export function parseAsn(input) {
   if (input === undefined || input === null || input === "") {
     return null;
   }
-  const number = Number(String(input).replace(/^AS/i, ""));
+  const value = String(input).trim();
+  if (!/^(?:AS)?[0-9]+$/i.test(value)) throw new Error("asn must be an integer between 1 and 4294967295");
+  const number = Number(value.replace(/^AS/i, ""));
   if (!Number.isInteger(number) || number < 1 || number > 4294967295) {
     throw new Error("asn must be an integer between 1 and 4294967295");
   }

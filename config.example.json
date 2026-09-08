@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "targets": [
+    { "target": "github.com", "expectedStatusCodes": [200] },
+    { "target": "registry.npmjs.org", "expectedStatusCodes": [200] },
+    { "target": "pypi.org", "expectedStatusCodes": [200] }
+  ],
+  "country": "ZZ",
+  "region": "unknown",
+  "provider": "unknown",
+  "connectionType": "hosting",
+  "timeoutMs": 5000,
+  "concurrency": 2,
+  "maxRedirects": 3,
+  "maxBodyBytes": 65536,
+  "dnsCompareServers": []
+}

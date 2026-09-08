@@ -1,5 +1,14 @@
 {
-  "generated_at": "2026-05-01T11:40:30.563Z",
+  "generated_at": "2026-09-08T00:20:57.394Z",
+  "window_hours": 24,
+  "window_start": "2026-09-07T00:20:57.394Z",
+  "excluded": {
+    "invalid": 0,
+    "duplicate": 0,
+    "outside_window": 0,
+    "future": 0,
+    "tunnel": 0
+  },
   "total_reports": 0,
   "total_targets": 0,
   "degraded_targets": 0,
@@ -8,8 +17,8 @@
     "level": "no_data",
     "label_ru": "Нет данных",
     "label": "No data",
-    "note_ru": "Dashboard покажет демо, пока нет публичных отчётов.",
-    "note": "Dashboard shows demo data until public reports arrive."
+    "note_ru": "Нет измерений в выбранном окне. Демо включается только явно.",
+    "note": "No measurements in the selected window. Demo requires explicit opt-in."
   },
   "weather": {
     "reports_needed": 0,

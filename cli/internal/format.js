@@ -11,7 +11,7 @@ export function formatHumanReport(report, options = {}) {
   lines.push(`Локация:    ${report.country}/${report.region}`);
   lines.push(`Сеть:       ${report.network.provider}${report.network.asn ? ` AS${report.network.asn}` : ""} (${report.network.connection_type})`);
   lines.push(`Диагноз:    ${metadata.title_ru || metadata.title} [${report.diagnosis.category}]`);
-  lines.push(`Confidence: ${Math.round(report.diagnosis.confidence * 100)}%`);
+  lines.push(`Rule confidence: ${Math.round(report.diagnosis.confidence * 100)}% (эвристика, не вероятность)`);
   lines.push(`Summary:    ${metadata.summary_ru || metadata.summary}`);
   lines.push(`Next step:  ${metadata.next_step_ru || metadata.next_step}`);
   lines.push("");
@@ -97,7 +97,7 @@ export function formatDoctorReport(environment, options = {}) {
   lines.push("");
   lines.push(`Node.js: ${options.nodeVersion || "unknown"} ${nodeOk ? "ok" : "needs 22+"}`);
   lines.push(`Platform: ${options.platform || process.platform}`);
-  lines.push(`Clipboard providers: ${(options.clipboardCommands || []).join(", ") || "none detected"}`);
+  lines.push(`Clipboard candidates (availability not checked): ${(options.clipboardCommands || []).join(", ") || "none detected"}`);
   lines.push("");
   lines.push("Environment:");
   if (environment?.suspected_vpn_or_tunnel) {
@@ -107,8 +107,8 @@ export function formatDoctorReport(environment, options = {}) {
     lines.push("  ok: явных VPN/tun/proxy-like интерфейсов не найдено.");
   }
   lines.push("");
-  lines.push("Recommended first report:");
-  lines.push("  npx runet-blackbox check github.com --region Moscow --provider Rostelecom --issue-url");
+  lines.push("Recommended local preflight (nothing uploaded):");
+  lines.push("  node cli/bin/runet-blackbox.js preflight --config config.example.json --json");
   lines.push("");
   lines.push("Windows note:");
   lines.push("  Если DNS даёт ECONNREFUSED, сравни системный DNS с публичным резолвером через --compare-dns 8.8.8.8.");
@@ -134,56 +134,64 @@ export function formatPacksList(packs) {
 
 export function helpText() {
   return `Runet Blackbox v${TOOL_VERSION}
-Открытая диагностика нестабильных сетей.
-Open network observability for unstable networks.
+Локальная диагностика публичных зависимостей · Public dependency preflight
 
-Использование / Usage:
-  runet-blackbox check <domain> [options]
+Usage:
+  runet-blackbox preflight [target] [options]    CI gate, default pack: ci
+  runet-blackbox check <target> [options]      Interactive root-origin diagnostics
   runet-blackbox check --pack <name> [options]
-  runet-blackbox packs
-  runet-blackbox doctor
-  runet-blackbox sample [--pretty]
-  runet-blackbox version
+  runet-blackbox check --targets-file <file> [options]
+  runet-blackbox packs | doctor | version
+  runet-blackbox sample [--pretty]              Synthetic offline sample
 
-Примеры / Examples:
-  runet-blackbox check github.com --region Moscow --provider Rostelecom
-  runet-blackbox check --pack dev --region Moscow --provider Rostelecom --copy-issue
-  runet-blackbox check --pack ai --region Moscow --provider MTS --issue-file ai.issue.md
-  runet-blackbox check github.com --region Moscow --provider MTS --connection-type mobile --json --pretty
-  runet-blackbox check github.com --dns 8.8.8.8 --json --pretty
-  runet-blackbox check github.com --compare-dns 8.8.8.8 --json --pretty
-  runet-blackbox check github.com --json --pretty --issue-file report.issue.md
-  runet-blackbox check github.com --json --pretty --issue-url
-  runet-blackbox check github.com --json --pretty --copy-issue
-  runet-blackbox check example.com --no-http --fail-on-degraded
-  runet-blackbox doctor
-  runet-blackbox sample --pretty
+Examples:
+  node cli/bin/runet-blackbox.js preflight --config config.example.json --json
+  node cli/bin/runet-blackbox.js preflight --pack ci --junit out/preflight.xml
+  node cli/bin/runet-blackbox.js check github.com --compare-dns 1.1.1.1
 
-Опции / Options:
-  --country <code>           ISO-код страны, по умолчанию RU
-  --region <name>            Крупный регион без точного адреса, default unknown
-  --provider <name>          Провайдер/ISP, default unknown
-  --asn <number|ASnumber>    ASN сети
+Target selection (choose one, 1..32 public origin roots):
+  --config <json>            version:1; targets or pack; CLI overrides config
+  --targets-file <txt>       One hostname per line; # comments supported
+  --pack <name>              ci, dev, ai, social, cloud, baseline
+
+Network options:
+  --timeout <ms>             Per-phase wall-clock budget, 250..60000 (5000)
+  --concurrency <n>          Parallel targets, 1..4 (2)
+  --max-redirects <n>        HTTP redirect limit, 0..5 (3)
+  --max-body-bytes <n>       HTTP sample cap, 1024..65536 (65536)
+  --dns, --dns-server <ip>   Explicit primary resolver; answers pin all probes
+  --compare-dns <ip>         Up to 3 resolvers; comparison never changes the path
+  --no-http                  check only; omit application-level probe
+
+Context (optional; no geolocation lookup):
+  --country <code>           Two letters; ZZ means unknown (default)
+  --region <label>           Coarse region, 1..80 characters (unknown)
+  --provider <label>         Coarse ISP/network label, 1..80 characters (unknown)
+  --asn <number|ASnumber>    1..4294967295
   --connection-type <type>   unknown, home, mobile, office, public_wifi, hosting, other
-  --timeout <ms>             Таймаут проверки, 250..60000, default 5000
-  --dns, --dns-server <ip>   Использовать явный DNS-резолвер как primary
-  --compare-dns <ip>         Добавить DNS comparison resolver, primary остаётся системным
-  --no-http                  Не делать HTTP/HTTPS запрос после TLS
-  --json                     Напечатать JSON-отчёт
-  --pretty                   Красиво форматировать JSON
-  --issue-file <file>        Записать готовый GitHub issue body
-  --issue-url                Напечатать prefilled GitHub issue URL, если он не слишком большой
-  --copy-issue               Скопировать GitHub issue body в clipboard, если возможно
-  --pack <name>              Проверить готовый набор целей: dev, ai, social, cloud, baseline
-  --fail-on-degraded         Exit 2, если диагноз не ok
-  -o, --output <file>        Записать JSON-отчёт в файл
 
-Коды выхода / Exit codes:
-  0  Измерение завершено
-  2  Измерение завершено, --fail-on-degraded нашёл деградацию
-  64 Ошибка аргументов CLI
-  70 Внутренняя ошибка
+Output:
+  --json --pretty            Machine-readable stdout; logs use stderr
+  -o, --output <file>        Atomic JSON snapshot, restrictive permissions
+  --junit <file>             JUnit XML for CI test artifacts
+  --prometheus <file>        Prometheus textfile snapshot; monitor staleness
+  --verbose                 Structured progress on stderr
+  --fail-on-degraded         check exits 2 on any non-ok result
+  --issue-file <file>        Prepare public issue text locally; review first
+  --issue-url                Print a prefilled public issue URL; does not submit
+  --copy-issue               Copy public issue text using a bounded child process
 
-Важно: это не VPN, не proxy и не инструмент обхода. Только measurement/diagnostics.
+Exit codes:
+  0   Completed (preflight: all configured checks passed)
+  2   Gate failed / --fail-on-degraded found a non-ok result
+  64  Invalid arguments, config or unsafe target
+  70  Internal or output I/O error
+  130 Interrupted by SIGINT
+  143 Terminated by SIGTERM
+
+Only public HTTPS origin roots. No credentials, private targets, proxies or bypass.
+HTTP expects final 2xx by default. Configure intended 401/403 responses explicitly.
+DNS pins one address for consistency: this is not an exhaustive IPv4/IPv6 survey.
+Nothing is sent to GitHub or a vendor automatically. See docs/CLI.md.
 `;
 }

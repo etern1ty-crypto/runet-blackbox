@@ -1,0 +1,9 @@
+*
+!package.json
+!package-lock.json
+!cli/**
+!src/**
+!packs/**
+!schemas/**
+!config.example.json
+!LICENSE

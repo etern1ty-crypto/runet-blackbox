@@ -8,9 +8,9 @@ import { checkTcp } from "../cli/internal/checks/tcp.js";
 
 const canUseLocalNetwork = await canListen();
 
-test("checkDns resolves localhost through the OS resolver", async () => {
+test("checkDns rejects private OS resolver answers", async () => {
   const result = await checkDns("localhost", { timeoutMs: 1000 });
-  assert.equal(result.status, "ok");
+  assert.equal(result.status, "suspicious_answer");
   assert.ok(result.addresses_count >= 1);
   assert.equal(result.resolver, "system");
 });
@@ -57,7 +57,7 @@ test("checkDnsComparison compares resolvers without raw addresses", async () => 
   });
   assert.equal(result.status, "ok");
   assert.equal(result.resolvers.length, 2);
-  assert.equal(result.resolvers[0].resolver, "8.8.8.8");
+  assert.equal(result.resolvers[0].resolver, "comparison-1");
   assert.equal(result.resolvers[0].addresses_count, 2);
   assert.equal(result.resolvers[0].addresses, undefined);
 });
@@ -91,7 +91,7 @@ test("checkHttp reads local HTTP response", { skip: !canUseLocalNetwork && "sand
   const server = http.createServer((_, response) => response.end("hello"));
   await listen(server);
   const { port } = server.address();
-  const result = await checkHttp("127.0.0.1", { url: `http://127.0.0.1:${port}/`, timeoutMs: 1000 });
+  const result = await checkHttp("example.com", { url: "http://example.com/", address: "93.184.216.34", request: (options, callback) => http.request({ ...options, hostname: "127.0.0.1", port, family: 4 }, callback), timeoutMs: 1000 });
   await close(server);
   assert.equal(result.status, "ok");
   assert.equal(result.status_code, 200);
@@ -99,10 +99,10 @@ test("checkHttp reads local HTTP response", { skip: !canUseLocalNetwork && "sand
 });
 
 test("checkHttp detects blockpage text", { skip: !canUseLocalNetwork && "sandbox blocks local networking" }, async () => {
-  const server = http.createServer((_, response) => response.end("Доступ ограничен Роскомнадзор"));
+  const server = http.createServer((_, response) => { response.setHeader("content-type", "text/html"); response.end("Доступ ограничен Роскомнадзор"); });
   await listen(server);
   const { port } = server.address();
-  const result = await checkHttp("127.0.0.1", { url: `http://127.0.0.1:${port}/`, timeoutMs: 1000 });
+  const result = await checkHttp("example.com", { url: "http://example.com/", address: "93.184.216.34", request: (options, callback) => http.request({ ...options, hostname: "127.0.0.1", port, family: 4 }, callback), timeoutMs: 1000 });
   await close(server);
   assert.equal(result.status, "blockpage_suspected");
   assert.equal(result.blockpage_suspected, true);
@@ -119,7 +119,7 @@ test("checkHttp follows redirect", { skip: !canUseLocalNetwork && "sandbox block
   });
   await listen(server);
   const { port } = server.address();
-  const result = await checkHttp("127.0.0.1", { url: `http://127.0.0.1:${port}/`, timeoutMs: 1000 });
+  const result = await checkHttp("example.com", { url: "http://example.com/", address: "93.184.216.34", request: (options, callback) => http.request({ ...options, hostname: "127.0.0.1", port, family: 4 }, callback), timeoutMs: 1000 });
   await close(server);
   assert.equal(result.status, "ok");
   assert.equal(result.redirect_count, 1);

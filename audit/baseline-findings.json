@@ -1,0 +1,71 @@
+{
+  "unsafeTargets": [
+    {
+      "target": "::ffff:127.0.0.1",
+      "accepted": true
+    },
+    {
+      "target": "0:0:0:0:0:0:0:1",
+      "accepted": true
+    },
+    {
+      "target": "64:ff9b::7f00:1",
+      "accepted": true
+    },
+    {
+      "target": "bad_label.example",
+      "accepted": true
+    },
+    {
+      "target": "ftp://example.com",
+      "accepted": true
+    },
+    {
+      "target": "https://name:password@example.com/",
+      "accepted": true
+    }
+  ],
+  "falseRejections": [
+    {
+      "target": "198.51.42.1",
+      "accepted": false
+    },
+    {
+      "target": "203.0.114.1",
+      "accepted": false
+    },
+    {
+      "target": "192.88.100.1",
+      "accepted": false
+    }
+  ],
+  "privacyLeak": true,
+  "invalidFieldTypesAccepted": true,
+  "trustedDiagnosis": "ok",
+  "duplicateCount": 3,
+  "http503": {
+    "status": "ok",
+    "latency_ms": 10.99,
+    "status_code": 503,
+    "final_host": "127.0.0.1",
+    "redirect_count": 0,
+    "redirect_cross_host": false,
+    "content_length": 11,
+    "body_sha256": "8589c63b0943a62bfda9b35dccc71a30f5677386f6f7c644c3307465ce2cfa55",
+    "headers_hash": "a43b5c73a7bd627b89d12ee34fc6743b32b64763e7cd3dc89bbb0b4a44a5198d",
+    "blockpage_suspected": false
+  },
+  "http503Diagnosis": "ok",
+  "privateRedirect": {
+    "status": "ok",
+    "latency_ms": 1.64,
+    "status_code": 200,
+    "final_host": "127.0.0.1",
+    "redirect_count": 1,
+    "redirect_cross_host": false,
+    "content_length": 25,
+    "body_sha256": "ddd34497c5a1cb96b775edaaa3b2d8154ef5712bbc5d92ec7d5557d0e3332609",
+    "headers_hash": "0eb386a0a45bc68a862ed1d4c48cb89a52b6422c70478aa1e30ce14c92e2d25f",
+    "blockpage_suspected": false
+  }
+}

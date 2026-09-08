@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://runet-blackbox.example/schemas/report.schema.json",
-  "title": "Runet Blackbox Measurement Report",
+  "$id": "https://etern1ty-crypto.github.io/runet-blackbox/schemas/report.schema.json",
+  "title": "Runet Blackbox sanitized report (legacy 1.0 / current 1.1)",
   "type": "object",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "tool_version",
@@ -21,19 +21,24 @@
       "pattern": "^rbb_[a-f0-9]{20}$"
     },
     "schema_version": {
-      "const": "1.0"
+      "enum": [
+        "1.0",
+        "1.1"
+      ]
     },
     "tool_version": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-zA-Z0-9.-]+)?$",
+      "maxLength": 40
     },
     "timestamp_utc": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
     },
     "target": {
       "type": "string",
-      "minLength": 3,
+      "minLength": 1,
       "maxLength": 253
     },
     "country": {
@@ -42,29 +47,48 @@
     },
     "region": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "maxLength": 80
     },
     "network": {
       "type": "object",
-      "required": ["asn", "provider", "connection_type"],
+      "additionalProperties": false,
+      "required": [
+        "asn",
+        "provider",
+        "connection_type"
+      ],
       "properties": {
         "asn": {
-          "type": ["integer", "null"],
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 1,
           "maximum": 4294967295
         },
         "provider": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 80
         },
         "connection_type": {
-          "enum": ["unknown", "home", "mobile", "office", "public_wifi", "hosting", "other"]
+          "enum": [
+            "unknown",
+            "home",
+            "mobile",
+            "office",
+            "public_wifi",
+            "hosting",
+            "other"
+          ]
         }
       }
     },
     "environment": {
       "type": "object",
       "additionalProperties": false,
+      "required": [],
       "properties": {
         "suspected_vpn_or_tunnel": {
           "type": "boolean"
@@ -73,27 +97,500 @@
     },
     "results": {
       "type": "object",
-      "required": ["dns"],
-      "additionalProperties": {
-        "type": "object",
-        "required": ["status"],
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "latency_ms": {
-            "type": "number",
-            "minimum": 0
+      "additionalProperties": false,
+      "required": [
+        "dns"
+      ],
+      "properties": {
+        "dns": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            },
+            "addresses_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 256
+            },
+            "resolver": {
+              "enum": [
+                "system",
+                "explicit",
+                "literal"
+              ]
+            }
+          }
+        },
+        "dns_compare": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            },
+            "resolvers": {
+              "type": "array",
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "status",
+                  "resolver",
+                  "addresses_count"
+                ],
+                "properties": {
+                  "status": {
+                    "enum": [
+                      "ok",
+                      "skipped",
+                      "not_tested",
+                      "not_tested_due_to_dns_failure",
+                      "not_tested_due_to_tcp_failure",
+                      "not_tested_due_to_tls_failure",
+                      "timeout",
+                      "error",
+                      "nxdomain",
+                      "servfail",
+                      "refused",
+                      "suspicious_answer",
+                      "connection_refused",
+                      "reset",
+                      "reset_after_client_hello",
+                      "certificate_mismatch",
+                      "certificate_error",
+                      "unexpected_redirect",
+                      "blockpage_suspected",
+                      "http_error",
+                      "unreachable",
+                      "aborted"
+                    ]
+                  },
+                  "latency_ms": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 3600000
+                  },
+                  "error": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+                  },
+                  "resolver": {
+                    "enum": [
+                      "comparison-1",
+                      "comparison-2",
+                      "comparison-3"
+                    ]
+                  },
+                  "addresses_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 256
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tcp_80": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            },
+            "port": {
+              "const": 80
+            }
+          }
+        },
+        "tcp_443": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            },
+            "port": {
+              "const": 443
+            }
+          }
+        },
+        "tls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            },
+            "port": {
+              "const": 443
+            },
+            "protocol": {
+              "enum": [
+                "TLSv1.2",
+                "TLSv1.3"
+              ]
+            },
+            "alpn": {
+              "enum": [
+                "h2",
+                "http/1.1",
+                null
+              ]
+            },
+            "authorized": {
+              "type": "boolean"
+            }
+          }
+        },
+        "http": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            },
+            "expected_status_codes": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "integer",
+                "minimum": 200,
+                "maximum": 599
+              }
+            },
+            "status_code": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 599
+            },
+            "final_host": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253
+            },
+            "redirect_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "redirect_cross_host": {
+              "type": "boolean"
+            },
+            "content_length": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "body_truncated": {
+              "type": "boolean"
+            },
+            "body_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "headers_hash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "blockpage_suspected": {
+              "type": "boolean"
+            }
+          }
+        },
+        "quic": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "skipped",
+                "not_tested",
+                "not_tested_due_to_dns_failure",
+                "not_tested_due_to_tcp_failure",
+                "not_tested_due_to_tls_failure",
+                "timeout",
+                "error",
+                "nxdomain",
+                "servfail",
+                "refused",
+                "suspicious_answer",
+                "connection_refused",
+                "reset",
+                "reset_after_client_hello",
+                "certificate_mismatch",
+                "certificate_error",
+                "unexpected_redirect",
+                "blockpage_suspected",
+                "http_error",
+                "unreachable",
+                "aborted"
+              ]
+            },
+            "latency_ms": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3600000
+            },
+            "error": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            }
           }
         }
       }
     },
     "diagnosis": {
       "type": "object",
-      "required": ["category", "confidence", "signals"],
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "confidence",
+        "signals"
+      ],
       "properties": {
         "category": {
-          "type": "string"
+          "enum": [
+            "ok",
+            "dns_timeout",
+            "dns_nxdomain",
+            "dns_resolver_disagreement",
+            "dns_suspicious_answer",
+            "dns_failure",
+            "tcp_timeout",
+            "tcp_reset",
+            "tcp_refused",
+            "tls_reset",
+            "possible_tls_dpi_or_middlebox_reset",
+            "tls_timeout",
+            "tls_certificate_mismatch",
+            "http_blockpage_suspected",
+            "http_unexpected_redirect",
+            "http_error",
+            "http_timeout",
+            "http_reset",
+            "service_global_outage_possible",
+            "local_network_problem_possible",
+            "measurement_error",
+            "insufficient_data"
+          ]
         },
         "confidence": {
           "type": "number",
@@ -102,8 +599,11 @@
         },
         "signals": {
           "type": "array",
+          "maxItems": 10,
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
           }
         }
       }

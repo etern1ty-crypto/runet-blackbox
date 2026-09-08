@@ -1,127 +1,83 @@
 import dns from "node:dns";
 import net from "node:net";
-import { elapsedMs, errorMessage, statusFromNetworkError, withTimeout } from "./util.js";
+import { isPublicAddress } from "../../../src/target-policy.js";
+import { elapsedMs, errorMessage, statusFromNetworkError, withTimeout, throwIfAborted } from "./util.js";
 
+/** Internal addresses are deliberately non-enumerable and never enter JSON reports. */
 export async function checkDns(target, options = {}) {
+  throwIfAborted(options.signal);
   const startedAt = performance.now();
-  if (net.isIP(target)) {
-    return { status: "ok", latency_ms: elapsedMs(startedAt), addresses_count: 1, resolver: "literal" };
-  }
-
-  if (!options.dnsServer) {
-    return checkSystemDns(target, options, startedAt);
-  }
-
-  return checkExplicitDns(target, options, startedAt);
-}
-
-export async function checkDnsComparison(target, options = {}) {
-  const servers = [...new Set(options.dnsCompareServers || [])].slice(0, 3);
-  const startedAt = performance.now();
-  if (!servers.length) {
-    return null;
-  }
-  if (net.isIP(target)) {
-    return { status: "skipped", latency_ms: elapsedMs(startedAt), resolvers: [] };
-  }
-
-  const resolvers = [];
-  for (const server of servers) {
-    const result = options.resolveWithServer
-      ? await options.resolveWithServer(target, server, options)
-      : await checkExplicitDns(target, { ...options, dnsServer: server }, performance.now());
-    resolvers.push(publicResolverResult(server, result));
-  }
-
-  return {
-    status: overallComparisonStatus(resolvers),
-    latency_ms: elapsedMs(startedAt),
-    resolvers
-  };
-}
-
-async function checkSystemDns(target, options, startedAt) {
-  const lookup = options.lookup || lookupAll;
+  if (net.isIP(target)) return dnsResult([{ address: target, family: net.isIP(target) }], "literal", startedAt);
+  if (options.dnsServer) return checkExplicitDns(target, options, startedAt);
+  const lookup = options.lookup || (name => dns.promises.lookup(name, { all: true, order: "ipv4first" }));
   try {
-    const addresses = await withTimeout(lookup(target), options.timeoutMs || 5000);
-    const addressesCount = countLookupAddresses(addresses);
-    return {
-      status: addressesCount > 0 ? "ok" : "error",
-      latency_ms: elapsedMs(startedAt),
-      addresses_count: addressesCount,
-      resolver: "system"
-    };
+    const addresses = await withTimeout(lookup(target), options.timeoutMs ?? 5000, undefined, options.signal);
+    return dnsResult(Array.isArray(addresses) ? addresses : [addresses], "system", startedAt);
   } catch (error) {
-    return { status: statusFromDnsError(error), latency_ms: elapsedMs(startedAt), addresses_count: 0, error: errorMessage(error), resolver: "system" };
+    if (error.code === "ABORT_ERR") throw error;
+    return dnsError(error, "system", startedAt);
   }
 }
 
 async function checkExplicitDns(target, options, startedAt) {
-  const resolver = new dns.promises.Resolver();
-  resolver.setServers([options.dnsServer]);
-
+  const resolver = options.resolverFactory ? options.resolverFactory() : new dns.promises.Resolver({ timeout: options.timeoutMs ?? 5000, tries: 1 });
   try {
-    const [a, aaaa] = await withTimeout(
-      Promise.allSettled([resolver.resolve4(target), resolver.resolve6(target)]),
-      options.timeoutMs || 5000
-    );
-    const addressesCount = countFulfilled(a) + countFulfilled(aaaa);
-    if (a.status === "rejected" && a.reason?.code === "ENOTFOUND" && aaaa.status === "rejected" && aaaa.reason?.code === "ENOTFOUND") {
-      return { status: "nxdomain", latency_ms: elapsedMs(startedAt), addresses_count: 0, resolver: options.dnsServer };
+    resolver.setServers([options.dnsServer]);
+    const answers = await withTimeout(Promise.allSettled([resolver.resolve4(target), resolver.resolve6(target)]), options.timeoutMs ?? 5000, () => resolver.cancel(), options.signal);
+    const addresses = answers.flatMap((answer, i) => answer.status === "fulfilled" ? answer.value.map(address => ({ address, family: i === 0 ? 4 : 6 })) : []);
+    if (!addresses.length) {
+      const reason = answers.find(answer => answer.status === "rejected")?.reason || Object.assign(new Error("no addresses"), { code: "ENODATA" });
+      return dnsError(reason, "explicit", startedAt);
     }
-    if (addressesCount === 0 && (a.status === "rejected" || aaaa.status === "rejected")) {
-      const reason = a.reason || aaaa.reason;
-      return { status: statusFromDnsError(reason), latency_ms: elapsedMs(startedAt), addresses_count: 0, error: errorMessage(reason), resolver: options.dnsServer };
-    }
-    return {
-      status: "ok",
-      latency_ms: elapsedMs(startedAt),
-      addresses_count: addressesCount,
-      resolver: options.dnsServer
-    };
+    return dnsResult(addresses, "explicit", startedAt);
   } catch (error) {
-    return { status: statusFromNetworkError(error), latency_ms: elapsedMs(startedAt), addresses_count: 0, error: errorMessage(error), resolver: options.dnsServer };
+    if (error.code === "ABORT_ERR") throw error;
+    return dnsError(error, "explicit", startedAt);
+  } finally {
+    resolver.cancel();
   }
 }
 
-function lookupAll(target) {
-  return dns.promises.lookup(target, { all: true, verbatim: false });
+export async function checkDnsComparison(target, options = {}) {
+  const servers = [...new Set(options.dnsCompareServers || [])].slice(0, 3);
+  if (!servers.length) return null;
+  const startedAt = performance.now();
+  if (net.isIP(target)) return { status: "skipped", latency_ms: elapsedMs(startedAt), resolvers: [] };
+  const resolvers = await Promise.all(servers.map(async (server, index) => {
+    throwIfAborted(options.signal);
+    let result;
+    try {
+      result = options.resolveWithServer
+        ? await withTimeout(options.resolveWithServer(target, server, options), options.timeoutMs ?? 5000, undefined, options.signal)
+        : await checkExplicitDns(target, { ...options, dnsServer: server }, performance.now());
+    } catch (error) {
+      if (error.code === "ABORT_ERR") throw error;
+      result = dnsError(error, "explicit", startedAt);
+    }
+    return { resolver: `comparison-${index + 1}`, status: result.status, addresses_count: result.addresses_count ?? 0, latency_ms: Math.round(result.latency_ms || 0) };
+  }));
+  return { status: resolvers.some(item => item.status === "ok") ? "ok" : resolvers[0].status, latency_ms: elapsedMs(startedAt), resolvers };
 }
 
-function countLookupAddresses(addresses) {
-  return (Array.isArray(addresses) ? addresses : [addresses]).filter((address) => net.isIP(address?.address)).length;
-}
-
-function countFulfilled(result) {
-  return result.status === "fulfilled" ? result.value.length : 0;
-}
-
-function publicResolverResult(server, result = {}) {
-  const clean = {
-    resolver: server,
-    status: typeof result.status === "string" ? result.status : "error",
-    addresses_count: Number.isFinite(result.addresses_count) ? Math.max(0, Math.round(result.addresses_count)) : 0
+function dnsResult(entries, resolver, startedAt) {
+  const seen = new Set();
+  const addresses = entries.filter(entry => {
+    if (!entry || !net.isIP(entry.address) || seen.has(entry.address)) return false;
+    seen.add(entry.address);
+    return true;
+  }).map(entry => ({ address: entry.address, family: net.isIP(entry.address) }));
+  const unsafe = addresses.some(entry => !isPublicAddress(entry.address));
+  const result = {
+    status: !addresses.length ? "error" : unsafe ? "suspicious_answer" : "ok",
+    latency_ms: elapsedMs(startedAt), addresses_count: addresses.length, resolver
   };
-  if (Number.isFinite(result.latency_ms)) {
-    clean.latency_ms = Math.max(0, Math.round(result.latency_ms));
-  }
-  if (typeof result.error === "string" && result.error) {
-    clean.error = result.error.slice(0, 80);
-  }
-  return clean;
+  if (unsafe) result.error = "ERR_UNSAFE_ADDRESS";
+  // Reject the entire answer set if ANY record is unsafe, not just the selected record.
+  Object.defineProperty(result, "addresses", { value: unsafe ? [] : addresses, enumerable: false });
+  return result;
 }
 
-function overallComparisonStatus(resolvers) {
-  if (resolvers.some((resolver) => resolver.status === "ok")) {
-    return "ok";
-  }
-  return resolvers[0]?.status || "not_tested";
-}
-
-function statusFromDnsError(error) {
-  if (error?.code === "ENOTFOUND") return "nxdomain";
-  if (error?.code === "ESERVFAIL") return "servfail";
-  if (error?.code === "EREFUSED" || error?.code === "ECONNREFUSED") return "refused";
-  if (error?.code === "ETIMEOUT" || error?.code === "ETIMEDOUT" || error?.code === "EAI_AGAIN") return "timeout";
-  return "error";
+function dnsError(error, resolver, startedAt) {
+  const status = error?.code === "ECONNREFUSED" ? "refused" : statusFromNetworkError(error);
+  return { status, latency_ms: elapsedMs(startedAt), addresses_count: 0, resolver, error: errorMessage(error) };
 }

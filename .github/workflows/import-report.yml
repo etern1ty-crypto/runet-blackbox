@@ -1,20 +1,18 @@
 name: import measurement report
-
 on:
   issues:
-    types: [opened, edited]
-
+    types: [labeled]
 permissions:
   contents: write
   issues: write
-
+# All writers share one group. GitHub may replace pending runs: see DEPLOYMENT.md.
 concurrency:
-  group: import-measurement-${{ github.event.issue.number }}
+  group: import-measurement-store
   cancel-in-progress: false
-
 jobs:
   import:
-    if: contains(github.event.issue.labels.*.name, 'measurement') || contains(github.event.issue.title, '[measurement]')
+    # Maintainer-only label: an issue author cannot approve their own report.
+    if: github.event.label.name == 'approved-measurement'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -23,33 +21,37 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
       - uses: actions/setup-node@v6
         with:
-          node-version: "22"
-      - name: Validate project
-        run: npm run check
-      - name: Import report
+          node-version: "24"
+      - run: npm ci --ignore-scripts --no-audit
+      - run: npm run check
+      - name: Import reviewed event snapshot
         id: import
         continue-on-error: true
         run: node scripts/import-issue.mjs --github-event "$GITHUB_EVENT_PATH" --out data/reports --summary-file import-summary.md --result-file import-result.json
       - name: Rebuild aggregates
         if: steps.import.outcome == 'success'
-        run: node scripts/aggregate.mjs
+        run: npm run aggregate
       - name: Commit data changes
+        id: commit
         if: steps.import.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/reports data/aggregates data/digests
-          git diff --cached --quiet || git commit -m "Import measurement report"
+          git diff --cached --quiet || git commit -m "Import reviewed measurement report"
           git pull --rebase
           git push
-      - name: Comment import result
+      - name: Comment result
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMIT_OUTCOME: ${{ steps.commit.outcome }}
         run: |
           if [ ! -s import-summary.md ]; then
-            printf '## Runet Blackbox: import did not finish\n\nThe workflow failed before producing a structured import summary. Check the Actions log.\n' > import-summary.md
+            printf '## Import did not finish\nCheck the Actions log. No successful publication is confirmed.\n' > import-summary.md
+          elif [ "$COMMIT_OUTCOME" != "success" ]; then
+            printf '\nPublication is NOT confirmed: the commit step did not succeed.\n' >> import-summary.md
           fi
           gh issue comment "$ISSUE_NUMBER" --body-file import-summary.md
       - name: Fail rejected import

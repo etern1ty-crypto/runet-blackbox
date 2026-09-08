@@ -1,25 +1,25 @@
 name: validate
-
 on:
   push:
   pull_request:
-
 permissions:
   contents: read
-
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: ["22", "24"]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: "22"
-      - run: npm ci
+          node-version: ${{ matrix.node }}
+      - run: npm ci --ignore-scripts --no-audit
       - run: npm run check
-      - run: node scripts/validate-report.mjs examples/reports/ok.example.json
+      - run: npm run validate:sample
+      - run: npm run build:web
+      - run: npm pack --dry-run

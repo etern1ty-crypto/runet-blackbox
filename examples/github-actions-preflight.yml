@@ -1,0 +1,28 @@
+# Copy into your application repository. Change checkout/ref to your reviewed fork/tag.
+name: public dependency preflight
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest # Use a self-hosted runner to measure your own network.
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: npm ci --ignore-scripts --no-audit
+      - name: Check public dependencies
+        run: node cli/bin/runet-blackbox.js preflight --config config.example.json --json --output out/preflight.json --junit out/preflight.xml
+      - name: Keep diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-preflight
+          path: out/
+          if-no-files-found: warn
+          retention-days: 7

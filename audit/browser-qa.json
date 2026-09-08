@@ -1,0 +1,115 @@
+{
+  "browser": "local Chromium",
+  "transport": "file URLs, isolated build copy; no public site deployment",
+  "states": [
+    "real empty window",
+    "explicit synthetic demo",
+    "390px mobile + reduced motion",
+    "forced dark CSS variant",
+    "invalid aggregate JSON + missing fallbacks",
+    "five delivered SVG cards",
+    "long wide-glyph hostname SVG"
+  ],
+  "interaction_assertions": [
+    "3 demo targets",
+    "search narrows to 1",
+    "unmatched search gives 0",
+    "stale SVG link hidden",
+    "diagnosis filter works",
+    "target selection updates detail",
+    "synthetic label visible"
+  ],
+  "uncaught_exceptions": 0,
+  "horizontal_overflow": false,
+  "expected_network_failures": "error-state fixture only: 2 missing fallback files",
+  "screenshots": [
+    {
+      "file": "screenshots/qa-card-empty.png",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "sha256": "40de740e7eb22a4a78a40f8f80eac214983274089f500d9950152a9ab066c786"
+    },
+    {
+      "file": "screenshots/qa-card-github.png",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "sha256": "ca13eebc6ab2fae079e6e25e0cfeb321a87a9bb9eede089f9f478072698d59fd"
+    },
+    {
+      "file": "screenshots/qa-card-npm.png",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "sha256": "976aa13e0d0092c674a30ade65bfaad33325d544ef2c476a50f217c800cbc214"
+    },
+    {
+      "file": "screenshots/qa-card-overview.png",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "sha256": "65c3125af54585d1f24a76b30b91641c2637c7c3cf3105c76b927911bebb0ed5"
+    },
+    {
+      "file": "screenshots/qa-card-pypi.png",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "sha256": "9718750343ae7ea19a829d09f01dd8808fd17eebbfa04f8f3223cf99941207d2"
+    },
+    {
+      "file": "screenshots/qa-dark-demo.png",
+      "dimensions": [
+        1440,
+        3840
+      ],
+      "sha256": "31f0b40f6f0fd3c919b792bad8013dc5a2d2c4b6708a1ac802ff0d719469f48b"
+    },
+    {
+      "file": "screenshots/qa-desktop-demo.png",
+      "dimensions": [
+        1440,
+        3840
+      ],
+      "sha256": "8ece7d787ad11d524c3994bede367ac512bfb1c1b5986817d9f2c556a950a114"
+    },
+    {
+      "file": "screenshots/qa-desktop-empty.png",
+      "dimensions": [
+        1440,
+        2428
+      ],
+      "sha256": "9eb2edb636b6237fa2f6e05f2aabdfe535558dddbd3f428674bf354deea09289"
+    },
+    {
+      "file": "screenshots/qa-error-state.png",
+      "dimensions": [
+        1440,
+        1080
+      ],
+      "sha256": "62944b3fd73d40dd7602e0e2c318f3649b10d8a29c3f8616646cd0e25cccd2b4"
+    },
+    {
+      "file": "screenshots/qa-long-target.png",
+      "dimensions": [
+        1200,
+        630
+      ],
+      "sha256": "10a3cbe92002a5f9643ce84460c6b27eb1dfbd77422ebba1f3fad0a1eec89c07"
+    },
+    {
+      "file": "screenshots/qa-mobile-demo.png",
+      "dimensions": [
+        390,
+        6917
+      ],
+      "sha256": "1327b7609b618db9d5e2ba981a1d29cf29765d80253fa37d7d610611b240dd65"
+    }
+  ]
+}

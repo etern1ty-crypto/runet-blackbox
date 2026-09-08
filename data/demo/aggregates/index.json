@@ -1,116 +1,1674 @@
 {
-  "generated_at": "2026-04-27T21:30:00.000Z",
-  "total_reports": 12,
-  "total_targets": 6,
-  "degraded_targets": 3,
+  "generated_at": "2026-06-10T12:00:00.000Z",
+  "window_hours": 24,
+  "window_start": "2026-06-09T12:00:00.000Z",
+  "excluded": {
+    "invalid": 0,
+    "duplicate": 0,
+    "outside_window": 0,
+    "future": 0,
+    "tunnel": 0
+  },
+  "total_reports": 9,
+  "total_targets": 3,
+  "degraded_targets": 1,
   "status": "mostly_ok",
   "dataset_quality": {
-    "level": "demo",
-    "label_ru": "Демо-данные",
-    "label": "Demo data",
-    "note_ru": "Это искусственный пример интерфейса, не реальные измерения.",
-    "note": "Synthetic interface example, not real measurements."
+    "level": "early",
+    "label_ru": "Ранний набор данных",
+    "label": "Early dataset",
+    "note_ru": "Одиночные отчёты полезны для triage, но не доказывают массовую деградацию.",
+    "note": "Single reports are useful for triage, but do not prove widespread degradation."
   },
   "weather": {
     "reports_needed": 1,
-    "weak_signals": 3,
-    "degraded_candidates": 2,
-    "incident_candidates": 0,
-    "mostly_ok": 0
+    "weak_signals": 0,
+    "degraded_candidates": 0,
+    "incident_candidates": 1,
+    "mostly_ok": 1
   },
-  "incident_candidates": [],
-  "domains": [
-    {
-      "key": "github.com",
-      "total": 3,
-      "ok": 2,
-      "degraded": 1,
-      "categories": { "ok": 2, "dns_timeout": 1 },
-      "last_seen": "2026-04-27T21:15:00.000Z",
-      "status": "ok",
-      "degraded_ratio": 0.333,
-      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
-    },
+  "incident_candidates": [
     {
       "key": "registry.npmjs.org",
-      "total": 2,
-      "ok": 0,
-      "degraded": 2,
-      "categories": { "tls_timeout": 2 },
-      "last_seen": "2026-04-27T20:45:00.000Z",
+      "total": 4,
+      "ok": 1,
+      "degraded": 3,
+      "unknown": 0,
+      "categories": {
+        "ok": 1,
+        "dns_timeout": 3
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
       "status": "degraded",
-      "degraded_ratio": 1,
-      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+      "degraded_ratio": 0.75,
+      "credibility": {
+        "score": 0.45,
+        "level": "low",
+        "label_ru": "Мало отчётов",
+        "label": "Low sample",
+        "note_ru": "Нужны повторные измерения и другие сети.",
+        "note": "Needs repeat measurements and other networks."
+      },
+      "weather": {
+        "status": "incident_candidate",
+        "label_ru": "Кандидат на инцидент",
+        "label": "Incident candidate",
+        "note_ru": "Несколько отчётов указывают на деградацию; нужны независимые сети и повторные замеры.",
+        "note": "Several reports point to degradation; independent networks and repeats are still needed."
+      },
+      "dominant_category": {
+        "category": "dns_timeout",
+        "count": 3,
+        "severity": "degraded",
+        "title": "DNS timeout",
+        "title_ru": "Таймаут DNS"
+      },
+      "providers": [
+        {
+          "key": "Example network B (AS?)",
+          "total": 2,
+          "ok": 1,
+          "degraded": 1,
+          "unknown": 0,
+          "categories": {
+            "ok": 1,
+            "dns_timeout": 1
+          },
+          "last_seen": "2026-06-10T11:00:00.000Z",
+          "status": "unknown",
+          "degraded_ratio": 0.5,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Нет решающего сигнала",
+            "label": "Inconclusive",
+            "note_ru": "Ошибки измерения и неполные проверки не считаются деградацией сервиса.",
+            "note": "Incomplete checks and measurement errors are not service failures."
+          }
+        },
+        {
+          "key": "Example network A (AS?)",
+          "total": 2,
+          "ok": 0,
+          "degraded": 2,
+          "unknown": 0,
+          "categories": {
+            "dns_timeout": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 1,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "degraded_candidate",
+            "label_ru": "Сигнал деградации",
+            "label": "Degraded candidate",
+            "note_ru": "Есть симптомы деградации, но выборка пока мала.",
+            "note": "Degradation symptoms exist, but the sample is still small."
+          }
+        }
+      ],
+      "regions": [
+        {
+          "key": "ZZ/Example region B",
+          "total": 2,
+          "ok": 1,
+          "degraded": 1,
+          "unknown": 0,
+          "categories": {
+            "ok": 1,
+            "dns_timeout": 1
+          },
+          "last_seen": "2026-06-10T11:00:00.000Z",
+          "status": "unknown",
+          "degraded_ratio": 0.5,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Нет решающего сигнала",
+            "label": "Inconclusive",
+            "note_ru": "Ошибки измерения и неполные проверки не считаются деградацией сервиса.",
+            "note": "Incomplete checks and measurement errors are not service failures."
+          }
+        },
+        {
+          "key": "ZZ/Example region A",
+          "total": 2,
+          "ok": 0,
+          "degraded": 2,
+          "unknown": 0,
+          "categories": {
+            "dns_timeout": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 1,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "degraded_candidate",
+            "label_ru": "Сигнал деградации",
+            "label": "Degraded candidate",
+            "note_ru": "Есть симптомы деградации, но выборка пока мала.",
+            "note": "Degradation symptoms exist, but the sample is still small."
+          }
+        }
+      ],
+      "days": [
+        {
+          "key": "2026-06-10",
+          "total": 4,
+          "ok": 1,
+          "degraded": 3,
+          "unknown": 0,
+          "categories": {
+            "ok": 1,
+            "dns_timeout": 3
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 0.75,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "incident_candidate",
+            "label_ru": "Кандидат на инцидент",
+            "label": "Incident candidate",
+            "note_ru": "Несколько отчётов указывают на деградацию; нужны независимые сети и повторные замеры.",
+            "note": "Several reports point to degradation; independent networks and repeats are still needed."
+          }
+        }
+      ],
+      "latest_reports": [
+        {
+          "report_id": "rbb_94a0acc88e24aa8efe59",
+          "timestamp_utc": "2026-06-10T12:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "dns_timeout",
+            "confidence": 0.9,
+            "signals": [
+              "dns timed out"
+            ],
+            "severity": "degraded",
+            "title": "DNS timeout",
+            "title_ru": "Таймаут DNS"
+          }
+        },
+        {
+          "report_id": "rbb_d4da02f70135e5debfe9",
+          "timestamp_utc": "2026-06-10T11:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region B",
+          "provider": "Example network B",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "dns_timeout",
+            "confidence": 0.9,
+            "signals": [
+              "dns timed out"
+            ],
+            "severity": "degraded",
+            "title": "DNS timeout",
+            "title_ru": "Таймаут DNS"
+          }
+        },
+        {
+          "report_id": "rbb_72fbcf44424b252ac29b",
+          "timestamp_utc": "2026-06-10T10:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "dns_timeout",
+            "confidence": 0.9,
+            "signals": [
+              "dns timed out"
+            ],
+            "severity": "degraded",
+            "title": "DNS timeout",
+            "title_ru": "Таймаут DNS"
+          }
+        },
+        {
+          "report_id": "rbb_6c9e9056f2b40ae07a14",
+          "timestamp_utc": "2026-06-10T09:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region B",
+          "provider": "Example network B",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        }
+      ],
+      "provider_incident_candidates": [
+        {
+          "key": "Example network A (AS?)",
+          "total": 2,
+          "ok": 0,
+          "degraded": 2,
+          "unknown": 0,
+          "categories": {
+            "dns_timeout": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 1,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "degraded_candidate",
+            "label_ru": "Сигнал деградации",
+            "label": "Degraded candidate",
+            "note_ru": "Есть симптомы деградации, но выборка пока мала.",
+            "note": "Degradation symptoms exist, but the sample is still small."
+          }
+        }
+      ]
+    }
+  ],
+  "domains": [
+    {
+      "key": "registry.npmjs.org",
+      "total": 4,
+      "ok": 1,
+      "degraded": 3,
+      "unknown": 0,
+      "categories": {
+        "ok": 1,
+        "dns_timeout": 3
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "degraded",
+      "degraded_ratio": 0.75,
+      "credibility": {
+        "score": 0.45,
+        "level": "low",
+        "label_ru": "Мало отчётов",
+        "label": "Low sample",
+        "note_ru": "Нужны повторные измерения и другие сети.",
+        "note": "Needs repeat measurements and other networks."
+      },
+      "weather": {
+        "status": "incident_candidate",
+        "label_ru": "Кандидат на инцидент",
+        "label": "Incident candidate",
+        "note_ru": "Несколько отчётов указывают на деградацию; нужны независимые сети и повторные замеры.",
+        "note": "Several reports point to degradation; independent networks and repeats are still needed."
+      },
+      "dominant_category": {
+        "category": "dns_timeout",
+        "count": 3,
+        "severity": "degraded",
+        "title": "DNS timeout",
+        "title_ru": "Таймаут DNS"
+      },
+      "providers": [
+        {
+          "key": "Example network B (AS?)",
+          "total": 2,
+          "ok": 1,
+          "degraded": 1,
+          "unknown": 0,
+          "categories": {
+            "ok": 1,
+            "dns_timeout": 1
+          },
+          "last_seen": "2026-06-10T11:00:00.000Z",
+          "status": "unknown",
+          "degraded_ratio": 0.5,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Нет решающего сигнала",
+            "label": "Inconclusive",
+            "note_ru": "Ошибки измерения и неполные проверки не считаются деградацией сервиса.",
+            "note": "Incomplete checks and measurement errors are not service failures."
+          }
+        },
+        {
+          "key": "Example network A (AS?)",
+          "total": 2,
+          "ok": 0,
+          "degraded": 2,
+          "unknown": 0,
+          "categories": {
+            "dns_timeout": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 1,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "degraded_candidate",
+            "label_ru": "Сигнал деградации",
+            "label": "Degraded candidate",
+            "note_ru": "Есть симптомы деградации, но выборка пока мала.",
+            "note": "Degradation symptoms exist, but the sample is still small."
+          }
+        }
+      ],
+      "regions": [
+        {
+          "key": "ZZ/Example region B",
+          "total": 2,
+          "ok": 1,
+          "degraded": 1,
+          "unknown": 0,
+          "categories": {
+            "ok": 1,
+            "dns_timeout": 1
+          },
+          "last_seen": "2026-06-10T11:00:00.000Z",
+          "status": "unknown",
+          "degraded_ratio": 0.5,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Нет решающего сигнала",
+            "label": "Inconclusive",
+            "note_ru": "Ошибки измерения и неполные проверки не считаются деградацией сервиса.",
+            "note": "Incomplete checks and measurement errors are not service failures."
+          }
+        },
+        {
+          "key": "ZZ/Example region A",
+          "total": 2,
+          "ok": 0,
+          "degraded": 2,
+          "unknown": 0,
+          "categories": {
+            "dns_timeout": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 1,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "degraded_candidate",
+            "label_ru": "Сигнал деградации",
+            "label": "Degraded candidate",
+            "note_ru": "Есть симптомы деградации, но выборка пока мала.",
+            "note": "Degradation symptoms exist, but the sample is still small."
+          }
+        }
+      ],
+      "days": [
+        {
+          "key": "2026-06-10",
+          "total": 4,
+          "ok": 1,
+          "degraded": 3,
+          "unknown": 0,
+          "categories": {
+            "ok": 1,
+            "dns_timeout": 3
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 0.75,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "incident_candidate",
+            "label_ru": "Кандидат на инцидент",
+            "label": "Incident candidate",
+            "note_ru": "Несколько отчётов указывают на деградацию; нужны независимые сети и повторные замеры.",
+            "note": "Several reports point to degradation; independent networks and repeats are still needed."
+          }
+        }
+      ],
+      "latest_reports": [
+        {
+          "report_id": "rbb_94a0acc88e24aa8efe59",
+          "timestamp_utc": "2026-06-10T12:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "dns_timeout",
+            "confidence": 0.9,
+            "signals": [
+              "dns timed out"
+            ],
+            "severity": "degraded",
+            "title": "DNS timeout",
+            "title_ru": "Таймаут DNS"
+          }
+        },
+        {
+          "report_id": "rbb_d4da02f70135e5debfe9",
+          "timestamp_utc": "2026-06-10T11:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region B",
+          "provider": "Example network B",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "dns_timeout",
+            "confidence": 0.9,
+            "signals": [
+              "dns timed out"
+            ],
+            "severity": "degraded",
+            "title": "DNS timeout",
+            "title_ru": "Таймаут DNS"
+          }
+        },
+        {
+          "report_id": "rbb_72fbcf44424b252ac29b",
+          "timestamp_utc": "2026-06-10T10:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "dns_timeout",
+            "confidence": 0.9,
+            "signals": [
+              "dns timed out"
+            ],
+            "severity": "degraded",
+            "title": "DNS timeout",
+            "title_ru": "Таймаут DNS"
+          }
+        },
+        {
+          "report_id": "rbb_6c9e9056f2b40ae07a14",
+          "timestamp_utc": "2026-06-10T09:00:00.000Z",
+          "target": "registry.npmjs.org",
+          "country": "ZZ",
+          "region": "Example region B",
+          "provider": "Example network B",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        }
+      ],
+      "provider_incident_candidates": [
+        {
+          "key": "Example network A (AS?)",
+          "total": 2,
+          "ok": 0,
+          "degraded": 2,
+          "unknown": 0,
+          "categories": {
+            "dns_timeout": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "degraded",
+          "degraded_ratio": 1,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "degraded_candidate",
+            "label_ru": "Сигнал деградации",
+            "label": "Degraded candidate",
+            "note_ru": "Есть симптомы деградации, но выборка пока мала.",
+            "note": "Degradation symptoms exist, but the sample is still small."
+          }
+        }
+      ]
     },
     {
-      "key": "example.com",
-      "total": 2,
-      "ok": 2,
+      "key": "github.com",
+      "total": 4,
+      "ok": 4,
       "degraded": 0,
-      "categories": { "ok": 2 },
-      "last_seen": "2026-04-27T20:30:00.000Z",
+      "unknown": 0,
+      "categories": {
+        "ok": 4
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
       "status": "ok",
       "degraded_ratio": 0,
-      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
+      "credibility": {
+        "score": 0.45,
+        "level": "low",
+        "label_ru": "Мало отчётов",
+        "label": "Low sample",
+        "note_ru": "Нужны повторные измерения и другие сети.",
+        "note": "Needs repeat measurements and other networks."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      },
+      "dominant_category": {
+        "category": "ok",
+        "count": 4,
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      },
+      "providers": [
+        {
+          "key": "Example network B (AS?)",
+          "total": 2,
+          "ok": 2,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 2
+          },
+          "last_seen": "2026-06-10T11:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Слабый сигнал",
+            "label": "Weak signal",
+            "note_ru": "Пока мало данных для уверенной сводки.",
+            "note": "Not enough data for a confident status."
+          }
+        },
+        {
+          "key": "Example network A (AS?)",
+          "total": 2,
+          "ok": 2,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Слабый сигнал",
+            "label": "Weak signal",
+            "note_ru": "Пока мало данных для уверенной сводки.",
+            "note": "Not enough data for a confident status."
+          }
+        }
+      ],
+      "regions": [
+        {
+          "key": "ZZ/Example region B",
+          "total": 2,
+          "ok": 2,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 2
+          },
+          "last_seen": "2026-06-10T11:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Слабый сигнал",
+            "label": "Weak signal",
+            "note_ru": "Пока мало данных для уверенной сводки.",
+            "note": "Not enough data for a confident status."
+          }
+        },
+        {
+          "key": "ZZ/Example region A",
+          "total": 2,
+          "ok": 2,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 2
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "weak_signal",
+            "label_ru": "Слабый сигнал",
+            "label": "Weak signal",
+            "note_ru": "Пока мало данных для уверенной сводки.",
+            "note": "Not enough data for a confident status."
+          }
+        }
+      ],
+      "days": [
+        {
+          "key": "2026-06-10",
+          "total": 4,
+          "ok": 4,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 4
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.45,
+            "level": "low",
+            "label_ru": "Мало отчётов",
+            "label": "Low sample",
+            "note_ru": "Нужны повторные измерения и другие сети.",
+            "note": "Needs repeat measurements and other networks."
+          },
+          "weather": {
+            "status": "mostly_ok",
+            "label_ru": "В основном доступно",
+            "label": "Mostly OK",
+            "note_ru": "Текущие публичные отчёты в основном успешны.",
+            "note": "Current public reports are mostly successful."
+          }
+        }
+      ],
+      "latest_reports": [
+        {
+          "report_id": "rbb_02de2d0243ae819df459",
+          "timestamp_utc": "2026-06-10T12:00:00.000Z",
+          "target": "github.com",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        },
+        {
+          "report_id": "rbb_6dd506c30d8a2bb12463",
+          "timestamp_utc": "2026-06-10T11:00:00.000Z",
+          "target": "github.com",
+          "country": "ZZ",
+          "region": "Example region B",
+          "provider": "Example network B",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        },
+        {
+          "report_id": "rbb_d3fb353e4bc03314760a",
+          "timestamp_utc": "2026-06-10T10:00:00.000Z",
+          "target": "github.com",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        },
+        {
+          "report_id": "rbb_bb4e5a4ba13df7b9dc8b",
+          "timestamp_utc": "2026-06-10T09:00:00.000Z",
+          "target": "github.com",
+          "country": "ZZ",
+          "region": "Example region B",
+          "provider": "Example network B",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        }
+      ],
+      "provider_incident_candidates": []
     },
     {
-      "key": "discord.com",
-      "total": 2,
-      "ok": 0,
-      "degraded": 2,
-      "categories": { "possible_tls_dpi_or_middlebox_reset": 2 },
-      "last_seen": "2026-04-27T20:15:00.000Z",
-      "status": "degraded",
-      "degraded_ratio": 1,
-      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
-    },
-    {
-      "key": "cloudflare.com",
-      "total": 2,
-      "ok": 2,
-      "degraded": 0,
-      "categories": { "ok": 2 },
-      "last_seen": "2026-04-27T20:00:00.000Z",
-      "status": "ok",
-      "degraded_ratio": 0,
-      "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." }
-    },
-    {
-      "key": "telegram.org",
+      "key": "pypi.org",
       "total": 1,
-      "ok": 0,
-      "degraded": 1,
-      "categories": { "http_blockpage_suspected": 1 },
-      "last_seen": "2026-04-27T19:45:00.000Z",
-      "status": "degraded",
-      "degraded_ratio": 1,
-      "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }
+      "ok": 1,
+      "degraded": 0,
+      "unknown": 0,
+      "categories": {
+        "ok": 1
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0,
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "weather": {
+        "status": "reports_needed",
+        "label_ru": "Нужны отчёты",
+        "label": "Reports needed",
+        "note_ru": "Один отчёт полезен для triage, но не подтверждает сетевой паттерн.",
+        "note": "One report is useful for triage, but does not confirm a network pattern."
+      },
+      "dominant_category": {
+        "category": "ok",
+        "count": 1,
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      },
+      "providers": [
+        {
+          "key": "Example network A (AS?)",
+          "total": 1,
+          "ok": 1,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 1
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "weather": {
+            "status": "reports_needed",
+            "label_ru": "Нужны отчёты",
+            "label": "Reports needed",
+            "note_ru": "Один отчёт полезен для triage, но не подтверждает сетевой паттерн.",
+            "note": "One report is useful for triage, but does not confirm a network pattern."
+          }
+        }
+      ],
+      "regions": [
+        {
+          "key": "ZZ/Example region A",
+          "total": 1,
+          "ok": 1,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 1
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "weather": {
+            "status": "reports_needed",
+            "label_ru": "Нужны отчёты",
+            "label": "Reports needed",
+            "note_ru": "Один отчёт полезен для triage, но не подтверждает сетевой паттерн.",
+            "note": "One report is useful for triage, but does not confirm a network pattern."
+          }
+        }
+      ],
+      "days": [
+        {
+          "key": "2026-06-10",
+          "total": 1,
+          "ok": 1,
+          "degraded": 0,
+          "unknown": 0,
+          "categories": {
+            "ok": 1
+          },
+          "last_seen": "2026-06-10T12:00:00.000Z",
+          "status": "ok",
+          "degraded_ratio": 0,
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "weather": {
+            "status": "reports_needed",
+            "label_ru": "Нужны отчёты",
+            "label": "Reports needed",
+            "note_ru": "Один отчёт полезен для triage, но не подтверждает сетевой паттерн.",
+            "note": "One report is useful for triage, but does not confirm a network pattern."
+          }
+        }
+      ],
+      "latest_reports": [
+        {
+          "report_id": "rbb_5b765a2f82f451c56b3d",
+          "timestamp_utc": "2026-06-10T12:00:00.000Z",
+          "target": "pypi.org",
+          "country": "ZZ",
+          "region": "Example region A",
+          "provider": "Example network A",
+          "asn": null,
+          "connection_type": "hosting",
+          "environment": {
+            "suspected_vpn_or_tunnel": false
+          },
+          "credibility": {
+            "score": 0.2,
+            "level": "single_report",
+            "label_ru": "Один отчёт",
+            "label": "Single report",
+            "note_ru": "Используй как сигнал triage, не как доказательство.",
+            "note": "Use as a triage signal, not proof."
+          },
+          "diagnosis": {
+            "category": "ok",
+            "confidence": 0.94,
+            "signals": [
+              "dns, tcp, tls, and http checks passed"
+            ],
+            "severity": "ok",
+            "title": "Reachable",
+            "title_ru": "Доступно"
+          }
+        }
+      ],
+      "provider_incident_candidates": []
     }
   ],
   "providers": [
-    { "key": "Rostelecom (AS12389)", "total": 5, "ok": 3, "degraded": 2, "categories": { "ok": 3, "dns_timeout": 1, "tls_timeout": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0.4, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } },
-    { "key": "MTS (AS8359)", "total": 4, "ok": 1, "degraded": 3, "categories": { "ok": 1, "possible_tls_dpi_or_middlebox_reset": 2, "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T20:15:00.000Z", "status": "degraded", "degraded_ratio": 0.75, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
-    { "key": "Beeline (AS3216)", "total": 3, "ok": 2, "degraded": 1, "categories": { "ok": 2, "tls_timeout": 1 }, "last_seen": "2026-04-27T20:45:00.000Z", "status": "ok", "degraded_ratio": 0.333, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } }
+    {
+      "key": "Example network A (AS?)",
+      "total": 5,
+      "ok": 3,
+      "degraded": 2,
+      "unknown": 0,
+      "categories": {
+        "dns_timeout": 2,
+        "ok": 3
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0.4,
+      "credibility": {
+        "score": 0.7,
+        "level": "medium",
+        "label_ru": "Больше измерений",
+        "label": "More measurements",
+        "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.",
+        "note": "Cautious comparison is possible, but context still matters."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      }
+    },
+    {
+      "key": "Example network B (AS?)",
+      "total": 4,
+      "ok": 3,
+      "degraded": 1,
+      "unknown": 0,
+      "categories": {
+        "ok": 3,
+        "dns_timeout": 1
+      },
+      "last_seen": "2026-06-10T11:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0.25,
+      "credibility": {
+        "score": 0.45,
+        "level": "low",
+        "label_ru": "Мало отчётов",
+        "label": "Low sample",
+        "note_ru": "Нужны повторные измерения и другие сети.",
+        "note": "Needs repeat measurements and other networks."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      }
+    }
   ],
   "regions": [
-    { "key": "Moscow", "total": 7, "ok": 4, "degraded": 3, "categories": { "ok": 4, "dns_timeout": 1, "tls_timeout": 1, "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0.429, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } },
-    { "key": "Saint Petersburg", "total": 3, "ok": 2, "degraded": 1, "categories": { "ok": 2, "tls_timeout": 1 }, "last_seen": "2026-04-27T20:45:00.000Z", "status": "ok", "degraded_ratio": 0.333, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
-    { "key": "Tatarstan", "total": 2, "ok": 0, "degraded": 2, "categories": { "possible_tls_dpi_or_middlebox_reset": 2 }, "last_seen": "2026-04-27T20:15:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } }
+    {
+      "key": "ZZ/Example region A",
+      "total": 5,
+      "ok": 3,
+      "degraded": 2,
+      "unknown": 0,
+      "categories": {
+        "dns_timeout": 2,
+        "ok": 3
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0.4,
+      "credibility": {
+        "score": 0.7,
+        "level": "medium",
+        "label_ru": "Больше измерений",
+        "label": "More measurements",
+        "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.",
+        "note": "Cautious comparison is possible, but context still matters."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      }
+    },
+    {
+      "key": "ZZ/Example region B",
+      "total": 4,
+      "ok": 3,
+      "degraded": 1,
+      "unknown": 0,
+      "categories": {
+        "ok": 3,
+        "dns_timeout": 1
+      },
+      "last_seen": "2026-06-10T11:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0.25,
+      "credibility": {
+        "score": 0.45,
+        "level": "low",
+        "label_ru": "Мало отчётов",
+        "label": "Low sample",
+        "note_ru": "Нужны повторные измерения и другие сети.",
+        "note": "Needs repeat measurements and other networks."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      }
+    }
   ],
   "days": [
-    { "key": "2026-04-27", "total": 12, "ok": 6, "degraded": 6, "categories": { "ok": 6, "dns_timeout": 1, "tls_timeout": 2, "possible_tls_dpi_or_middlebox_reset": 2, "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0.5, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } }
+    {
+      "key": "2026-06-10",
+      "total": 9,
+      "ok": 6,
+      "degraded": 3,
+      "unknown": 0,
+      "categories": {
+        "ok": 6,
+        "dns_timeout": 3
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0.333,
+      "credibility": {
+        "score": 0.7,
+        "level": "medium",
+        "label_ru": "Больше измерений",
+        "label": "More measurements",
+        "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.",
+        "note": "Cautious comparison is possible, but context still matters."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      }
+    }
   ],
   "categories": [
-    { "key": "ok", "total": 6, "ok": 6, "degraded": 0, "categories": { "ok": 6 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "ok", "degraded_ratio": 0, "credibility": { "score": 0.7, "level": "medium", "label_ru": "Средняя уверенность", "label": "Medium confidence", "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.", "note": "Cautious comparison is possible, but context still matters." } },
-    { "key": "tls_timeout", "total": 2, "ok": 0, "degraded": 2, "categories": { "tls_timeout": 2 }, "last_seen": "2026-04-27T20:45:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
-    { "key": "possible_tls_dpi_or_middlebox_reset", "total": 2, "ok": 0, "degraded": 2, "categories": { "possible_tls_dpi_or_middlebox_reset": 2 }, "last_seen": "2026-04-27T20:15:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.45, "level": "low", "label_ru": "Мало отчётов", "label": "Low sample", "note_ru": "Нужны повторные измерения и другие сети.", "note": "Needs repeat measurements and other networks." } },
-    { "key": "dns_timeout", "total": 1, "ok": 0, "degraded": 1, "categories": { "dns_timeout": 1 }, "last_seen": "2026-04-27T21:15:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." } },
-    { "key": "http_blockpage_suspected", "total": 1, "ok": 0, "degraded": 1, "categories": { "http_blockpage_suspected": 1 }, "last_seen": "2026-04-27T19:45:00.000Z", "status": "degraded", "degraded_ratio": 1, "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." } }
+    {
+      "key": "ok",
+      "total": 6,
+      "ok": 6,
+      "degraded": 0,
+      "unknown": 0,
+      "categories": {
+        "ok": 6
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "ok",
+      "degraded_ratio": 0,
+      "credibility": {
+        "score": 0.7,
+        "level": "medium",
+        "label_ru": "Больше измерений",
+        "label": "More measurements",
+        "note_ru": "Можно сравнивать осторожно, но контекст всё ещё важен.",
+        "note": "Cautious comparison is possible, but context still matters."
+      },
+      "weather": {
+        "status": "mostly_ok",
+        "label_ru": "В основном доступно",
+        "label": "Mostly OK",
+        "note_ru": "Текущие публичные отчёты в основном успешны.",
+        "note": "Current public reports are mostly successful."
+      }
+    },
+    {
+      "key": "dns_timeout",
+      "total": 3,
+      "ok": 0,
+      "degraded": 3,
+      "unknown": 0,
+      "categories": {
+        "dns_timeout": 3
+      },
+      "last_seen": "2026-06-10T12:00:00.000Z",
+      "status": "degraded",
+      "degraded_ratio": 1,
+      "credibility": {
+        "score": 0.45,
+        "level": "low",
+        "label_ru": "Мало отчётов",
+        "label": "Low sample",
+        "note_ru": "Нужны повторные измерения и другие сети.",
+        "note": "Needs repeat measurements and other networks."
+      },
+      "weather": {
+        "status": "incident_candidate",
+        "label_ru": "Кандидат на инцидент",
+        "label": "Incident candidate",
+        "note_ru": "Несколько отчётов указывают на деградацию; нужны независимые сети и повторные замеры.",
+        "note": "Several reports point to degradation; independent networks and repeats are still needed."
+      }
+    }
   ],
   "latest_reports": [
-    { "report_id": "demo_001", "timestamp_utc": "2026-04-27T21:15:00.000Z", "target": "github.com", "country": "RU", "region": "Moscow", "provider": "Rostelecom", "asn": 12389, "connection_type": "home", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "dns_timeout", "confidence": 0.9, "signals": ["dns timed out"], "severity": "degraded", "title": "DNS timeout", "title_ru": "Таймаут DNS" } },
-    { "report_id": "demo_002", "timestamp_utc": "2026-04-27T20:45:00.000Z", "target": "registry.npmjs.org", "country": "RU", "region": "Saint Petersburg", "provider": "Beeline", "asn": 3216, "connection_type": "home", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "tls_timeout", "confidence": 0.75, "signals": ["tls handshake timed out"], "severity": "degraded", "title": "TLS timeout", "title_ru": "Таймаут TLS" } },
-    { "report_id": "demo_003", "timestamp_utc": "2026-04-27T20:30:00.000Z", "target": "example.com", "country": "RU", "region": "Moscow", "provider": "Rostelecom", "asn": 12389, "connection_type": "home", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "ok", "confidence": 0.94, "signals": ["dns, tcp, tls, and http checks passed"], "severity": "ok", "title": "Reachable", "title_ru": "Доступно" } },
-    { "report_id": "demo_004", "timestamp_utc": "2026-04-27T20:15:00.000Z", "target": "discord.com", "country": "RU", "region": "Tatarstan", "provider": "MTS", "asn": 8359, "connection_type": "mobile", "credibility": { "score": 0.2, "level": "single_report", "label_ru": "Один отчёт", "label": "Single report", "note_ru": "Используй как сигнал triage, не как доказательство.", "note": "Use as a triage signal, not proof." }, "diagnosis": { "category": "possible_tls_dpi_or_middlebox_reset", "confidence": 0.82, "signals": ["tls reset after client hello"], "severity": "degraded", "title": "Possible TLS middlebox reset", "title_ru": "Возможный TLS-сброс middlebox/DPI" } }
-  ]
+    {
+      "report_id": "rbb_02de2d0243ae819df459",
+      "timestamp_utc": "2026-06-10T12:00:00.000Z",
+      "target": "github.com",
+      "country": "ZZ",
+      "region": "Example region A",
+      "provider": "Example network A",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "ok",
+        "confidence": 0.94,
+        "signals": [
+          "dns, tcp, tls, and http checks passed"
+        ],
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      }
+    },
+    {
+      "report_id": "rbb_5b765a2f82f451c56b3d",
+      "timestamp_utc": "2026-06-10T12:00:00.000Z",
+      "target": "pypi.org",
+      "country": "ZZ",
+      "region": "Example region A",
+      "provider": "Example network A",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "ok",
+        "confidence": 0.94,
+        "signals": [
+          "dns, tcp, tls, and http checks passed"
+        ],
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      }
+    },
+    {
+      "report_id": "rbb_94a0acc88e24aa8efe59",
+      "timestamp_utc": "2026-06-10T12:00:00.000Z",
+      "target": "registry.npmjs.org",
+      "country": "ZZ",
+      "region": "Example region A",
+      "provider": "Example network A",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "dns_timeout",
+        "confidence": 0.9,
+        "signals": [
+          "dns timed out"
+        ],
+        "severity": "degraded",
+        "title": "DNS timeout",
+        "title_ru": "Таймаут DNS"
+      }
+    },
+    {
+      "report_id": "rbb_6dd506c30d8a2bb12463",
+      "timestamp_utc": "2026-06-10T11:00:00.000Z",
+      "target": "github.com",
+      "country": "ZZ",
+      "region": "Example region B",
+      "provider": "Example network B",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "ok",
+        "confidence": 0.94,
+        "signals": [
+          "dns, tcp, tls, and http checks passed"
+        ],
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      }
+    },
+    {
+      "report_id": "rbb_d4da02f70135e5debfe9",
+      "timestamp_utc": "2026-06-10T11:00:00.000Z",
+      "target": "registry.npmjs.org",
+      "country": "ZZ",
+      "region": "Example region B",
+      "provider": "Example network B",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "dns_timeout",
+        "confidence": 0.9,
+        "signals": [
+          "dns timed out"
+        ],
+        "severity": "degraded",
+        "title": "DNS timeout",
+        "title_ru": "Таймаут DNS"
+      }
+    },
+    {
+      "report_id": "rbb_72fbcf44424b252ac29b",
+      "timestamp_utc": "2026-06-10T10:00:00.000Z",
+      "target": "registry.npmjs.org",
+      "country": "ZZ",
+      "region": "Example region A",
+      "provider": "Example network A",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "dns_timeout",
+        "confidence": 0.9,
+        "signals": [
+          "dns timed out"
+        ],
+        "severity": "degraded",
+        "title": "DNS timeout",
+        "title_ru": "Таймаут DNS"
+      }
+    },
+    {
+      "report_id": "rbb_d3fb353e4bc03314760a",
+      "timestamp_utc": "2026-06-10T10:00:00.000Z",
+      "target": "github.com",
+      "country": "ZZ",
+      "region": "Example region A",
+      "provider": "Example network A",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "ok",
+        "confidence": 0.94,
+        "signals": [
+          "dns, tcp, tls, and http checks passed"
+        ],
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      }
+    },
+    {
+      "report_id": "rbb_6c9e9056f2b40ae07a14",
+      "timestamp_utc": "2026-06-10T09:00:00.000Z",
+      "target": "registry.npmjs.org",
+      "country": "ZZ",
+      "region": "Example region B",
+      "provider": "Example network B",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "ok",
+        "confidence": 0.94,
+        "signals": [
+          "dns, tcp, tls, and http checks passed"
+        ],
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      }
+    },
+    {
+      "report_id": "rbb_bb4e5a4ba13df7b9dc8b",
+      "timestamp_utc": "2026-06-10T09:00:00.000Z",
+      "target": "github.com",
+      "country": "ZZ",
+      "region": "Example region B",
+      "provider": "Example network B",
+      "asn": null,
+      "connection_type": "hosting",
+      "environment": {
+        "suspected_vpn_or_tunnel": false
+      },
+      "credibility": {
+        "score": 0.2,
+        "level": "single_report",
+        "label_ru": "Один отчёт",
+        "label": "Single report",
+        "note_ru": "Используй как сигнал triage, не как доказательство.",
+        "note": "Use as a triage signal, not proof."
+      },
+      "diagnosis": {
+        "category": "ok",
+        "confidence": 0.94,
+        "signals": [
+          "dns, tcp, tls, and http checks passed"
+        ],
+        "severity": "ok",
+        "title": "Reachable",
+        "title_ru": "Доступно"
+      }
+    }
+  ],
+  "demo": true
 }

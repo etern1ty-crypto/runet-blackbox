@@ -1,29 +1,20 @@
 # Roadmap
 
-## v0.4
+## Реализовано в 0.4.0
 
-- Finish hardening the first report flow around `doctor`, `--issue-url`, robust `--issue-file` fallbacks, and import feedback.
-- Add signed release checksums and provenance notes.
-- Add more diagnosis fixtures from real sanitized reports.
-- Run the "First 50 Reports" campaign around `dev`, `ai`, and `baseline` packs.
+- [x] Dependency preflight, строгий JSON config и CI pack.
+- [x] Public IP pinning, TLS verification, безопасные redirects и bounded HTTP.
+- [x] JSON / JUnit / Prometheus artifacts, worker pool, graceful shutdown.
+- [x] Allowlist, canonical diagnosis/IDs, locked import, rolling-window aggregates.
+- [x] Explicit demo, deployment build, документация и regression suite.
 
-## v0.5
+## Следующий продуктовый этап — гипотезы, не обещания
 
-- Optional multi-resolver DNS comparison.
-- Better provider/ASN normalization.
-- Provider/ASN normalization beyond free-text labels.
-- More dashboard filtering for pack and time window.
+- [ ] Пилоты на реальных self-hosted runner’ах; оценка полезности и noise rate.
+- [ ] Проверяемое сравнение нескольких адресов/IPv4/IPv6 без потери provenance.
+- [ ] Отдельная endpoint-модель с safe paths и специальным privacy/security review.
+- [ ] Поддержка ticket integrations, если подтверждена потребность покупателей.
+- [ ] Private control plane, RBAC, retention и attestations только после PMF-сигналов.
+- [ ] Immutable action/image pins и подписанные release artifacts в процессе владельца.
 
-## Later
-
-- Conservative optional QUIC/HTTP3 probe with low request volume.
-- Community-maintained regional campaigns built around the core CLI.
-- Exportable weekly summaries for Habr/dev.to posts.
-
-## Non-Goals
-
-- VPN/proxy/tunnel functionality.
-- Bypass instructions.
-- QUIC/DPI stress testing or traffic generation.
-- Raw packet capture collection.
-- Precise contributor geolocation.
+Не входят в реализованный scope: VPN/proxy/bypass, нагрузочные тесты, QUIC/HTTP3, browser E2E, arbitrary private-target API, биллинг, multi-tenant SaaS.

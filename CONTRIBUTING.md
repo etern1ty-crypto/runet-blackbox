@@ -1,63 +1,27 @@
-# Contributing / Участие
+# Contributing
 
-Runet Blackbox — observability-проект. Держи вклад в границах measurement, diagnosis, privacy и воспроизводимых публичных свидетельств.
-
-English: keep contributions focused on measurement, diagnosis, privacy, and reproducible public evidence.
-
-## Правила
-
-- Не добавляй VPN, proxy, bypass, tunneling или circumvention features.
-- Не коммить secrets, tokens, cookies, private logs, packet captures или raw user telemetry.
-- Если privacy конфликтует с детализацией статистики, выбирай меньше данных.
-- Не нагружай чужие сервисы. Проверки должны быть лёгкими.
-- На каждое изменение поведения добавляй или обновляй tests.
+Спасибо за помощь в создании маленького, проверяемого инструмента диагностики. Предпочтение — ясные локальные измерения, минимум данных и воспроизводимые tests.
 
 ## Разработка
 
 ```bash
-npm ci
+npm ci --ignore-scripts --no-audit
 npm run check
-npm test
-node cli/bin/runet-blackbox.js sample --pretty
-node cli/bin/runet-blackbox.js check example.com --no-http
-node cli/bin/runet-blackbox.js check --pack baseline --no-http
+npm run test:coverage
 ```
 
-## Measurement Reports
+Node 22+/24, JavaScript ESM, встроенный node:test. Не добавляйте npm-пакет без явного выигрыша и обновления documented dependency policy. `scripts/check-project.mjs` намеренно требует review этого решения.
 
-Используй официальный CLI:
+## Требования к PR
 
-```bash
-node cli/bin/runet-blackbox.js check github.com \
-  --region Moscow \
-  --provider Rostelecom \
-  --connection-type home \
-  --json --pretty \
-  --output report.json
-```
+- Воспроизведение дефекта и regression test. Network tests только на локальных серверах/DI, не внешних targets.
+- Для нового поля обновите `src/report-fields.js`, allowlist sanitizer, schema snapshot (`npm run schema`), документацию и migration notes.
+- Не публикуйте raw headers/body/DNS/client IP/credentials. Для vulnerability используйте [SECURITY.md](SECURITY.md).
+- Все asynchronous operations должны завершаться, закрывать ресурсы и учитывать abort/deadline.
+- Не приписывайте cause сетевого сбоя данным, которые этого не доказывают.
+- Изменения CLI flags должны отражаться в help, config, README примерах и тестах.
+- UI должен оставаться доступным с клавиатуры, без overflow на 390px, со честным empty/error/demo state.
 
-Windows PowerShell:
+Нет формального CLA в исходной лицензии. Сохраняйте MIT notice; не добавляйте сторонний код с несовместимой лицензией. Submitter должен иметь право передавать вклад.
 
-```powershell
-node .\cli\bin\runet-blackbox.js check github.com `
-  --region Moscow `
-  --provider Rostelecom `
-  --connection-type home `
-  --json --pretty `
-  --output .\report.json
-```
-
-Перед отправкой:
-
-- используй грубый регион, не адрес;
-- не вставляй IP, account IDs или private URLs в issue text;
-- проверяй JSON: `node scripts/validate-report.mjs report.json`;
-- отправляй одну цель на один issue или один CLI-generated pack bundle;
-- если включён VPN/proxy/tun, явно укажи это и не называй отчёт обычной сетью провайдера.
-
-## Code Style
-
-- Используй plain Node.js APIs, если зависимость не даёт явной пользы.
-- Держи public JSON стабильным внутри schema version.
-- Делай network logic тестируемой через local mock servers или injectable functions.
-- Предпочитай deterministic pure functions для diagnosis, privacy и aggregation.
+См. [архитектуру](docs/ARCHITECTURE.md), [testing](docs/TESTING.md) и [roadmap](ROADMAP.md).

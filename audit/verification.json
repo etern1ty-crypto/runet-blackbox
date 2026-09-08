@@ -1,0 +1,31 @@
+{
+  "revision": "0.4.0",
+  "verification_date": "2026-09-08",
+  "environment": {
+    "node": "v24.14.1",
+    "openssl": "3.5.5",
+    "platform": "linux",
+    "arch": "x64",
+    "npm": "11.11.0"
+  },
+  "tests": {
+    "tests": 366,
+    "pass": 366,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "instrumented_coverage_percent": {
+    "lines": 91.9,
+    "branches": 78.59,
+    "functions": 88.73
+  },
+  "source_syntax_files": 65,
+  "npm_dependencies": 0,
+  "local_package_install": "passed; offline tarball install, version/sample/doctor",
+  "external_ci": "configured, not executed",
+  "container_build": "not executed; Docker unavailable",
+  "public_network_pilot": "not executed; network integration tests use local servers",
+  "publication": "not performed"
+}

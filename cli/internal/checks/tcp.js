@@ -1,24 +1,30 @@
 import net from "node:net";
-import { elapsedMs, errorMessage, statusFromNetworkError } from "./util.js";
+import { elapsedMs, errorMessage, statusFromNetworkError, throwIfAborted, abortError } from "./util.js";
 
 export function checkTcp(target, port, options = {}) {
+  throwIfAborted(options.signal);
   const startedAt = performance.now();
-  const timeoutMs = options.timeoutMs || 5000;
-
-  return new Promise((resolve) => {
-    const socket = net.createConnection({ host: target, port });
+  return new Promise((resolve, reject) => {
+    let socket;
     let settled = false;
-
-    function done(result) {
+    const finish = (result, error) => {
       if (settled) return;
       settled = true;
-      socket.destroy();
-      resolve({ ...result, latency_ms: elapsedMs(startedAt) });
+      clearTimeout(timer);
+      options.signal?.removeEventListener("abort", aborted);
+      socket?.destroy();
+      if (error) reject(error); else resolve({ ...result, port, latency_ms: elapsedMs(startedAt) });
+    };
+    const aborted = () => finish(null, abortError());
+    const timer = setTimeout(() => finish({ status: "timeout", error: "ETIMEDOUT" }), options.timeoutMs ?? 5000);
+    options.signal?.addEventListener("abort", aborted, { once: true });
+    try {
+      // runCheck supplies a vetted literal: never resolve the hostname a second time.
+      socket = (options.connect || net.createConnection)({ host: options.address || target, port });
+      socket.once("connect", () => finish({ status: "ok" }));
+      socket.once("error", error => finish({ status: statusFromNetworkError(error), error: errorMessage(error) }));
+    } catch (error) {
+      finish({ status: statusFromNetworkError(error), error: errorMessage(error) });
     }
-
-    socket.setTimeout(timeoutMs);
-    socket.once("connect", () => done({ status: "ok", port }));
-    socket.once("timeout", () => done({ status: "timeout", port, error: "timeout" }));
-    socket.once("error", (error) => done({ status: statusFromNetworkError(error), port, error: errorMessage(error) }));
   });
 }

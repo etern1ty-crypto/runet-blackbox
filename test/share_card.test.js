@@ -13,7 +13,7 @@ test("buildOverviewShareCard returns safe svg", () => {
   });
   assert.match(svg, /^<\?xml/);
   assert.match(svg, /Runet Blackbox/);
-  assert.match(svg, /No IPs/);
+  assert.match(svg, /No raw DNS answers/);
 });
 
 test("buildTargetShareCard escapes target text", () => {
@@ -28,4 +28,10 @@ test("buildTargetShareCard escapes target text", () => {
   assert.match(svg, /bad&lt;target&gt;\.example/);
   assert.match(svg, /Проверка &lt;важно&gt;/);
   assert.doesNotMatch(svg, /bad<target>|DNS <timeout>/);
+});
+
+// DNS labels may consist mostly of wide glyphs; character count alone is not a pixel bound.
+test("long target titles have an explicit SVG width bound", () => {
+  const svg = buildTargetShareCard({ key: "w".repeat(63) + ".example.com", total: 1 });
+  assert.match(svg, /textLength="1072" lengthAdjust="spacingAndGlyphs"/);
 });

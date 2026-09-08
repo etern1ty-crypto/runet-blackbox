@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { validateMeasurementTarget } from "../../src/target-policy.js";
 
 const PACK_FILES = new Map([
+  ["ci", "ci.json"],
   ["dev", "dev.json"],
   ["ai", "ai.json"],
   ["social", "social.json"],

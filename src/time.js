@@ -13,6 +13,7 @@ export function roundTimestampUtc(timestamp, bucketMinutes = PUBLIC_TIME_BUCKET_
   if (Number.isNaN(date.getTime())) {
     throw new Error("invalid timestamp");
   }
+  if (!Number.isInteger(bucketMinutes) || bucketMinutes < 1 || bucketMinutes > 1440) throw new Error("bucketMinutes must be an integer between 1 and 1440");
   const bucketMs = bucketMinutes * 60 * 1000;
   return new Date(Math.floor(date.getTime() / bucketMs) * bucketMs).toISOString();
 }

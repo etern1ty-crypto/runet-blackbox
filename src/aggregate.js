@@ -1,21 +1,28 @@
-import { validateReport } from "./report-schema.js";
-import { sanitizeReport } from "./privacy.js";
+import { prepareReport } from "./report.js";
 import { reportDay } from "./time.js";
 import { diagnosisMetadata } from "./diagnosis-metadata.js";
 
-export function aggregateReports(inputReports) {
+export function aggregateReports(inputReports, options = {}) {
+  const now = new Date(options.now || Date.now());
+  const windowHours = options.windowHours === undefined ? 24 : options.windowHours;
+  if (!Number.isFinite(now.getTime()) || (windowHours !== null && (!Number.isFinite(windowHours) || windowHours <= 0 || windowHours > 8760))) throw new Error("invalid aggregation window");
+  const earliest = windowHours === null ? -Infinity : now.getTime() - windowHours * 3600000;
   const reports = [];
-  for (const report of inputReports) {
-    try {
-      const sanitized = sanitizeReport(report);
-      const validation = validateReport(sanitized);
-      if (validation.valid) {
-        reports.push(sanitized);
-      }
-    } catch {
-      // Invalid external input should not break aggregation.
-    }
+  const seen = new Set();
+  const excluded = { invalid: 0, duplicate: 0, outside_window: 0, future: 0, tunnel: 0 };
+  for (const raw of inputReports) {
+    let report;
+    try { report = prepareReport(raw); }
+    catch { excluded.invalid++; continue; }
+    if (seen.has(report.report_id)) { excluded.duplicate++; continue; }
+    seen.add(report.report_id);
+    const timestamp = Date.parse(report.timestamp_utc);
+    if (timestamp > now.getTime() + 5 * 60000) { excluded.future++; continue; }
+    if (timestamp < earliest) { excluded.outside_window++; continue; }
+    if (!options.includeVpn && report.environment?.suspected_vpn_or_tunnel) { excluded.tunnel++; continue; }
+    reports.push(report);
   }
+  reports.sort((a, b) => a.timestamp_utc.localeCompare(b.timestamp_utc) || a.report_id.localeCompare(b.report_id));
 
   const domains = new Map();
   const providers = new Map();
@@ -28,7 +35,7 @@ export function aggregateReports(inputReports) {
     incrementDomain(domains, report);
     incrementDomainDetails(domainDetails, report);
     incrementGroup(providers, providerKey(report), report);
-    incrementGroup(regions, report.region, report);
+    incrementGroup(regions, `${report.country}/${report.region}`, report);
     incrementGroup(days, reportDay(report.timestamp_utc), report);
     incrementGroup(categories, report.diagnosis.category, report);
   }
@@ -36,7 +43,10 @@ export function aggregateReports(inputReports) {
   const domainGroups = sortedGroups(domains).map((group) => enrichDomainGroup(group, domainDetails.get(group.key)));
 
   return {
-    generated_at: new Date().toISOString(),
+    generated_at: now.toISOString(),
+    window_hours: windowHours,
+    window_start: Number.isFinite(earliest) ? new Date(earliest).toISOString() : null,
+    excluded,
     total_reports: reports.length,
     total_targets: domains.size,
     degraded_targets: Array.from(domains.values()).filter((group) => group.degraded > group.ok).length,
@@ -57,23 +67,8 @@ export function aggregateReports(inputReports) {
   };
 }
 
-export function domainAggregate(inputReports, target) {
-  const reports = [];
-  for (const report of inputReports) {
-    try {
-      const sanitized = sanitizeReport(report);
-      if (validateReport(sanitized).valid && sanitized.target === target) {
-        reports.push(sanitized);
-      }
-    } catch {
-      // Invalid external input should not break aggregation.
-    }
-  }
-  const aggregate = aggregateReports(reports);
-  return {
-    target,
-    ...aggregate
-  };
+export function domainAggregate(inputReports, target, options = {}) {
+  return { target, ...aggregateReports(inputReports.filter(report => report?.target === target), options) };
 }
 
 function incrementDomain(domains, report) {
@@ -91,7 +86,7 @@ function incrementDomainDetails(map, report) {
   }
   const detail = map.get(report.target);
   incrementGroup(detail.providers, providerKey(report), report);
-  incrementGroup(detail.regions, report.region, report);
+  incrementGroup(detail.regions, `${report.country}/${report.region}`, report);
   incrementGroup(detail.days, reportDay(report.timestamp_utc), report);
   detail.reports.push(report);
 }
@@ -104,6 +99,7 @@ function incrementGroup(map, key, report) {
       total: 0,
       ok: 0,
       degraded: 0,
+      unknown: 0,
       categories: {},
       last_seen: null
     });
@@ -112,6 +108,8 @@ function incrementGroup(map, key, report) {
   group.total += 1;
   if (report.diagnosis.category === "ok") {
     group.ok += 1;
+  } else if (["measurement_error", "insufficient_data"].includes(report.diagnosis.category)) {
+    group.unknown += 1;
   } else {
     group.degraded += 1;
   }
@@ -147,7 +145,7 @@ function enrichDomainGroup(group, detail) {
 function sortedGroups(map, sortKey = "total", order = "desc") {
   const values = Array.from(map.values()).map((group) => ({
     ...group,
-    status: group.degraded > group.ok ? "degraded" : "ok",
+    status: group.ok + group.degraded === 0 ? "unknown" : group.degraded > group.ok ? "degraded" : group.ok > group.degraded ? "ok" : "unknown",
     degraded_ratio: group.total ? Number((group.degraded / group.total).toFixed(3)) : 0,
     credibility: credibilityFor(group.total),
     weather: weatherFor(group)
@@ -187,6 +185,9 @@ function weatherSummary(domains) {
 }
 
 function weatherFor(group) {
+  if (group.ok + group.degraded === 0 || (group.total > 1 && group.ok === group.degraded)) {
+    return { status: "weak_signal", label_ru: "Нет решающего сигнала", label: "Inconclusive", note_ru: "Ошибки измерения и неполные проверки не считаются деградацией сервиса.", note: "Incomplete checks and measurement errors are not service failures." };
+  }
   if (group.total <= 1) {
     return {
       status: "reports_needed",
@@ -196,7 +197,7 @@ function weatherFor(group) {
       note: "One report is useful for triage, but does not confirm a network pattern."
     };
   }
-  if (group.degraded > group.ok && group.total >= 3) {
+  if (group.degraded >= 3 && group.degraded > group.ok + group.unknown) {
     return {
       status: "incident_candidate",
       label_ru: "Кандидат на инцидент",
@@ -214,7 +215,7 @@ function weatherFor(group) {
       note: "Degradation symptoms exist, but the sample is still small."
     };
   }
-  if (group.total < 3) {
+  if (group.total < 3 || group.ok <= group.degraded + group.unknown) {
     return {
       status: "weak_signal",
       label_ru: "Слабый сигнал",
@@ -248,6 +249,7 @@ function publicReportSummary(report) {
     provider: report.network.provider,
     asn: report.network.asn,
     connection_type: report.network.connection_type,
+    environment: report.environment || { suspected_vpn_or_tunnel: false },
     credibility: credibilityFor(1),
     diagnosis: {
       ...report.diagnosis,
@@ -262,8 +264,10 @@ function overallStatus(reports) {
   if (reports.length === 0) {
     return "no_data";
   }
-  const degraded = reports.filter((report) => report.diagnosis.category !== "ok").length;
-  return degraded > reports.length / 2 ? "degraded" : "mostly_ok";
+  const decisive = reports.filter(report => !["measurement_error", "insufficient_data"].includes(report.diagnosis.category));
+  const degraded = decisive.filter(report => report.diagnosis.category !== "ok").length;
+  if (!decisive.length || degraded * 2 === decisive.length) return "unknown";
+  return degraded > decisive.length / 2 ? "degraded" : "mostly_ok";
 }
 
 function datasetQuality(reports) {
@@ -272,8 +276,8 @@ function datasetQuality(reports) {
       level: "no_data",
       label_ru: "Нет данных",
       label: "No data",
-      note_ru: "Dashboard покажет демо, пока нет публичных отчётов.",
-      note: "Dashboard shows demo data until public reports arrive."
+      note_ru: "Нет измерений в выбранном окне. Демо включается только явно.",
+      note: "No measurements in the selected window. Demo requires explicit opt-in."
     };
   }
   if (reports.length < 30) {
@@ -289,8 +293,8 @@ function datasetQuality(reports) {
     level: "community",
     label_ru: "Community dataset",
     label: "Community dataset",
-    note_ru: "Есть достаточный объём отчётов для осторожного сравнения провайдеров, регионов и целей.",
-    note: "Enough reports exist for cautious provider, region, and target comparisons."
+    note_ru: "Объём отчётов не доказывает независимость источников; это не SLA и не статистика пользователей.",
+    note: "Report count does not prove independent sources; this is not an SLA or a user population estimate."
   };
 }
 
@@ -319,8 +323,8 @@ function credibilityFor(total) {
     return {
       score: 0.7,
       level: "medium",
-      label_ru: "Средняя уверенность",
-      label: "Medium confidence",
+      label_ru: "Больше измерений",
+      label: "More measurements",
       note_ru: "Можно сравнивать осторожно, но контекст всё ещё важен.",
       note: "Cautious comparison is possible, but context still matters."
     };
@@ -328,9 +332,9 @@ function credibilityFor(total) {
   return {
     score: 0.9,
     level: "higher",
-    label_ru: "Больше подтверждений",
-    label: "More corroborated",
-    note_ru: "Есть несколько подтверждений, но это всё ещё community evidence.",
-    note: "Several corroborating reports exist, still community evidence."
+    label_ru: "Большая выборка",
+    label: "Larger sample",
+    note_ru: "Это объём выборки, не вероятность и не подтверждение независимости источников.",
+    note: "Sample volume, not a probability or proof of independent reporters."
   };
 }

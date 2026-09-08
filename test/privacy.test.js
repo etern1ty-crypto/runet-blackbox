@@ -15,7 +15,7 @@ const baseReport = {
     connection_type: "home"
   },
   environment: {
-    suspected_vpn_or_tunnel: "yes",
+    suspected_vpn_or_tunnel: true,
     interface_name: "tun0"
   },
   results: {
@@ -29,7 +29,7 @@ const baseReport = {
       status: "ok",
       body: "private",
       headers: { "set-cookie": "secret" },
-      body_sha256: "hash",
+      body_sha256: "a".repeat(64),
       latency_ms: 20.3
     }
   },
@@ -108,7 +108,7 @@ test("sanitizeReport removes raw DNS answers", () => {
 });
 
 test("sanitizeReport preserves safe body hash", () => {
-  assert.equal(sanitizeReport(baseReport).results.http.body_sha256, "hash");
+  assert.equal(sanitizeReport(baseReport).results.http.body_sha256, "a".repeat(64));
 });
 
 test("sanitizeReport clamps confidence", () => {

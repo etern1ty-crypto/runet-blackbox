@@ -1,10 +1,11 @@
+import { roundTimestampUtc } from "../../src/time.js";
 import { TOOL_VERSION } from "../../src/constants.js";
 
 export function buildReportBundle({ pack, reports, environment }) {
   return {
     bundle_schema_version: "1.0",
     tool_version: TOOL_VERSION,
-    generated_at: new Date().toISOString(),
+    generated_at: roundTimestampUtc(new Date().toISOString()),
     pack: {
       name: pack.name,
       label_ru: pack.label_ru,

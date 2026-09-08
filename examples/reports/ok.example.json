@@ -1,7 +1,6 @@
 {
-  "report_id": "rbb_f398bd2be658ead1ae2a",
-  "schema_version": "1.0",
-  "tool_version": "0.3.0",
+  "schema_version": "1.1",
+  "tool_version": "0.4.0",
   "timestamp_utc": "2026-04-27T12:00:00.000Z",
   "target": "example.com",
   "country": "RU",
@@ -38,8 +37,8 @@
       "latency_ms": 120,
       "status_code": 200,
       "content_length": 1256,
-      "body_sha256": "sample",
-      "headers_hash": "sample"
+      "body_sha256": "13ba91c058d5b137c136f57a0ac5990dd94bcb5d38f699e7b39522b8133c1e5c",
+      "headers_hash": "3a47e9d79d0e798a5dc6d2c9d2965e9db87b7a5e0006ec32ac799cb094a9646c"
     }
   },
   "diagnosis": {

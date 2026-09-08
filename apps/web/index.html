@@ -1,191 +1,79 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Runet Blackbox: privacy-first диагностика доступности сервисов в нестабильных сетях.">
-    <title>Runet Blackbox — диагностика доступности</title>
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <main class="shell">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Open network observability</p>
-          <h1>Понять, где ломается доступ</h1>
-          <p class="lead">
-            Runet Blackbox собирает безопасные отчёты о DNS, TCP, TLS и HTTP, чтобы отличать локальный сбой,
-            деградацию провайдера, возможную блокировку и глобальную проблему сервиса.
-          </p>
-          <p class="lead-en">
-            English: privacy-first network measurement for unstable networks. Not a VPN, not a proxy, not a bypass tool.
-          </p>
-          <div class="actions">
-            <a class="button primary" href="https://github.com/etern1ty-crypto/runet-blackbox/issues/new?template=measurement-report.yml">Отправить отчёт</a>
-            <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox">GitHub / README</a>
-            <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox/blob/main/docs/first-50-reports.md">First 50 Reports</a>
-            <a class="button secondary" href="https://github.com/etern1ty-crypto/runet-blackbox/blob/main/docs/data-trust-model.md">Trust model</a>
-          </div>
-        </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Runet Blackbox: preflight и диагностика публичных зависимостей из вашей сети.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Runet Blackbox · Dependency preflight</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#targets-panel">К результатам</a>
+  <main class="shell">
+    <header class="masthead"><a class="brand" href="./">Runet Blackbox<span>0.4</span></a><nav aria-label="Навигация"><a href="?demo=1">Демо</a><a href="docs/CLI.md">CLI</a><a href="https://github.com/etern1ty-crypto/runet-blackbox">GitHub ↗</a></nav></header>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Public dependency preflight</p>
+        <h1>Сбой сборки.<br>Или сбой сети?</h1>
+        <p class="lead">Проверьте путь до сервисов разработки из CI-runner’а или сети команды. DNS, TCP, TLS и HTTP — в одном отчёте, без агента в облаке.</p>
+        <p class="lead-en" lang="en">Evidence from your network. Not another global uptime score.</p>
+        <div class="actions"><a class="button primary" href="docs/CONFIGURATION.md">Настроить проверку</a><a class="button secondary" href="?demo=1">Посмотреть демо</a></div>
+      </div>
+      <aside class="terminal" aria-label="Пример команды">
+        <div class="terminal-bar">LOCAL → CI → SUPPORT</div>
+        <pre><code>node cli/bin/runet-blackbox.js \
+  preflight \
+  --config config.example.json \
+  --json \
+  --output out/preflight.json \
+  --junit out/preflight.xml
 
-        <aside class="terminal" aria-label="Quickstart command">
-          <div class="terminal-bar">
-            <span></span><span></span><span></span>
-            <strong>60 секунд / quickstart</strong>
-          </div>
-          <pre><code>npx runet-blackbox doctor
-npx runet-blackbox check github.com \
-  --region Moscow \
-  --provider Rostelecom \
-  --issue-url
-
-# pack отчёт: лучше issue-file
-npx runet-blackbox check --pack dev \
-  --region Moscow \
-  --provider Rostelecom \
-  --issue-file dev.issue.md</code></pre>
-        </aside>
-      </section>
-
-      <section class="trust-grid" aria-label="Safety boundaries">
-        <article>
-          <strong>Не VPN</strong>
-          <span>Не проксирует трафик и не помогает обходить ограничения.</span>
-        </article>
-        <article>
-          <strong>Без сервера</strong>
-          <span>Работает через локальный CLI, GitHub Issues и статический dashboard без собственного сервера.</span>
-        </article>
-        <article>
-          <strong>Privacy-first</strong>
-          <span>Не публикует IP пользователя, headers, cookies, bodies, packet captures и точную геолокацию.</span>
-        </article>
-        <article>
-          <strong>English-friendly</strong>
-          <span>Core docs and UI keep concise English context for international contributors.</span>
-        </article>
-      </section>
-
-      <section class="stats">
-        <article><strong id="total-reports">0</strong><span>отчётов / reports</span></article>
-        <article><strong id="total-targets">0</strong><span>целей / targets</span></article>
-        <article><strong id="degraded-targets">0</strong><span>incident candidates</span></article>
-      </section>
-      <p id="data-mode" class="mode-banner"></p>
-      <p id="generated-at" class="muted generated"></p>
-
-      <section class="weather-grid" aria-label="Network Weather">
-        <article><span>Mostly OK</span><strong id="weather-ok">0</strong></article>
-        <article><span>Weak signals</span><strong id="weather-weak">0</strong></article>
-        <article><span>Reports needed</span><strong id="weather-needed">0</strong></article>
-        <article><span>Incident candidates</span><strong id="weather-incidents">0</strong></article>
-      </section>
-
-      <section class="how">
-        <div>
-          <p class="eyebrow">Как пользоваться</p>
-          <h2>Один запуск, один очищенный JSON, один GitHub issue</h2>
-        </div>
-        <div class="steps">
-          <article><b>1</b><span>Запусти одну цель или pack: <code>--pack dev</code>, <code>--pack ai</code>, <code>--pack baseline</code>.</span></article>
-          <article><b>2</b><span>Для одной цели используй <code>--issue-url</code>: CLI даст ссылку на prefilled GitHub issue.</span></article>
-          <article><b>3</b><span>Для pack-отчёта используй <code>--issue-file</code> или <code>--copy-issue</code>, чтобы не упереться в лимит длины URL.</span></article>
-          <article><b>4</b><span>GitHub Actions повторно санитизирует отчёт и обновит агрегаты dashboard.</span></article>
-        </div>
-      </section>
-
-      <section class="panel panel-strong">
-        <div class="panel-head">
-          <div>
-            <p class="eyebrow">Live aggregates</p>
-            <h2>Цели / Targets</h2>
-          </div>
-          <input id="search" type="search" placeholder="Поиск: домен, провайдер, регион">
-        </div>
-        <div class="filters" aria-label="Dashboard filters">
-          <label>
-            Weather
-            <select id="weather-filter">
-              <option value="">Все статусы</option>
-            </select>
-          </label>
-          <label>
-            Diagnosis
-            <select id="category-filter">
-              <option value="">Все диагнозы</option>
-            </select>
-          </label>
-          <label>
-            Provider
-            <select id="provider-filter">
-              <option value="">Все провайдеры</option>
-            </select>
-          </label>
-          <label>
-            Region
-            <select id="region-filter">
-              <option value="">Все регионы</option>
-            </select>
-          </label>
-        </div>
-        <div id="targets" class="table"></div>
-      </section>
-
-      <section class="grid">
-        <article class="panel panel-strong">
-          <div class="panel-head compact">
-            <div>
-              <p class="eyebrow">Target detail</p>
-              <h2 id="target-detail-title">Цель не выбрана</h2>
-            </div>
-            <a id="target-card" class="button secondary small" href="data/aggregates/cards/overview.svg">SVG card</a>
-          </div>
-          <div id="target-detail" class="target-detail"></div>
-        </article>
-        <article class="panel panel-strong">
-          <p class="eyebrow">Timeline</p>
-          <h2>Динамика отчётов</h2>
-          <div id="timeline" class="timeline"></div>
-        </article>
-      </section>
-
-      <section class="grid">
-        <article class="panel">
-          <h2>Провайдеры / Providers</h2>
-          <div id="providers" class="list"></div>
-        </article>
-        <article class="panel">
-          <h2>Регионы / Regions</h2>
-          <div id="regions" class="list"></div>
-        </article>
-      </section>
-
-      <section class="grid">
-        <article class="panel">
-          <h2>Диагнозы / Diagnosis</h2>
-          <div id="categories" class="list"></div>
-        </article>
-        <article class="panel">
-          <h2>Что это не делает</h2>
-          <div class="not-a-tool">
-            <p>Не обходит блокировки.</p>
-            <p>Не хранит сырые ответы сайтов.</p>
-            <p>Не собирает точную геолокацию.</p>
-            <p>Не заменяет юридическую или научную аттестацию измерений.</p>
-          </div>
-        </article>
-      </section>
-
-      <section class="panel panel-strong">
-        <h2>Последние отчёты / Latest reports</h2>
-        <div id="latest" class="table"></div>
-      </section>
-
-      <footer>
-        <span>Runet Blackbox — открытая диагностика нестабильных сетей.</span>
-        <span>Open network observability for unstable networks.</span>
-      </footer>
-    </main>
-    <script type="module" src="app.js"></script>
-  </body>
+# 0 — проверки прошли
+# 2 — требуется разбор
+# Ни один отчёт не отправляется автоматически.</code></pre>
+      </aside>
+    </section>
+    <section class="trust-grid" aria-label="Границы продукта">
+      <article><strong>Локально</strong><span>Без аккаунта, сервера и runtime-зависимостей.</span></article>
+      <article><strong>Проверяемо</strong><span>Сигнал по слоям, а не догадка о виновнике.</span></article>
+      <article><strong>Минимум данных</strong><span>Без сырых DNS-ответов, headers и содержимого страниц.</span></article>
+      <article><strong>Для CI</strong><span>Коды выхода, JSON, JUnit и Prometheus textfile.</span></article>
+    </section>
+    <section class="stats" aria-label="Сводка выбранного окна">
+      <article><strong id="total-reports">0</strong><span>измерений в окне</span></article>
+      <article><strong id="total-targets">0</strong><span>публичных целей</span></article>
+      <article><strong id="degraded-targets">0</strong><span>кандидатов на инцидент</span></article>
+    </section>
+    <p id="data-mode" class="mode-banner" role="status" aria-live="polite">Загрузка данных…</p>
+    <p id="generated-at" class="muted generated"></p>
+    <section class="weather-grid" aria-label="Классификация сигналов">
+      <article><span>В основном OK</span><strong id="weather-ok">0</strong></article>
+      <article><span>Слабый сигнал</span><strong id="weather-weak">0</strong></article>
+      <article><span>Нужен повтор</span><strong id="weather-needed">0</strong></article>
+      <article><span>Кандидат на инцидент</span><strong id="weather-incidents">0</strong></article>
+    </section>
+    <section class="panel" id="targets-panel">
+      <div class="panel-head"><div><p class="eyebrow">Диагностика, не SLA</p><h2>Зависимости</h2></div><label class="search-label">Поиск<input id="search" type="search" placeholder="Домен, сеть или регион"></label></div>
+      <div class="filters" aria-label="Фильтры целей и последних отчётов">
+        <label>Сигнал<select id="weather-filter"><option value="">Все статусы</option></select></label>
+        <label>Диагноз<select id="category-filter"><option value="">Все диагнозы</option></select></label>
+        <label>Провайдер<select id="provider-filter"><option value="">Все провайдеры</option></select></label>
+        <label>Регион<select id="region-filter"><option value="">Все регионы</option></select></label>
+      </div>
+      <p class="muted">Фильтры выбирают цели и последние отчёты. Общая сводка и доли по цели относятся ко всему окну; это не совместный срез фильтров.</p>
+      <div id="targets" class="table"></div>
+    </section>
+    <section class="grid">
+      <article class="panel"><div class="panel-head"><div><p class="eyebrow">Детали</p><h2 id="target-detail-title">Цель не выбрана</h2></div><a id="target-card" class="button secondary" href="data/aggregates/cards/overview.svg">SVG</a></div><div id="target-detail" class="target-detail"></div></article>
+      <article class="panel"><p class="eyebrow">Окно измерений</p><h2>По дням</h2><p class="muted">Успех / деградация / неизвестно. Количество справа — все измерения дня.</p><div id="timeline" class="timeline"></div></article>
+    </section>
+    <section class="grid"><article class="panel"><h2>Провайдеры</h2><div id="providers" class="list"></div></article><article class="panel"><h2>Регионы</h2><div id="regions" class="list"></div></article></section>
+    <section class="grid"><article class="panel"><h2>Диагнозы</h2><div id="categories" class="list"></div></article><article class="panel"><h2>Что означает результат</h2><div class="not-a-tool"><p>Один адрес, одна сеть, один момент времени. Не полная проверка приложения или загрузки пакетов.</p><p>Количество отчётов не подтверждает независимость источников. Это не доказательство блокировки и не SLA.</p><p>VPN-помеченные отчёты исключены из сводки по умолчанию. Пустое окно не заменяется демо.</p></div></article></section>
+    <section class="panel"><h2>Последние отчёты</h2><div id="latest" class="table"></div></section>
+    <footer><span>Runet Blackbox · Локальные свидетельства, осторожные выводы.</span><a href="docs/PRIVACY.md">Приватность и ограничения</a></footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
 </html>

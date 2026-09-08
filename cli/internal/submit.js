@@ -40,12 +40,13 @@ export function issueUrlFits(url, limit = ISSUE_URL_LENGTH_LIMIT) {
   return Buffer.byteLength(url, "utf8") <= limit;
 }
 
-export async function copyIssueBody(text, platform = process.platform) {
+export async function copyIssueBody(text, platform = process.platform, options = {}) {
   for (const command of clipboardCommands(platform)) {
     try {
-      await writeToCommand(command.file, command.args, text);
+      await writeToCommand(command.file, command.args, text, options);
       return true;
     } catch {
+      if (options.signal?.aborted) return false;
       // Try the next platform clipboard provider.
     }
   }
@@ -70,12 +71,25 @@ export function clipboardCommandLabels(platform = process.platform) {
   return clipboardCommands(platform).map((command) => [command.file, ...command.args].join(" "));
 }
 
-function writeToCommand(file, args, text) {
+export function writeToCommand(file, args, text, options = {}) {
   return new Promise((resolve, reject) => {
+    let settled = false;
     const child = spawn(file, args, { stdio: ["pipe", "ignore", "ignore"], windowsHide: true });
-    child.once("error", reject);
-    child.once("close", (code) => (code === 0 ? resolve() : reject(new Error(`${file} exited with ${code}`))));
-    child.stdin.end(text);
+    const finish = error => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      options.signal?.removeEventListener("abort", aborted);
+      child.stdin?.destroy();
+      if (error) { child.kill("SIGKILL"); reject(error); } else resolve();
+    };
+    const aborted = () => finish(new Error("clipboard cancelled"));
+    const timer = setTimeout(() => finish(new Error("clipboard timed out")), options.timeoutMs ?? 2000);
+    options.signal?.addEventListener("abort", aborted, { once: true });
+    child.once("error", finish);
+    child.once("close", code => finish(code === 0 ? null : new Error("clipboard unavailable")));
+    child.stdin.once("error", finish);
+    if (options.signal?.aborted) aborted(); else child.stdin.end(text);
   });
 }
 

@@ -73,11 +73,9 @@ test("parseCheckArgs parses dns comparison resolvers", () => {
   ]);
 });
 
-test("parseCheckArgs deduplicates and caps dns comparison resolvers", () => {
-  assert.deepEqual(
-    parseCheckArgs(["github.com", "--compare-dns", "8.8.8.8", "--compare-dns", "8.8.8.8", "--compare-dns", "1.1.1.1", "--compare-dns", "9.9.9.9", "--compare-dns", "76.76.2.0"]).dnsCompareServers,
-    ["8.8.8.8", "1.1.1.1", "9.9.9.9"]
-  );
+test("parseCheckArgs deduplicates resolvers and rejects silent truncation", () => {
+  assert.deepEqual(parseCheckArgs(["github.com", "--compare-dns", "8.8.8.8", "--compare-dns", "8.8.8.8"]).dnsCompareServers, ["8.8.8.8"]);
+  assert.throws(() => parseCheckArgs(["github.com", "--compare-dns", "8.8.8.8", "--compare-dns", "1.1.1.1", "--compare-dns", "9.9.9.9", "--compare-dns", "76.76.2.0"]), /at most three/);
 });
 
 test("parseCheckArgs parses output short option", () => {

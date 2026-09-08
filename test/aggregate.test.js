@@ -1,13 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import { aggregateReports, domainAggregate } from "../src/aggregate.js";
+import { aggregateReports as aggregateWindow, domainAggregate as domainWindow } from "../src/aggregate.js";
+
+const window = { now: new Date("2026-04-29T00:00:00Z"), windowHours: 168 };
+const aggregateReports = reports => aggregateWindow(reports, window);
+const domainAggregate = (reports, target) => domainWindow(reports, target, window);
 
 const fixture = JSON.parse(await fs.readFile(new URL("./fixtures/valid-report.json", import.meta.url), "utf8"));
 
 function makeReport({ target = "github.com", category = "ok", region = "Moscow", provider = "Rostelecom", asn = 12389, ts = "2026-04-27T12:00:00.000Z" } = {}) {
+  const results = structuredClone(fixture.results);
+  if (category === "tls_timeout") results.tls.status = "timeout";
+  if (category === "dns_timeout") results.dns.status = "timeout";
+  if (category === "tcp_timeout") results.tcp_443.status = "timeout";
+  if (category === "http_blockpage_suspected") results.http.status = "blockpage_suspected";
   return {
     ...structuredClone(fixture),
+    results,
     timestamp_utc: ts,
     target,
     region,
@@ -24,8 +34,8 @@ function makeReport({ target = "github.com", category = "ok", region = "Moscow",
   };
 }
 
-test("aggregateReports counts total reports", () => {
-  assert.equal(aggregateReports([makeReport(), makeReport()]).total_reports, 2);
+test("aggregateReports collapses exact duplicates", () => {
+  assert.equal(aggregateReports([makeReport(), makeReport()]).total_reports, 1);
 });
 
 test("aggregateReports counts unique targets", () => {
@@ -67,7 +77,7 @@ test("aggregateReports groups providers with ASN", () => {
 
 test("aggregateReports groups regions", () => {
   const aggregate = aggregateReports([makeReport({ region: "Kazan" })]);
-  assert.equal(aggregate.regions[0].key, "Kazan");
+  assert.equal(aggregate.regions[0].key, "RU/Kazan");
 });
 
 test("aggregateReports groups days", () => {
